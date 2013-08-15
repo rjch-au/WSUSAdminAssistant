@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
@@ -15,58 +17,188 @@ namespace WSUSAdminAssistant
     {
         public clsConfig()
         {
-            // Set application in registry.  This has the effect of creating the registry key should it not already exist
-            Registry.SetValue(regKey, "Application", "WSUS Administration Assistant", RegistryValueKind.String);
+            // Open the configuration storage registry
+            reg = Registry.CurrentUser.OpenSubKey(regPath);
+
+            if (reg == null)
+                // If the registry key doesn't already exist, create it.
+                reg = Registry.CurrentUser.CreateSubKey(regPath);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Useful private variables
-        private string regKey = @"HKEY_CURRENT_USER\Software\WSUSAdminAssistant";
+        private string regPath = @"Software\\WSUSAdminAssistant";
+        private RegistryKey reg;
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // WSUS Configuration methods
         public string WSUSServer
         {
-            get { return (string)Registry.GetValue(regKey, "WSUSServer", (string)"localhost"); }
-            set { Registry.SetValue(regKey, "WSUSServer", value, RegistryValueKind.String); }
+            get 
+            {
+                object o = reg.GetValue("WSUSServer");
+
+                if (o == null)
+                {
+                    return "localhost";
+                }
+                else
+                {
+                    return (string)o;
+                }
+            }
+
+            set { reg.SetValue("WSUSServer", value, RegistryValueKind.String); }
         }
 
         public bool WSUSSecureConnection
         {
-            get { return Convert.ToBoolean((int)Registry.GetValue(regKey, "WSUSSecureConnection", Convert.ToInt32(false))); }
-            set { Registry.SetValue(regKey, "WSUSSecureConnection", Convert.ToInt32(value), RegistryValueKind.DWord); }
+            get
+            {
+                object o = reg.GetValue("WSUSSecureConnection");
+
+                if (o == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return Convert.ToBoolean((int)reg.GetValue("WSUSSecureConnection"));
+                }
+            }
+
+            set { reg.SetValue("WSUSSecureConnection", Convert.ToInt32(value), RegistryValueKind.DWord); }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Database Configuration methods
         public string DBServer
         {
-            get { return (string)Registry.GetValue(regKey, "DBServer", "localhost"); }
-            set { Registry.SetValue(regKey, "DBServer", value, RegistryValueKind.String); }
+           get 
+            {
+                object o = reg.GetValue("DBServer");
+
+                if (o == null)
+                {
+                    return "localhost";
+                }
+                else
+                {
+                    return (string)o;
+                }
+            }
+
+            set { reg.SetValue("DBServer", value, RegistryValueKind.String); }
         }
 
         public string DBDatabase
         {
-            get { return (string)Registry.GetValue(regKey, "DBDatabase", "SUSDB"); }
-            set { Registry.SetValue(regKey, "DBDatabase", value, RegistryValueKind.String); }
+            get
+            {
+                object o = reg.GetValue("DBDatabase");
+
+                if (o == null)
+                {
+                    return "SUSDB";
+                }
+                else
+                {
+                    return (string)o;
+                }
+            }
+
+            set { reg.SetValue("DBDatabase", value, RegistryValueKind.String); }
         }
 
         public bool DBIntegratedAuth
         {
-            get { return Convert.ToBoolean((int)Registry.GetValue(regKey, "DBIntegratedAuth", Convert.ToInt32(true))); }
-            set { Registry.SetValue(regKey, "DBIntegratedAuth", Convert.ToInt32(value), RegistryValueKind.DWord); }
+            get
+            {
+                object o = reg.GetValue("DBIntegratedAuth");
+
+                if (o == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return Convert.ToBoolean((int)reg.GetValue("WSUSSecureConnection"));
+                }
+            }
+
+            set { reg.SetValue("DBIntegratedAuth", Convert.ToInt32(value), RegistryValueKind.DWord); }
         }
 
         public string DBUsername
         {
-            get { return (string)Registry.GetValue(regKey, "DBUsername", ""); }
-            set { Registry.SetValue(regKey, "DBUsername", value, RegistryValueKind.String); }
+            get
+            {
+                object o = reg.GetValue("DBUsername");
+
+                if (o == null)
+                {
+                    return "";
+                }
+                else
+                {
+                    return (string)o;
+                }
+            }
+
+            set { reg.SetValue("DBUsername", value, RegistryValueKind.String); }
         }
 
         public string DBPassword
         {
-            get { return (string)Registry.GetValue(regKey, "DBPassword", ""); }
-            set { Registry.SetValue(regKey, "DBPassword", value, RegistryValueKind.String); }
+            get
+            {
+                // Try to retreive and decrypt encyrpted password
+                string pwd;
+                object o = (string)reg.GetValue("DBPasswordEncrpted");
+
+                if (o != null)
+                {
+                    // Try to decrypt password
+                    try
+                    {
+                        pwd = Decrypt((string)o, "dbpwd");
+                    }
+                    catch
+                    {
+                        // Decryption failed, return empty password
+                        pwd = "";
+                    }
+                }
+                else
+                {
+                    // If retrieving the encrypted password fails, try to use the old unencrypted password
+                    pwd = (string)reg.GetValue("DBPassword");
+
+                    if (pwd == null)
+                    {
+                        // Unencrypted password not available - use default
+                        pwd = "";
+                    }
+                    else
+                    {
+                        // Encrypt password, save to registry and delete old key
+                        try
+                        {
+                            reg.SetValue("DBPasswordEncrypted", Encrypt(pwd, "dbpwd"), RegistryValueKind.String);
+                            reg.DeleteValue("DBPassword");
+                        }
+                        catch (Exception e)
+                        {
+                            // Converting password failed, do not delete old key
+                            Console.WriteLine("Failed to encrypt password: " + e.Message);
+                        }
+                    }
+                }
+
+                return pwd;
+            }
+
+            set { reg.SetValue("DBPasswordEncyrpted", Encrypt(value, "dbpwd"), RegistryValueKind.String); }
         }
 
         public string SQLConnectionString()
@@ -81,34 +213,180 @@ namespace WSUSAdminAssistant
         // UI Settings methods
         public System.Drawing.Point WindowLocation
         {
-            get { return new System.Drawing.Point((int)Registry.GetValue(regKey, "WindowLocationX", 0),(int)Registry.GetValue(regKey, "WindowLocationY", 0)); }
+            get
+            {
+                object x = reg.GetValue("WindowLocationX");
+                object y = reg.GetValue("WindowLocationY");
+
+                if (x == null || y == null)
+                {
+                    return new System.Drawing.Point(0, 0);
+                }
+                else
+                {
+                    return new System.Drawing.Point((int)x, (int)y);
+                }
+            }
+
             set
             {
-                Registry.SetValue(regKey, "WindowLocationX", value.X, RegistryValueKind.DWord);
-                Registry.SetValue(regKey, "WindowLocationY", value.Y, RegistryValueKind.DWord);
+                reg.SetValue("WindowLocationX", value.X, RegistryValueKind.DWord);
+                reg.SetValue("WindowLocationY", value.Y, RegistryValueKind.DWord);
             }
         }
 
         public System.Drawing.Size WindowSize
         {
-            get { return new System.Drawing.Size((int)Registry.GetValue(regKey, "WindowSizeWidth", 640), (int)Registry.GetValue(regKey, "WindowSizeWidth", 480)); }
+            get
+            {
+                object x = reg.GetValue("WindowLocationX");
+                object y = reg.GetValue("WindowLocationY");
+
+                if (x == null || y == null)
+                {
+                    return new System.Drawing.Size(0, 0);
+                }
+                else
+                {
+                    return new System.Drawing.Size((int)x, (int)y);
+                }
+            }
+
             set
             {
-                Registry.SetValue(regKey, "WindowSizeWidth", value.Width, RegistryValueKind.DWord);
-                Registry.SetValue(regKey, "WindowSizeHeight", value.Height, RegistryValueKind.DWord);
+                reg.SetValue("WindowSizeWidth", value.Width, RegistryValueKind.DWord);
+                reg.SetValue("WindowSizeHeight", value.Height, RegistryValueKind.DWord);
             }
         }
 
         public string WindowState
         {
-            get { return (string)Registry.GetValue(regKey, "WindowState", ""); }
-            set { Registry.SetValue(regKey, "WindowState", value, RegistryValueKind.String); }
+            get
+            {
+                object o = reg.GetValue("WindowState");
+
+                if (o == null)
+                {
+                    return "";
+                }
+                else
+                {
+                    return (string)o;
+                }
+            }
+
+            set { reg.SetValue("WindowState", value, RegistryValueKind.String); }
         }
 
         public int EndpointSelections
         {
-            get { return (int)Registry.GetValue(regKey, "EndpointSelections", 255); }
-            set { Registry.SetValue(regKey, "EndpointSelections", value, RegistryValueKind.DWord); }
+            get
+            {
+                object o = reg.GetValue("DBUsername");
+
+                if (o == null)
+                {
+                    return 255;
+                }
+                else
+                {
+                    return (int)o;
+                }
+            }
+
+            set { reg.SetValue("EndpointSelections", value, RegistryValueKind.DWord); }
+        }
+
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // String encryption and decryption
+
+        // This constant string is used as a "salt" value for the PasswordDeriveBytes function calls.
+        // This size of the IV (in bytes) must = (keysize / 8).  Default keysize is 256, so the IV must be
+        // 32 bytes long.  Using a 16 character string here gives us 32 bytes when converted to a byte array.
+        private const string initVector = "WqFoWd5tnVSPjo37";
+
+        // This constant is used to determine the keysize of the encryption algorithm.
+        private const int keysize = 256;
+
+        private static string Encrypt(string plainText, string passPhrase)
+        {
+            byte[] initVectorBytes = Encoding.UTF8.GetBytes(initVector);
+            byte[] plainTextBytes = Encoding.UTF8.GetBytes(plainText);
+            PasswordDeriveBytes password = new PasswordDeriveBytes(passPhrase, null);
+            byte[] keyBytes = password.GetBytes(keysize / 8);
+            RijndaelManaged symmetricKey = new RijndaelManaged();
+            symmetricKey.Mode = CipherMode.CBC;
+            ICryptoTransform encryptor = symmetricKey.CreateEncryptor(keyBytes, initVectorBytes);
+            MemoryStream memoryStream = new MemoryStream();
+            CryptoStream cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
+            cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
+            cryptoStream.FlushFinalBlock();
+            byte[] cipherTextBytes = memoryStream.ToArray();
+            memoryStream.Close();
+            cryptoStream.Close();
+            return Convert.ToBase64String(cipherTextBytes);
+        }
+
+        private static string Decrypt(string cipherText, string passPhrase)
+        {
+            byte[] initVectorBytes = Encoding.ASCII.GetBytes(initVector);
+            byte[] cipherTextBytes = Convert.FromBase64String(cipherText);
+            PasswordDeriveBytes password = new PasswordDeriveBytes(passPhrase, null);
+            byte[] keyBytes = password.GetBytes(keysize / 8);
+            RijndaelManaged symmetricKey = new RijndaelManaged();
+            symmetricKey.Mode = CipherMode.CBC;
+            ICryptoTransform decryptor = symmetricKey.CreateDecryptor(keyBytes, initVectorBytes);
+            MemoryStream memoryStream = new MemoryStream(cipherTextBytes);
+            CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
+            byte[] plainTextBytes = new byte[cipherTextBytes.Length];
+            int decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
+            memoryStream.Close();
+            cryptoStream.Close();
+            return Encoding.UTF8.GetString(plainTextBytes, 0, decryptedByteCount);
+        }
+        
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Helper application methods
+
+        private string FindOnPath(string executable)
+        {
+            var pathvar = Environment.GetEnvironmentVariable("PATH");
+
+            foreach (var d in pathvar.Split(';'))
+            {
+                var fullpath = Path.Combine(d, executable);
+
+                FileInfo fi = new FileInfo(fullpath.ToString());
+                
+                if (fi.Exists)
+                    return fullpath;
+            }
+
+            // Not found - return nothing
+            return "";
+        }
+
+        public string PSExecPath
+        {
+            get
+            {
+                object o = reg.GetValue("DBUsername");
+                string path;
+
+                if (o == null)
+                {
+                    path = FindOnPath("psexec.exe");
+                }
+                else
+                {
+                    path = (string)o;
+                }
+
+                return path;
+            }
+
+            set { reg.SetValue("PSExecPath", value, RegistryValueKind.String); }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,9 +401,19 @@ namespace WSUSAdminAssistant
         {
             get
             {
-                string xmlpath = (string)Registry.GetValue(regKey, "SusIdXmlFile", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
-                xmlpath += "\\" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "\\DefaultSusIds.xml";
+                object o = reg.GetValue("SusIdXmlFile");
+                string xmlpath ;
 
+                if (o == null)
+                {
+                    xmlpath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                }
+                else
+                {
+                    xmlpath = (string)o;
+                }
+
+                xmlpath = Path.Combine(xmlpath, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "\\DefaultSusIds.xml");
 
                 // Check if XML file exists
                 if (File.Exists(xmlpath))
@@ -156,7 +444,7 @@ namespace WSUSAdminAssistant
                 }
             }
 
-            set { Registry.SetValue(regKey, "SusIdXmlFile", value, RegistryValueKind.String); }
+            set { reg.SetValue("SusIdXmlFile", value, RegistryValueKind.String); }
         }
 
         private void WriteSusIdXML(string[] s, string file)
@@ -279,8 +567,19 @@ namespace WSUSAdminAssistant
         {
             get
             {
-                string xmlpath = (string)Registry.GetValue(regKey, "ComputerRegExXMLFile", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
-                xmlpath += "\\" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "\\ComputerRegEx.xml";
+                object o = reg.GetValue("ComputerRegExXmlFile");
+                string xmlpath;
+
+                if (o == null)
+                {
+                    xmlpath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                }
+                else
+                {
+                    xmlpath = (string)o;
+                }
+
+                xmlpath = Path.Combine(xmlpath, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "\\ComputerRegEx.xml");
 
 
                 // Check if XML file exists
@@ -312,7 +611,7 @@ namespace WSUSAdminAssistant
                 }
             }
 
-            set { Registry.SetValue(regKey, "ComputerRegExXMLFile", value, RegistryValueKind.String); }
+            set { reg.SetValue("ComputerRegExXMLFile", value, RegistryValueKind.String); }
         }
 
         private void WriteComputerRegExXML(ComputerGroupRegexCollection c, string file)
@@ -359,6 +658,15 @@ namespace WSUSAdminAssistant
             }
 
             set { WriteComputerRegExXML(value, this.ComputerRegExXMLFile); }
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Security credential methods and classes
+
+        public class clsCredentials
+        {
+            public IPAddress ip;
+            public IPAddress netmask;
         }
     }
 }
