@@ -239,12 +239,12 @@ namespace WSUSAdminAssistant
         {
             get
             {
-                object x = reg.GetValue("WindowLocationX");
-                object y = reg.GetValue("WindowLocationY");
+                object x = reg.GetValue("WindowSizeWidth");
+                object y = reg.GetValue("WindowSizeHeight");
 
                 if (x == null || y == null)
                 {
-                    return new System.Drawing.Size(0, 0);
+                    return new System.Drawing.Size(800, 600);
                 }
                 else
                 {

@@ -77,7 +77,7 @@ namespace WSUSAdminAssistant
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Could not connect to SQL database", ex.Message, MessageBoxButtons.OK);
+                MessageBox.Show(ex.Message, "Could not connect to SQL database", MessageBoxButtons.OK);
                 return;
             }
 
@@ -88,7 +88,7 @@ namespace WSUSAdminAssistant
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Could not connect to WSUS server", ex.Message, MessageBoxButtons.OK);
+                MessageBox.Show(ex.Message, "Could not connect to WSUS server", MessageBoxButtons.OK);
                 return;
             }
 
