@@ -18,7 +18,7 @@ namespace WSUSAdminAssistant
         public clsConfig()
         {
             // Open the configuration storage registry
-            reg = Registry.CurrentUser.OpenSubKey(regPath);
+            reg = Registry.CurrentUser.OpenSubKey(regPath, true);
 
             if (reg == null)
                 // If the registry key doesn't already exist, create it.
