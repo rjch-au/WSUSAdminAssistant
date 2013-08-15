@@ -154,14 +154,14 @@ namespace WSUSAdminAssistant
             {
                 // Try to retreive and decrypt encyrpted password
                 string pwd;
-                object o = (string)reg.GetValue("DBPasswordEncrpted");
+                object o = reg.GetValue("DBPasswordEncrypted");
 
                 if (o != null)
                 {
                     // Try to decrypt password
                     try
                     {
-                        pwd = Decrypt((string)o, "dbpwd");
+                        pwd = Decrypt(o.ToString(), "dbpwd");
                     }
                     catch
                     {
@@ -198,7 +198,7 @@ namespace WSUSAdminAssistant
                 return pwd;
             }
 
-            set { reg.SetValue("DBPasswordEncyrpted", Encrypt(value, "dbpwd"), RegistryValueKind.String); }
+            set { reg.SetValue("DBPasswordEncrypted", Encrypt(value, "dbpwd"), RegistryValueKind.String); }
         }
 
         public string SQLConnectionString()
@@ -282,7 +282,7 @@ namespace WSUSAdminAssistant
         {
             get
             {
-                object o = reg.GetValue("DBUsername");
+                object o = reg.GetValue("EndpointSelections");
 
                 if (o == null)
                 {
@@ -290,7 +290,7 @@ namespace WSUSAdminAssistant
                 }
                 else
                 {
-                    return (int)o;
+                    return int.Parse(o.ToString());
                 }
             }
 
