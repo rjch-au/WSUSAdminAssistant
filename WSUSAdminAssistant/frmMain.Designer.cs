@@ -96,7 +96,11 @@
             this.lblSQLConnection = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.mnuOptions = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuWSUSServer = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuComputerGroupRules = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuDefaultSusIDList = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
+            this.mnuPreferences = new System.Windows.Forms.ToolStripMenuItem();
             this.picReloading = new System.Windows.Forms.PictureBox();
             this.tlmFilterUpdates = new System.Windows.Forms.ToolStripDropDownButton();
             this.tlsNoFilter = new System.Windows.Forms.ToolStripMenuItem();
@@ -149,8 +153,6 @@
             this.butDeclineSelected = new System.Windows.Forms.ToolStripButton();
             this.butSelectNone = new System.Windows.Forms.ToolStripButton();
             this.butSelectAll = new System.Windows.Forms.ToolStripButton();
-            this.mnuWSUSServer = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuDefaultSusIDList = new System.Windows.Forms.ToolStripMenuItem();
             this.gbxWorking.SuspendLayout();
             this.tabSuperceded.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grdSupercededUpdates)).BeginInit();
@@ -741,17 +743,48 @@
             this.mnuOptions.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuWSUSServer,
             this.mnuComputerGroupRules,
-            this.mnuDefaultSusIDList});
+            this.mnuDefaultSusIDList,
+            this.toolStripMenuItem4,
+            this.mnuPreferences});
             this.mnuOptions.Name = "mnuOptions";
             this.mnuOptions.Size = new System.Drawing.Size(61, 20);
             this.mnuOptions.Text = "&Options";
             // 
+            // mnuWSUSServer
+            // 
+            this.mnuWSUSServer.Name = "mnuWSUSServer";
+            this.mnuWSUSServer.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.W)));
+            this.mnuWSUSServer.Size = new System.Drawing.Size(236, 22);
+            this.mnuWSUSServer.Text = "&WSUS Server";
+            this.mnuWSUSServer.Click += new System.EventHandler(this.mnuWSUSServer_Click);
+            // 
             // mnuComputerGroupRules
             // 
             this.mnuComputerGroupRules.Name = "mnuComputerGroupRules";
-            this.mnuComputerGroupRules.Size = new System.Drawing.Size(195, 22);
+            this.mnuComputerGroupRules.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
+            this.mnuComputerGroupRules.Size = new System.Drawing.Size(236, 22);
             this.mnuComputerGroupRules.Text = "Computer &Group Rules";
             this.mnuComputerGroupRules.Click += new System.EventHandler(this.mnuComputerGroupRules_Click);
+            // 
+            // mnuDefaultSusIDList
+            // 
+            this.mnuDefaultSusIDList.Name = "mnuDefaultSusIDList";
+            this.mnuDefaultSusIDList.Size = new System.Drawing.Size(236, 22);
+            this.mnuDefaultSusIDList.Text = "Default &SUS ID List";
+            this.mnuDefaultSusIDList.Click += new System.EventHandler(this.mnuDefaultSusIDList_Click);
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(233, 6);
+            // 
+            // mnuPreferences
+            // 
+            this.mnuPreferences.Name = "mnuPreferences";
+            this.mnuPreferences.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
+            this.mnuPreferences.Size = new System.Drawing.Size(236, 22);
+            this.mnuPreferences.Text = "&Preferences";
+            this.mnuPreferences.Click += new System.EventHandler(this.mnuPreferences_Click);
             // 
             // picReloading
             // 
@@ -1187,20 +1220,6 @@
             this.butSelectAll.Text = "Select All";
             this.butSelectAll.Click += new System.EventHandler(this.butSelectAll_Click);
             // 
-            // mnuWSUSServer
-            // 
-            this.mnuWSUSServer.Name = "mnuWSUSServer";
-            this.mnuWSUSServer.Size = new System.Drawing.Size(195, 22);
-            this.mnuWSUSServer.Text = "&WSUS Server";
-            this.mnuWSUSServer.Click += new System.EventHandler(this.mnuWSUSServer_Click);
-            // 
-            // mnuDefaultSusIDList
-            // 
-            this.mnuDefaultSusIDList.Name = "mnuDefaultSusIDList";
-            this.mnuDefaultSusIDList.Size = new System.Drawing.Size(195, 22);
-            this.mnuDefaultSusIDList.Text = "Default &SUS ID List";
-            this.mnuDefaultSusIDList.Click += new System.EventHandler(this.mnuDefaultSusIDList_Click);
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1358,6 +1377,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn epPingUpdated;
         private System.Windows.Forms.ToolStripMenuItem mnuWSUSServer;
         private System.Windows.Forms.ToolStripMenuItem mnuDefaultSusIDList;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
+        private System.Windows.Forms.ToolStripMenuItem mnuPreferences;
     }
 }
 

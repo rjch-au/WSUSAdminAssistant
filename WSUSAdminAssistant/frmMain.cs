@@ -1428,5 +1428,11 @@ namespace WSUSAdminAssistant
             Form f = new frmDefaultSUS();
             f.Show();
         }
+
+        private void mnuPreferences_Click(object sender, EventArgs e)
+        {
+            Form f = new frmPreferences();
+            f.ShowDialog();
+        }
     }
 }
