@@ -657,7 +657,6 @@ namespace WSUSAdminAssistant
 
         public class SecurityCredential
         {
-            [X
             [XmlIgnore] public IPAddress ipaddress;
 
             public string ip
@@ -705,18 +704,71 @@ namespace WSUSAdminAssistant
                 set { this.List[index] = value; }
             }
 
+            private class clsIPSubnet
+            {
+                private byte[] _address;
+                private byte _prefixlen;
+
+                public clsIPSubnet(IPAddress network, byte cidr)
+                {
+                    _address = network.GetAddressBytes();
+                    _prefixlen = cidr;
+                }
+
+                public bool Contains(IPAddress ip)
+                {
+                    byte[] ipbytes = ip.GetAddressBytes();
+
+                    // Are the two address types the same?
+                    if (_address.Length != ipbytes.Length)
+                        // IPv4 and IPv6 addresses never match
+                        return false;
+
+                    int index = 0;
+                    int bits = _prefixlen;
+
+                    // Loop though each byte fully covered by the CIDR length
+                    for (; bits >=8; bits -=8)
+                    {
+                        if (ipbytes[index] != _address[index])
+                            // If any byte fully covered does not match, the address does not match
+                            return false;
+
+                        ++index;
+                    }
+
+                    // Are there any leftover bits?
+                    if (bits > 0)
+                    {
+                        // Yes - calculate the leftover bits
+                        int mask = (byte)~(255 >> bits);
+
+                        // Do the bytes (appropriately masked) match?
+                        if ((ipbytes[index] & mask) != (_address[index] & mask))
+                            // No - no match.
+                            return false;
+                    }
+
+                    // Yes, they match
+                    return true;
+                }
+            }
+
             public SecurityCredential this[IPAddress ip]
             {
                 get
                 {
-                    SecurityCredential cred = null;
-
-                    //*** MORE WORK REQUIRED - locate credential by matching ip address to a subnet
-
+                    // Loop through each credential in our list, returning the first one that matches
                     foreach (SecurityCredential sc in this.List)
                     {
-                        if (ip.AddressFamily = sc.ip.addre
-                    return cred;
+                        // Do the addresses match?
+                        if (new clsIPSubnet(sc.ipaddress, sc.netmask).Contains(ip))
+                            // Yes, return this credential
+                            return sc;
+                    }
+
+                    // Couldn't find a matching subnet, return null
+                    return null;
                 }
             }
 
