@@ -297,7 +297,6 @@ namespace WSUSAdminAssistant
             set { reg.SetValue("EndpointSelections", value, RegistryValueKind.DWord); }
         }
 
-
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // String encryption and decryption
 
@@ -571,23 +570,16 @@ namespace WSUSAdminAssistant
                 string xmlpath;
 
                 if (o == null)
-                {
                     xmlpath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                }
                 else
-                {
                     xmlpath = (string)o;
-                }
 
                 xmlpath = Path.Combine(xmlpath, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "\\ComputerRegEx.xml");
 
-
                 // Check if XML file exists
                 if (File.Exists(xmlpath))
-                {
                     // It exists - return path
                     return xmlpath;
-                }
                 else
                 {
                     // It doesn't exist - try to create it
@@ -663,10 +655,164 @@ namespace WSUSAdminAssistant
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Security credential methods and classes
 
-        public class clsCredentials
+        public class SecurityCredential
         {
-            public IPAddress ip;
-            public IPAddress netmask;
+            [XmlElement] public string ip;
+            [XmlElement] public byte netmask;
+            [XmlElement] public string description;
+
+            [XmlElement] public string domain;
+            [XmlElement] public string username;
+            [XmlElement] public string encryptedpassword;
+
+            [XmlIgnore] public string password
+            {
+                get
+                {
+                    string pwd;
+
+                    // Try to decrypt password
+                    try
+                    {
+                        pwd = Decrypt(encryptedpassword, "cred");
+                    }
+                    catch
+                    {
+                        // Decryption failed - return empty password
+                        pwd = "";
+                    }
+
+                    return pwd;
+                }
+
+                set { encryptedpassword = Encrypt(value, "cred"); }
+            }
+        }
+
+        public class CredentialCollection : System.Collections.CollectionBase
+        {
+            public SecurityCredential this[int index]
+            {
+                get { return (SecurityCredential)this.List[index]; }
+                set { this.List[index] = value; }
+            }
+
+            public SecurityCredential this[IPAddress ip]
+            {
+                get
+                {
+                    SecurityCredential cred = null;
+
+                    //*** MORE WORK REQUIRED - locate credential by matching ip address to a subnet
+
+                    return cred;
+                }
+            }
+
+            public int Add(SecurityCredential add)
+            {
+                return this.List.Add(add);
+            }
+
+            public void Remove(int index)
+            {
+                // Check index is within boundaries
+                if (index > this.Count - 1 || index < 0)
+                    // Out of bounds
+                    throw new IndexOutOfRangeException();
+                else
+                    this.List.RemoveAt(index);
+            }
+        }
+
+        public string CredentialXmlFile
+        {
+            get
+            {
+                object o = reg.GetValue("CredentialXmlFile");
+                string xmlpath;
+
+                if (o == null)
+                    xmlpath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                else
+                    xmlpath = (string)o;
+
+                xmlpath = Path.Combine(xmlpath, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "\\CredentialXmlFile.xml");
+
+                // Check if XML file exists
+                if (File.Exists(xmlpath))
+                    // It exists - return path
+                    return xmlpath;
+                else
+                {
+                    // It doesn't exist - try to create it
+                    try
+                    {
+                        // Does the directory exist?
+                        if (!Directory.Exists(Path.GetDirectoryName(xmlpath)))
+                            // No it doesn't - try and create it
+                            Directory.CreateDirectory(Path.GetDirectoryName(xmlpath));
+
+                        WriteComputerRegExXML(new ComputerGroupRegexCollection(), xmlpath);
+
+                        // If we get here, it wrote successfully, so return the file
+                        return xmlpath;
+                    }
+                    catch
+                    {
+                        // Create failed - return no path
+                        return "";
+                    }
+                }
+            }
+
+            set { reg.SetValue("CredentialXmlFile", value, RegistryValueKind.String); }
+        }
+
+        private void WriteCredentialXML(CredentialCollection c, string file)
+        {
+            // Create XML file (overwriting it if it already exists)
+            using (FileStream fs = new FileStream(file, FileMode.Create))
+            {
+                XmlSerializer xs = new XmlSerializer(typeof(CredentialCollection));
+                xs.Serialize(fs, c);
+            }
+        }
+
+        private CredentialCollection ReadCredentialXML(string file)
+        {
+            // Open the XML file and read the config.  Let the exceptions fly for other procedures to handle
+            using (FileStream fs = new FileStream(file, FileMode.Open))
+            {
+                CredentialCollection c = new CredentialCollection();
+                XmlSerializer xs = new XmlSerializer(typeof(CredentialCollection));
+                c = (CredentialCollection)xs.Deserialize(fs);
+                return c;
+            }
+        }
+
+        public CredentialCollection CredentialList
+        {
+            get
+            {
+                CredentialCollection c;
+
+                // Try and read the file
+                try
+                {
+                    c = ReadCredentialXML(this.CredentialXmlFile);
+
+                    // If we got here, it read correctly - return the collection
+                    return c;
+                }
+                catch
+                {
+                    // Something went wrong - return an empty collection
+                    return new CredentialCollection();
+                }
+            }
+
+            set { WriteCredentialXML(value, this.CredentialXmlFile); }
         }
     }
 }

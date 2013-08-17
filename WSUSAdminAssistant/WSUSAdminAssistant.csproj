@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WSUSAdminAssistant</RootNamespace>
     <AssemblyName>WSUSAdminAssistant</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>WSUSAdminAssistant.Program</StartupObject>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -36,6 +36,11 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -56,9 +61,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.UpdateServices.Administration, Version=3.1.6001.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.UpdateServices.Administration, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+      <HintPath>..\..\..\Libraries\Microsoft.UpdateServices.Administration.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -79,6 +84,12 @@
   <ItemGroup>
     <Compile Include="clsWSUS.cs" />
     <Compile Include="clsConfig.cs" />
+    <Compile Include="frmCredentials.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmCredentials.Designer.cs">
+      <DependentUpon>frmCredentials.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmComputerGroupRules.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -113,6 +124,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmComputerGroupRules.resx">
       <DependentUpon>frmComputerGroupRules.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmCredentials.resx">
+      <DependentUpon>frmCredentials.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmDefaultSUS.resx">
       <DependentUpon>frmDefaultSUS.cs</DependentUpon>
@@ -187,6 +201,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\SuccessComplete.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
