@@ -657,13 +657,21 @@ namespace WSUSAdminAssistant
 
         public class SecurityCredential
         {
-            [XmlElement] public string ip;
-            [XmlElement] public byte netmask;
-            [XmlElement] public string description;
+            [X
+            [XmlIgnore] public IPAddress ipaddress;
 
-            [XmlElement] public string domain;
-            [XmlElement] public string username;
-            [XmlElement] public string encryptedpassword;
+            public string ip
+            {
+                get { return ipaddress.ToString(); }
+                set { ipaddress = IPAddress.Parse(ip); }
+            }
+
+            public byte netmask;
+            public string description;
+
+            public string domain;
+            public string username;
+            public string encryptedpassword;
 
             [XmlIgnore] public string password
             {
@@ -705,6 +713,9 @@ namespace WSUSAdminAssistant
 
                     //*** MORE WORK REQUIRED - locate credential by matching ip address to a subnet
 
+                    foreach (SecurityCredential sc in this.List)
+                    {
+                        if (ip.AddressFamily = sc.ip.addre
                     return cred;
                 }
             }
