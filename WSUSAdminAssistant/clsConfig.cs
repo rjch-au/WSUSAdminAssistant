@@ -370,7 +370,7 @@ namespace WSUSAdminAssistant
         {
             get
             {
-                object o = reg.GetValue("DBUsername");
+                object o = reg.GetValue("PSExecPath");
                 string path;
 
                 if (o == null)
@@ -382,10 +382,37 @@ namespace WSUSAdminAssistant
                     path = (string)o;
                 }
 
-                return path;
+                if (File.Exists(path))
+                    // PSExec found - return it
+                    return path;
+                else
+                    // PSExec not found - return a blank
+                    return "";
             }
 
             set { reg.SetValue("PSExecPath", value, RegistryValueKind.String); }
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Miscellaneous preferences
+
+        public bool RunWithLocalCreds
+        {
+            get
+            {
+                object o = reg.GetValue("RunWithLocalCreds");
+
+                if (o == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return Convert.ToBoolean((int)reg.GetValue("RunWithLocalCreds"));
+                }
+            }
+
+            set { reg.SetValue("RunWithLocalCreds", Convert.ToInt32(value), RegistryValueKind.DWord); }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -662,7 +689,7 @@ namespace WSUSAdminAssistant
             public string ip
             {
                 get { return ipaddress.ToString(); }
-                set { ipaddress = IPAddress.Parse(ip); }
+                set { ipaddress = IPAddress.Parse(value); }
             }
 
             public byte netmask;

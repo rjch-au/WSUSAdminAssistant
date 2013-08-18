@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Windows.Forms;
@@ -98,39 +99,32 @@ namespace WSUSAdminAssistant
                 }
             }
 
-            // Ping PCs for 1 second
-            for (long i = DateTime.Now.Ticks; DateTime.Now.Ticks < i + TimeSpan.TicksPerSecond; )
+            // Find least recently pinged machine
+            rn = -1;
+            long lp = DateTime.Now.Ticks;
+
+            foreach (DataGridViewRow r in grdEndpoints.Rows)
             {
-                // Find least recently pinged machine
-                rn = -1;
-                long lp = DateTime.Now.Ticks;
-
-                foreach (DataGridViewRow r in grdEndpoints.Rows)
+                // Has this machine ever been pinged?
+                if (r.Cells["epPingUpdated"].Value == null || r.Cells["epPingUpdated"].Value.ToString() == "")
                 {
-                    // Has this machine ever been pinged?
-                    if (r.Cells["epPingUpdated"].Value == null || r.Cells["epPingUpdated"].Value.ToString() == "")
-                    {
-                        // Nope, let's do this one...
-                        rn = r.Index;
-                        break;
-                    }
-
-                    // Yes.  Has it been pinged more than 30 seconds ago and longer ago than the last one found?
-                    if (long.Parse(r.Cells["epPingUpdated"].Value.ToString()) < lp && (DateTime.Now.Ticks - long.Parse(r.Cells["epPingUpdated"].Value.ToString())) > (30 * TimeSpan.TicksPerSecond))
-                    {
-                        // Yep, make a note of it and keep going...
-                        lp = long.Parse(r.Cells["epPingUpdated"].Value.ToString());
-                        rn = r.Index;
-                    }
+                    // Nope, let's do this one...
+                    rn = r.Index;
+                    break;
                 }
 
-                // If a row was found, ping it.
-                if (rn != -1)
-                    DoPing(grdEndpoints.Rows[rn]);
-                else
-                    // ...otherwise break
-                    break;
+                // Yes.  Has it been pinged more than 30 seconds ago and longer ago than the last one found?
+                if (long.Parse(r.Cells["epPingUpdated"].Value.ToString()) < lp && (DateTime.Now.Ticks - long.Parse(r.Cells["epPingUpdated"].Value.ToString())) > (30 * TimeSpan.TicksPerSecond))
+                {
+                    // Yep, make a note of it and keep going...
+                    lp = long.Parse(r.Cells["epPingUpdated"].Value.ToString());
+                    rn = r.Index;
+                }
             }
+
+            // If a row was found, ping it.
+            if (rn != -1)
+                DoPing(grdEndpoints.Rows[rn]);
 
             // Sort the datagrid
             grdEndpoints.Sort(grdEndpoints.Columns["epIP"], ListSortDirection.Ascending);
@@ -1224,24 +1218,6 @@ namespace WSUSAdminAssistant
             ChangeUpdateSelection("ChemistB", false);
         }
 
-        private void grdUpdates_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            // Create handy variables referring to this cell
-            DataGridViewRow r = grdUpdates.Rows[e.RowIndex];
-            DataGridViewCell c = r.Cells[e.ColumnIndex];
-            DataGridViewColumn gc = grdUpdates.Columns[e.ColumnIndex];
-
-            // Check to see if KB column was selected - if it was, open link in default browser
-            if (gc.HeaderText == "KB Article")
-            {
-                Process.Start("http://support.microsoft.com/kb/" + c.Value.ToString());
-            }
-
-            // If the column selected is the UpdateName, Description or KB article, deselect the current cell
-            if (gc.Name == "UpdateName" || gc.Name == "Description" || gc.Name == "KB")
-                c.Selected = false;
-        }
-
         private void butCancelApprove_Click(object sender, EventArgs e)
         {
             cancelNow = true;
@@ -1439,6 +1415,132 @@ namespace WSUSAdminAssistant
         {
             Form f = new frmCredentials();
             f.ShowDialog();
+        }
+
+        private void grdUpdates_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            // Create handy variables referring to this cell
+            DataGridViewRow r = grdUpdates.Rows[e.RowIndex];
+            DataGridViewCell c = r.Cells[e.ColumnIndex];
+            DataGridViewColumn gc = grdUpdates.Columns[e.ColumnIndex];
+
+            // Was this a left click?
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                // Left click - check to see if KB column was selected - if it was, open link in default browser
+                if (gc.HeaderText == "KB Article")
+                    Process.Start("http://support.microsoft.com/kb/" + c.Value.ToString());
+
+                // If the column selected is the UpdateName, Description or KB article, deselect the current cell
+                if (gc.Name == "UpdateName" || gc.Name == "Description" || gc.Name == "KB")
+                    c.Selected = false;
+            }
+        }
+        
+        DataGridViewRow epcmRow;
+        IPAddress epcmIPAddress;
+        clsConfig.SecurityCredential epcmCreds;
+
+        private void grdEndpoints_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            // Was this a right-click?
+            if (e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+                // Yes - save cell context and show pop-up menu
+                epcmRow = grdEndpoints.Rows[e.RowIndex];
+                epcmIPAddress = IPAddress.Parse(epcmRow.Cells["epIP"].Value.ToString());
+                
+                // Look for credentials for this PC
+                clsConfig.CredentialCollection cc = cfg.CredentialList;
+                epcmCreds = cc[epcmIPAddress];
+
+                // Update menu to show details of the selected PC
+                epDetails.Text = epcmRow.Cells[epName.Index].Value.ToString() + " at " + epcmIPAddress.ToString();
+
+                // Show pop-up menu
+                cmEndpoint.Show(Cursor.Position);
+            }
+        }
+
+        private void PSExecCall(IPAddress ip, clsConfig.SecurityCredential cred, string command)
+        {
+            // Has a valid PSExec path been supplied?
+            if (cfg.PSExecPath == "")
+            {
+                // No - show messagebox and return
+                MessageBox.Show("No valid path to PSExec has been set in Preferences.  Please set a path to PSExec in Helper Preferences.", "PSExec path not valid", MessageBoxButtons.OK);
+                return;
+            }
+
+            // Did we get valid credentials?
+            if (cred == null)
+            {
+                // No - do we run with the current credentials?
+                if (!cfg.RunWithLocalCreds)
+                {
+                    // No - show messagebox and return
+                    MessageBox.Show("No credentials found for IP address " + ip.ToString() + " and running with local credentials disabled.  To run with local credentials, check \"Supply current credentials if no other security credentials found for IP address\" in General Preferences.",
+                        "No local credentials found for remote PC", MessageBoxButtons.OK);
+                    return;
+                }
+            }
+
+            // Compile parameters for PSExec
+            string param;
+            param = "\\\\" + epcmIPAddress.ToString() + " -e "; // Computer name.  PSExec should not load account's profile (quicker startup)
+
+            // Add credentials only if we have some to add
+            if (cred != null)
+            {
+                if (cred.domain == null)
+                    param += "-u " + epcmCreds.username;                                // Local user
+                else
+                    param += "-u " + epcmCreds.domain + "\\" + epcmCreds.username;      // Domain user and password
+
+                param += " -p " + epcmCreds.password + " ";
+            }
+
+            // Add command to executure
+            param += command;
+
+            // Run PSExec
+            Process.Start(cfg.PSExecPath, param);
+        }
+
+        private void epGPUpdateForce_Click(object sender, EventArgs e)
+        {
+            PSExecCall(epcmIPAddress, epcmCreds, "gpupdate /force");
+        }
+
+        private void epGPUpdate_Click(object sender, EventArgs e)
+        {
+            PSExecCall(epcmIPAddress, epcmCreds, "gpupdate");
+        }
+
+        private void epDetectNow_Click(object sender, EventArgs e)
+        {
+            PSExecCall(epcmIPAddress, epcmCreds, "wuauclt /detectnow");
+        }
+
+        private void epReportNow_Click(object sender, EventArgs e)
+        {
+            PSExecCall(epcmIPAddress, epcmCreds, "wuauclt /reportnow");
+        }
+
+        private void epResetSusID_Click(object sender, EventArgs e)
+        {
+            PSExecCall(epcmIPAddress, epcmCreds, "net stop wuauserv");
+            PSExecCall(epcmIPAddress, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v AccountDomainSid /f");
+            PSExecCall(epcmIPAddress, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v PingID /f");
+            PSExecCall(epcmIPAddress, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v SusClientId /f");
+            PSExecCall(epcmIPAddress, epcmCreds, "net start wuauserv");
+            PSExecCall(epcmIPAddress, epcmCreds, "wuauclt /resetauthorization");
+            PSExecCall(epcmIPAddress, epcmCreds, "wuauclt /detectnow");
+        }
+
+        private void mnuResetAuth_Click(object sender, EventArgs e)
+        {
+            PSExecCall(epcmIPAddress, epcmCreds, "wuauclt /resetauthorization");
         }
     }
 }

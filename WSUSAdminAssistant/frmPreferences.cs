@@ -19,6 +19,7 @@ namespace WSUSAdminAssistant
 
             // Populate form
             txtPSExec.Text = cfg.PSExecPath;
+            chkLocalCreds.Checked = cfg.RunWithLocalCreds;
         }
 
         private void btnPSExec_Click(object sender, EventArgs e)
@@ -36,6 +37,7 @@ namespace WSUSAdminAssistant
         {
             // Update configuration
             cfg.PSExecPath = txtPSExec.Text;
+            cfg.RunWithLocalCreds = chkLocalCreds.Checked;
 
             // Close form
             this.Close();
@@ -45,6 +47,12 @@ namespace WSUSAdminAssistant
         {
             // Close form
             this.Close();
+        }
+
+        private void lnkPSExec_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            // Go to the PSExec page at Microsoft
+            System.Diagnostics.Process.Start("http://technet.microsoft.com/en-au/sysinternals/bb897553.aspx");
         }
     }
 }

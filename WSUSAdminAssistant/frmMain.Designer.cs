@@ -150,10 +150,20 @@
             this.mnuOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuWSUSServer = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuComputerGroupRules = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuCredentials = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuDefaultSusIDList = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuPreferences = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuCredentials = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmEndpoint = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.epGPUpdate = new System.Windows.Forms.ToolStripMenuItem();
+            this.epGPUpdateForce = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.epResetSusID = new System.Windows.Forms.ToolStripMenuItem();
+            this.epDetectNow = new System.Windows.Forms.ToolStripMenuItem();
+            this.epReportNow = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuResetAuth = new System.Windows.Forms.ToolStripMenuItem();
+            this.epDetails = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.gbxWorking.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picReloading)).BeginInit();
             this.tabSuperceded.SuspendLayout();
@@ -171,6 +181,7 @@
             this.tabAdminType.SuspendLayout();
             this.tabHome.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.cmEndpoint.SuspendLayout();
             this.SuspendLayout();
             // 
             // timUpdateData
@@ -420,6 +431,7 @@
             this.grdEndpoints.ReadOnly = true;
             this.grdEndpoints.Size = new System.Drawing.Size(1038, 434);
             this.grdEndpoints.TabIndex = 2;
+            this.grdEndpoints.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.grdEndpoints_CellMouseClick);
             this.grdEndpoints.SortCompare += new System.Windows.Forms.DataGridViewSortCompareEventHandler(this.grdEndpoints_SortCompare);
             // 
             // epName
@@ -625,7 +637,7 @@
             this.grdUpdates.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.grdUpdates.Size = new System.Drawing.Size(1032, 428);
             this.grdUpdates.TabIndex = 0;
-            this.grdUpdates.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.grdUpdates_CellClick);
+            this.grdUpdates.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.grdUpdates_CellMouseClick);
             // 
             // UpdateName
             // 
@@ -1202,6 +1214,14 @@
             this.mnuComputerGroupRules.Text = "Computer &Group Rules";
             this.mnuComputerGroupRules.Click += new System.EventHandler(this.mnuComputerGroupRules_Click);
             // 
+            // mnuCredentials
+            // 
+            this.mnuCredentials.Name = "mnuCredentials";
+            this.mnuCredentials.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
+            this.mnuCredentials.Size = new System.Drawing.Size(236, 22);
+            this.mnuCredentials.Text = "Security &Credentials";
+            this.mnuCredentials.Click += new System.EventHandler(this.mnuCredentials_Click);
+            // 
             // mnuDefaultSusIDList
             // 
             this.mnuDefaultSusIDList.Name = "mnuDefaultSusIDList";
@@ -1223,13 +1243,78 @@
             this.mnuPreferences.Text = "&Preferences";
             this.mnuPreferences.Click += new System.EventHandler(this.mnuPreferences_Click);
             // 
-            // mnuCredentials
+            // cmEndpoint
             // 
-            this.mnuCredentials.Name = "mnuCredentials";
-            this.mnuCredentials.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.mnuCredentials.Size = new System.Drawing.Size(236, 22);
-            this.mnuCredentials.Text = "Security &Credentials";
-            this.mnuCredentials.Click += new System.EventHandler(this.mnuCredentials_Click);
+            this.cmEndpoint.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.epDetails,
+            this.toolStripMenuItem6,
+            this.epGPUpdate,
+            this.epGPUpdateForce,
+            this.toolStripMenuItem5,
+            this.epResetSusID,
+            this.mnuResetAuth,
+            this.epDetectNow,
+            this.epReportNow});
+            this.cmEndpoint.Name = "cmEndpoint";
+            this.cmEndpoint.Size = new System.Drawing.Size(231, 192);
+            // 
+            // epGPUpdate
+            // 
+            this.epGPUpdate.Name = "epGPUpdate";
+            this.epGPUpdate.Size = new System.Drawing.Size(230, 22);
+            this.epGPUpdate.Text = "&Group Policy Update";
+            this.epGPUpdate.Click += new System.EventHandler(this.epGPUpdate_Click);
+            // 
+            // epGPUpdateForce
+            // 
+            this.epGPUpdateForce.Name = "epGPUpdateForce";
+            this.epGPUpdateForce.Size = new System.Drawing.Size(230, 22);
+            this.epGPUpdateForce.Text = "Group Policy Update (&Forced)";
+            this.epGPUpdateForce.Click += new System.EventHandler(this.epGPUpdateForce_Click);
+            // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(227, 6);
+            // 
+            // epResetSusID
+            // 
+            this.epResetSusID.Name = "epResetSusID";
+            this.epResetSusID.Size = new System.Drawing.Size(230, 22);
+            this.epResetSusID.Text = "&Reset SUS ID";
+            this.epResetSusID.Click += new System.EventHandler(this.epResetSusID_Click);
+            // 
+            // epDetectNow
+            // 
+            this.epDetectNow.Name = "epDetectNow";
+            this.epDetectNow.Size = new System.Drawing.Size(230, 22);
+            this.epDetectNow.Text = "&Detect Updates Now";
+            this.epDetectNow.Click += new System.EventHandler(this.epDetectNow_Click);
+            // 
+            // epReportNow
+            // 
+            this.epReportNow.Name = "epReportNow";
+            this.epReportNow.Size = new System.Drawing.Size(230, 22);
+            this.epReportNow.Text = "&Report Update Status Now";
+            this.epReportNow.Click += new System.EventHandler(this.epReportNow_Click);
+            // 
+            // mnuResetAuth
+            // 
+            this.mnuResetAuth.Name = "mnuResetAuth";
+            this.mnuResetAuth.Size = new System.Drawing.Size(230, 22);
+            this.mnuResetAuth.Text = "Reset &Authorisation Token";
+            this.mnuResetAuth.Click += new System.EventHandler(this.mnuResetAuth_Click);
+            // 
+            // epDetails
+            // 
+            this.epDetails.Enabled = false;
+            this.epDetails.Name = "epDetails";
+            this.epDetails.Size = new System.Drawing.Size(230, 22);
+            // 
+            // toolStripMenuItem6
+            // 
+            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(227, 6);
             // 
             // frmMain
             // 
@@ -1270,6 +1355,7 @@
             this.tabHome.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.cmEndpoint.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1391,6 +1477,16 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem mnuPreferences;
         private System.Windows.Forms.ToolStripMenuItem mnuCredentials;
+        private System.Windows.Forms.ContextMenuStrip cmEndpoint;
+        private System.Windows.Forms.ToolStripMenuItem epGPUpdate;
+        private System.Windows.Forms.ToolStripMenuItem epGPUpdateForce;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem epResetSusID;
+        private System.Windows.Forms.ToolStripMenuItem epDetectNow;
+        private System.Windows.Forms.ToolStripMenuItem epReportNow;
+        private System.Windows.Forms.ToolStripMenuItem mnuResetAuth;
+        private System.Windows.Forms.ToolStripMenuItem epDetails;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
     }
 }
 
