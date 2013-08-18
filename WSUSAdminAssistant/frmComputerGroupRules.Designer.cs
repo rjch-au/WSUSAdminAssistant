@@ -30,19 +30,20 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmComputerGroupRules));
             this.grdRegEx = new System.Windows.Forms.DataGridView();
-            this.spl = new System.Windows.Forms.SplitContainer();
-            this.lstResults = new System.Windows.Forms.ListBox();
-            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.btnSave = new System.Windows.Forms.ToolStripButton();
-            this.btnTestRule = new System.Windows.Forms.ToolStripButton();
-            this.btnPCsNotCovered = new System.Windows.Forms.ToolStripButton();
             this.rxPriority = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.rxComputerRegEx = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.rxIPRegEx = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.rxComputerGroup = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.rxComment = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.rxEnabled = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.spl = new System.Windows.Forms.SplitContainer();
+            this.lstResults = new System.Windows.Forms.ListBox();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.btnSave = new System.Windows.Forms.ToolStripButton();
+            this.btnTestRule = new System.Windows.Forms.ToolStripButton();
+            this.btnPCsNotCovered = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.grdRegEx)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.spl)).BeginInit();
             this.spl.Panel1.SuspendLayout();
             this.spl.Panel2.SuspendLayout();
             this.spl.SuspendLayout();
@@ -65,6 +66,50 @@
             this.grdRegEx.Size = new System.Drawing.Size(1240, 263);
             this.grdRegEx.TabIndex = 0;
             this.grdRegEx.RowLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.grdRegEx_RowLeave);
+            // 
+            // rxPriority
+            // 
+            this.rxPriority.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.rxPriority.HeaderText = "Rule Priority";
+            this.rxPriority.Name = "rxPriority";
+            this.rxPriority.Width = 81;
+            // 
+            // rxComputerRegEx
+            // 
+            this.rxComputerRegEx.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.rxComputerRegEx.HeaderText = "Computer Name RegEx Rule";
+            this.rxComputerRegEx.Name = "rxComputerRegEx";
+            this.rxComputerRegEx.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.rxComputerRegEx.Width = 114;
+            // 
+            // rxIPRegEx
+            // 
+            this.rxIPRegEx.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.rxIPRegEx.HeaderText = "IP RegEx Rule";
+            this.rxIPRegEx.Name = "rxIPRegEx";
+            this.rxIPRegEx.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.rxIPRegEx.Width = 75;
+            // 
+            // rxComputerGroup
+            // 
+            this.rxComputerGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.rxComputerGroup.HeaderText = "Computer Group";
+            this.rxComputerGroup.Name = "rxComputerGroup";
+            this.rxComputerGroup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // rxComment
+            // 
+            this.rxComment.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.rxComment.HeaderText = "Comment";
+            this.rxComment.Name = "rxComment";
+            // 
+            // rxEnabled
+            // 
+            this.rxEnabled.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.rxEnabled.HeaderText = "Rule Enabled";
+            this.rxEnabled.Name = "rxEnabled";
+            this.rxEnabled.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.rxEnabled.Width = 88;
             // 
             // spl
             // 
@@ -93,7 +138,7 @@
             this.lstResults.FormattingEnabled = true;
             this.lstResults.Location = new System.Drawing.Point(0, 25);
             this.lstResults.Name = "lstResults";
-            this.lstResults.Size = new System.Drawing.Size(1240, 225);
+            this.lstResults.Size = new System.Drawing.Size(1240, 231);
             this.lstResults.TabIndex = 1;
             // 
             // toolStrip1
@@ -135,50 +180,6 @@
             this.btnPCsNotCovered.Text = "PCs Not Covered by Rules";
             this.btnPCsNotCovered.Click += new System.EventHandler(this.btnPCsNotCovered_Click);
             // 
-            // rxPriority
-            // 
-            this.rxPriority.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.rxPriority.HeaderText = "Rule Priority";
-            this.rxPriority.Name = "rxPriority";
-            this.rxPriority.Width = 88;
-            // 
-            // rxComputerRegEx
-            // 
-            this.rxComputerRegEx.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.rxComputerRegEx.HeaderText = "Computer Name RegEx Rule";
-            this.rxComputerRegEx.Name = "rxComputerRegEx";
-            this.rxComputerRegEx.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.rxComputerRegEx.Width = 114;
-            // 
-            // rxIPRegEx
-            // 
-            this.rxIPRegEx.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.rxIPRegEx.HeaderText = "IP RegEx Rule";
-            this.rxIPRegEx.Name = "rxIPRegEx";
-            this.rxIPRegEx.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.rxIPRegEx.Width = 75;
-            // 
-            // rxComputerGroup
-            // 
-            this.rxComputerGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.rxComputerGroup.HeaderText = "Computer Group";
-            this.rxComputerGroup.Name = "rxComputerGroup";
-            this.rxComputerGroup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // rxComment
-            // 
-            this.rxComment.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.rxComment.HeaderText = "Comment";
-            this.rxComment.Name = "rxComment";
-            // 
-            // rxEnabled
-            // 
-            this.rxEnabled.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.rxEnabled.HeaderText = "Rule Enabled";
-            this.rxEnabled.Name = "rxEnabled";
-            this.rxEnabled.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.rxEnabled.Width = 88;
-            // 
             // frmComputerGroupRules
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -187,13 +188,14 @@
             this.Controls.Add(this.spl);
             this.Name = "frmComputerGroupRules";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmComputerGroupRules";
-            this.Load += new System.EventHandler(this.frmComputerGroupRules_Load);
+            this.Text = "Computer Group Membership Rules";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmComputerGroupRules_FormClosing);
+            this.Load += new System.EventHandler(this.frmComputerGroupRules_Load);
             ((System.ComponentModel.ISupportInitialize)(this.grdRegEx)).EndInit();
             this.spl.Panel1.ResumeLayout(false);
             this.spl.Panel2.ResumeLayout(false);
             this.spl.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.spl)).EndInit();
             this.spl.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
