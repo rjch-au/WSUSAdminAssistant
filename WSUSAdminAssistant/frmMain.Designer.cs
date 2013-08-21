@@ -155,15 +155,16 @@
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuPreferences = new System.Windows.Forms.ToolStripMenuItem();
             this.cmEndpoint = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.epDetails = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.epGPUpdate = new System.Windows.Forms.ToolStripMenuItem();
             this.epGPUpdateForce = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
             this.epResetSusID = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuResetAuth = new System.Windows.Forms.ToolStripMenuItem();
             this.epDetectNow = new System.Windows.Forms.ToolStripMenuItem();
             this.epReportNow = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuResetAuth = new System.Windows.Forms.ToolStripMenuItem();
-            this.epDetails = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
+            this.mnuGroupApprovalRules = new System.Windows.Forms.ToolStripMenuItem();
             this.gbxWorking.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picReloading)).BeginInit();
             this.tabSuperceded.SuspendLayout();
@@ -1190,6 +1191,7 @@
             this.mnuOptions.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuWSUSServer,
             this.mnuComputerGroupRules,
+            this.mnuGroupApprovalRules,
             this.mnuCredentials,
             this.mnuDefaultSusIDList,
             this.toolStripMenuItem4,
@@ -1202,7 +1204,7 @@
             // 
             this.mnuWSUSServer.Name = "mnuWSUSServer";
             this.mnuWSUSServer.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.W)));
-            this.mnuWSUSServer.Size = new System.Drawing.Size(236, 22);
+            this.mnuWSUSServer.Size = new System.Drawing.Size(288, 22);
             this.mnuWSUSServer.Text = "&WSUS Server";
             this.mnuWSUSServer.Click += new System.EventHandler(this.mnuWSUSServer_Click);
             // 
@@ -1210,7 +1212,7 @@
             // 
             this.mnuComputerGroupRules.Name = "mnuComputerGroupRules";
             this.mnuComputerGroupRules.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
-            this.mnuComputerGroupRules.Size = new System.Drawing.Size(236, 22);
+            this.mnuComputerGroupRules.Size = new System.Drawing.Size(288, 22);
             this.mnuComputerGroupRules.Text = "Computer &Group Rules";
             this.mnuComputerGroupRules.Click += new System.EventHandler(this.mnuComputerGroupRules_Click);
             // 
@@ -1218,7 +1220,7 @@
             // 
             this.mnuCredentials.Name = "mnuCredentials";
             this.mnuCredentials.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.mnuCredentials.Size = new System.Drawing.Size(236, 22);
+            this.mnuCredentials.Size = new System.Drawing.Size(288, 22);
             this.mnuCredentials.Text = "Security &Credentials";
             this.mnuCredentials.Click += new System.EventHandler(this.mnuCredentials_Click);
             // 
@@ -1226,20 +1228,20 @@
             // 
             this.mnuDefaultSusIDList.Name = "mnuDefaultSusIDList";
             this.mnuDefaultSusIDList.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
-            this.mnuDefaultSusIDList.Size = new System.Drawing.Size(236, 22);
+            this.mnuDefaultSusIDList.Size = new System.Drawing.Size(288, 22);
             this.mnuDefaultSusIDList.Text = "Default &SUS ID List";
             this.mnuDefaultSusIDList.Click += new System.EventHandler(this.mnuDefaultSusIDList_Click);
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(233, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(285, 6);
             // 
             // mnuPreferences
             // 
             this.mnuPreferences.Name = "mnuPreferences";
             this.mnuPreferences.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
-            this.mnuPreferences.Size = new System.Drawing.Size(236, 22);
+            this.mnuPreferences.Size = new System.Drawing.Size(288, 22);
             this.mnuPreferences.Text = "&Preferences";
             this.mnuPreferences.Click += new System.EventHandler(this.mnuPreferences_Click);
             // 
@@ -1256,7 +1258,18 @@
             this.epDetectNow,
             this.epReportNow});
             this.cmEndpoint.Name = "cmEndpoint";
-            this.cmEndpoint.Size = new System.Drawing.Size(231, 192);
+            this.cmEndpoint.Size = new System.Drawing.Size(231, 170);
+            // 
+            // epDetails
+            // 
+            this.epDetails.Enabled = false;
+            this.epDetails.Name = "epDetails";
+            this.epDetails.Size = new System.Drawing.Size(230, 22);
+            // 
+            // toolStripMenuItem6
+            // 
+            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(227, 6);
             // 
             // epGPUpdate
             // 
@@ -1284,6 +1297,13 @@
             this.epResetSusID.Text = "&Reset SUS ID";
             this.epResetSusID.Click += new System.EventHandler(this.epResetSusID_Click);
             // 
+            // mnuResetAuth
+            // 
+            this.mnuResetAuth.Name = "mnuResetAuth";
+            this.mnuResetAuth.Size = new System.Drawing.Size(230, 22);
+            this.mnuResetAuth.Text = "Reset &Authorisation Token";
+            this.mnuResetAuth.Click += new System.EventHandler(this.mnuResetAuth_Click);
+            // 
             // epDetectNow
             // 
             this.epDetectNow.Name = "epDetectNow";
@@ -1298,23 +1318,13 @@
             this.epReportNow.Text = "&Report Update Status Now";
             this.epReportNow.Click += new System.EventHandler(this.epReportNow_Click);
             // 
-            // mnuResetAuth
+            // mnuGroupApprovalRules
             // 
-            this.mnuResetAuth.Name = "mnuResetAuth";
-            this.mnuResetAuth.Size = new System.Drawing.Size(230, 22);
-            this.mnuResetAuth.Text = "Reset &Authorisation Token";
-            this.mnuResetAuth.Click += new System.EventHandler(this.mnuResetAuth_Click);
-            // 
-            // epDetails
-            // 
-            this.epDetails.Enabled = false;
-            this.epDetails.Name = "epDetails";
-            this.epDetails.Size = new System.Drawing.Size(230, 22);
-            // 
-            // toolStripMenuItem6
-            // 
-            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(227, 6);
+            this.mnuGroupApprovalRules.Name = "mnuGroupApprovalRules";
+            this.mnuGroupApprovalRules.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
+            this.mnuGroupApprovalRules.Size = new System.Drawing.Size(288, 22);
+            this.mnuGroupApprovalRules.Text = "Computer Group &Approval Rules";
+            this.mnuGroupApprovalRules.Click += new System.EventHandler(this.mnuGroupApprovalRules_Click);
             // 
             // frmMain
             // 
@@ -1487,6 +1497,7 @@
         private System.Windows.Forms.ToolStripMenuItem mnuResetAuth;
         private System.Windows.Forms.ToolStripMenuItem epDetails;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
+        private System.Windows.Forms.ToolStripMenuItem mnuGroupApprovalRules;
     }
 }
 

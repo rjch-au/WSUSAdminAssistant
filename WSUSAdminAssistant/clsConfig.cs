@@ -904,5 +904,401 @@ namespace WSUSAdminAssistant
 
             set { WriteCredentialXML(value, this.CredentialXmlFile); }
         }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // WSUS Computer Group Update Rules
+
+        public class GroupUpdateRule
+        {
+            private clsWSUS wsus = new clsWSUS();
+
+            public int displayorder;                                        // Display order on Unapproved Updates grid
+            [XmlIgnore] public IComputerTargetGroup computergroup;
+            [XmlIgnore] public TimeSpan updateinterval;                     // The interval after the update is approved for the parent group (or after first being downloaded if no parent group) that updates should be approved for this group
+            [XmlIgnore] public IComputerTargetGroup parentcomputergroup;    // Parent update group for update approval purposes.  Null if this is a first-release group
+            [XmlIgnore] public TimeSpan childupdateinterval;                // The interval after which child computer groups may install updates if no computer within this group requires the update
+
+            // Extra classes for serialization
+            [XmlElement]
+            public string computergroupid
+            {
+                get
+                { return computergroup.Id.ToString(); }
+
+                set
+                {
+                    // Are we setting a null group?
+                    if (value == "")
+                    {
+                        computergroup = null;
+                        return;
+                    }
+                    else
+                    {
+                        // Loop through list of computer groups and find the one we reference
+                        foreach (IComputerTargetGroup g in wsus.computergroups)
+                            if (g.Id.ToString() == value)
+                            {
+                                // Found the right group - return it
+                                computergroup = g;
+                                return;
+                            }
+                    }
+
+                    // Didn't find the right computer group - return null
+                    throw new WsusObjectNotFoundException("Computer group ID " + value + " does not correspond to any known WSUS computer group");
+                }
+            }
+
+            [XmlElement]
+            public long updateintervalticks
+            {
+                get { return updateinterval.Ticks; }
+                set { updateinterval = new TimeSpan(value); }
+            }
+
+            [XmlElement] public string parentcomputergroupid
+            {
+                get
+                {
+                    if (parentcomputergroup == null)
+                        return "";
+                    else
+                        return parentcomputergroup.Id.ToString();
+                }
+
+                set
+                {
+                    // Are we setting a null group?
+                    if (value == "")
+                    {
+                        // Yes.
+                        parentcomputergroup = null;
+                        return;
+                    }
+                    else
+                    {
+                        // Loop through list of computer groups and find the one we reference
+                        foreach (IComputerTargetGroup g in wsus.computergroups)
+                            if (g.Id.ToString() == value)
+                            {
+                                // Found the right group - set it
+                                parentcomputergroup = g;
+                                return;
+                            }
+                    }
+
+                    // Didn't find the right computer group - return null
+                    parentcomputergroup = null;
+                }
+            }
+            
+            [XmlElement] public long childupdateintervalticks
+            {
+                get { return childupdateinterval.Ticks; }
+                set { childupdateinterval = new TimeSpan(value); }
+            }
+        }
+
+        public class GroupUpdateRuleCollection : System.Collections.CollectionBase
+        {
+            public GroupUpdateRule this[int index]
+            {
+                get { return (GroupUpdateRule)this.List[index]; }
+                set { this.List[index] = value; }
+            }
+
+            public GroupUpdateRule this[IComputerTargetGroup index]
+            {
+                get
+                {
+                    // Loop through all groups in the collection, returning the first match
+                    foreach (GroupUpdateRule cg in this.List)
+                        if (cg.computergroup == index)
+                            return cg;
+
+                    // None found - return null
+                    return null;
+                }
+
+                set
+                {
+                    // Loop through all groups in the collection, updating the first match
+                    for (int i = 0; i < this.List.Count; i++)
+                    {
+                        GroupUpdateRule cg = (GroupUpdateRule)this.List[i];
+                        if (cg.computergroup == index)
+                        {
+                            // Got one - update it
+                            cg = value;
+                            return;
+                        }
+                    }
+
+                    // Couldn't find a group - throw exception
+                    throw new KeyNotFoundException();
+                }
+            }
+
+            public GroupUpdateRule this[string groupname]
+            {
+                get
+                {
+                    // Loop through all groups in the collection, returning the first match
+                    foreach (GroupUpdateRule cg in this.List)
+                        if (cg.computergroup.Name == groupname)
+                            return cg;
+
+                    // None found - return null
+                    return null;
+                }
+
+                set
+                {
+                    // Loop through all groups in the collection, updating the first match
+                    for (int i = 0; i < this.List.Count; i++)
+                    {
+                        GroupUpdateRule cg = (GroupUpdateRule)this.List[i];
+                        if (cg.computergroup.Name == groupname)
+                        {
+                            // Got one - update it
+                            cg = value;
+                            return;
+                        }
+                    }
+
+                    // Couldn't find a group - throw exception
+                    throw new KeyNotFoundException();
+                }
+            }
+
+            public int Add(GroupUpdateRule add)
+            {
+                return this.List.Add(add);
+            }
+
+            public void Add(GroupUpdateRuleCollection add)
+            {
+                // Add all the update rules provided
+                foreach (GroupUpdateRule ur in add)
+                    this.List.Add(ur);
+            }
+
+            public int AddEdit(GroupUpdateRule add)
+            {
+                // Loop through collection to see if we can match an existing rule
+                for (int i = 0; i < this.List.Count; i++)
+                {
+                    GroupUpdateRule ur = (GroupUpdateRule) this.List[i];
+                    
+                    if (ur.computergroup.Id == add.computergroup.Id)
+                    {
+                        // Found a matching group - update it and exit
+                        this.List[i] = add;
+                        return i;
+                    }
+                }
+
+                // We didn't find one, so add it.
+                return this.List.Add(add);
+            }
+
+            public void Remove(int index)
+            {
+                // Check index falls within acceptable range
+                if (index < 0 || index > this.List.Count - 1)
+                    // Index out of range.
+                    throw new ArgumentOutOfRangeException();
+
+                // Remove list item
+                this.List.RemoveAt(index);
+            }
+
+            public void Remove(string groupname)
+            {
+                // Loop through all items and remove the offending one
+                for (int i = 0; i < this.List.Count; i++)
+                {
+                    GroupUpdateRule ur = (GroupUpdateRule)this.List[i];
+
+                    if (ur.computergroup.Name == groupname)
+                    {
+                        // Found it - remove!
+                        this.Remove(i);
+                        return;
+                    }
+                }
+
+                // Didn't find it - throw an exception
+                throw new ArgumentOutOfRangeException("Computer group " + groupname + " not in collection");
+            }
+
+            public int MaxDisplayOrder
+            {
+                get
+                {
+                    int o = -1;
+
+                    // Loop through each rule and find the highest display order
+                    foreach (GroupUpdateRule ur in this.List)
+                        if (ur.displayorder > o) o = ur.displayorder;
+
+                    // Return the maximum displayorder found.  Default is -1 if array is empty
+                    return o;
+                }
+            }
+
+            public GroupUpdateRuleCollection ChildGroups(GroupUpdateRule rule)
+            {
+                // Default is not to recurse if no parameter is provided
+                return ChildGroups(rule, false);
+            }
+
+            public GroupUpdateRuleCollection ChildGroups(GroupUpdateRule rule, bool recursive)
+            {
+                return AddChildrenOf(rule, recursive);
+            }
+        
+            private GroupUpdateRuleCollection AddChildrenOf(GroupUpdateRule rule, bool recursive)
+            {
+                GroupUpdateRuleCollection uc = new GroupUpdateRuleCollection();
+
+                // Loop through the collection and determine if the current rule is a child of the current rule
+                foreach (GroupUpdateRule ur in this.List)
+                {
+                    if (ur.parentcomputergroup != null && rule.computergroup.Id == ur.parentcomputergroup.Id)
+                    {
+                        // Found one - add it to the collection.
+                        uc.Add(ur);
+
+                        // Are we recursively adding children?
+                        if (recursive)
+                            // Yes, also add all the children of this child node
+                            uc.Add(AddChildrenOf(ur, true));
+                    }
+                }
+
+                return uc;
+            }
+
+            public void SortByDisplayOrder()
+            {
+                IComparer sorter = new DisplayOrderHelper();
+                InnerList.Sort(sorter);
+            }
+
+            public class DisplayOrderHelper : System.Collections.IComparer
+            {
+                public int Compare(object x, object y)
+                {
+                    GroupUpdateRule r1 = (GroupUpdateRule)x;
+                    GroupUpdateRule r2 = (GroupUpdateRule)y;
+
+                    if (r1.displayorder > r2.displayorder) return 1;
+                    if (r1.displayorder < r2.displayorder) return -1;
+
+                    // Items are identical
+                    return 0;
+                }
+            }
+
+            public bool Contains(string groupname)
+            {
+                // Loop through array looking for a matching group name
+                foreach (GroupUpdateRule ur in this.List)
+                {
+                    if (ur.computergroup.Name == groupname)
+                        // Got a match
+                        return true;
+                }
+
+                // No match found
+                return false;
+            }
+        }
+        
+        public string GroupUpdateRulesXMLFile
+        {
+            get
+            {
+                object o = reg.GetValue("GroupUpdateRulesXmlFile");
+                string xmlpath;
+
+                if (o == null)
+                    xmlpath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                else
+                    xmlpath = (string)o;
+
+                xmlpath = Path.Combine(xmlpath, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "\\GroupUpdateRules.xml");
+
+                // Check if XML file exists
+                if (File.Exists(xmlpath))
+                    // It exists - return path
+                    return xmlpath;
+                else
+                {
+                    // It doesn't exist - try to create it
+                    try
+                    {
+                        // Does the directory exist?
+                        if (!Directory.Exists(Path.GetDirectoryName(xmlpath)))
+                            // No it doesn't - try and create it
+                            Directory.CreateDirectory(Path.GetDirectoryName(xmlpath));
+
+                        WriteComputerGroupUpdateRulesXML(new GroupUpdateRuleCollection(), xmlpath);
+
+                        // If we get here, it wrote successfully, so return the file
+                        return xmlpath;
+                    }
+                    catch
+                    {
+                        // Create failed - return no path
+                        return "";
+                    }
+                }
+            }
+
+            set { reg.SetValue("GroupUpdateRulesXMLFile", value, RegistryValueKind.String); }
+        }
+
+        private void WriteComputerGroupUpdateRulesXML(GroupUpdateRuleCollection c, string file)
+        {
+            // Create XML file (overwriting it if it already exists)
+            using (FileStream fs = new FileStream(file, FileMode.Create))
+            {
+                XmlSerializer xs = new XmlSerializer(typeof(GroupUpdateRuleCollection));
+                xs.Serialize(fs, c);
+            }
+        }
+
+        private GroupUpdateRuleCollection ReadComputerGroupRuleXML(string file)
+        {
+            // Open the XML file and read the config.  Let the exceptions fly for other procedures to handle
+            using (FileStream fs = new FileStream(file, FileMode.Open))
+            {
+                GroupUpdateRuleCollection c = new GroupUpdateRuleCollection();
+                XmlSerializer xs = new XmlSerializer(typeof(GroupUpdateRuleCollection));
+                c = (GroupUpdateRuleCollection)xs.Deserialize(fs);
+                return c;
+            }
+        }
+
+        public GroupUpdateRuleCollection GroupUpdateRules
+        {
+            get
+            {
+                try
+                {
+                    return ReadComputerGroupRuleXML(GroupUpdateRulesXMLFile);
+                }
+                catch
+                {
+                    // Error reading ComputerGroupRules - return an empty collection
+                    return new GroupUpdateRuleCollection();
+                }
+            }
+
+            set { WriteComputerGroupUpdateRulesXML(value, GroupUpdateRulesXMLFile); }
+        }
     }
 }

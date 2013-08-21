@@ -84,6 +84,12 @@
   <ItemGroup>
     <Compile Include="clsWSUS.cs" />
     <Compile Include="clsConfig.cs" />
+    <Compile Include="frmGroupUpdateRules.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmGroupUpdateRules.Designer.cs">
+      <DependentUpon>frmGroupUpdateRules.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmCredentials.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -124,6 +130,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmComputerGroupRules.resx">
       <DependentUpon>frmComputerGroupRules.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmGroupUpdateRules.resx">
+      <DependentUpon>frmGroupUpdateRules.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmCredentials.resx">
       <DependentUpon>frmCredentials.cs</DependentUpon>

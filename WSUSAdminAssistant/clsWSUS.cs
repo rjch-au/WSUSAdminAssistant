@@ -249,9 +249,23 @@ namespace WSUSAdminAssistant
 
         // String properties to pass status messages back to form
         public string dbStatus { get; set; }
-        public string wsusStatus {get; set;}
+        public string wsusStatus { get; set;}
 
+        // Various WSUS variables, some with lazy initialisation
+        
         public IUpdateServer server;
+
+        private ComputerTargetGroupCollection _computergroups = null;
+        public ComputerTargetGroupCollection computergroups
+        {
+            get
+            {
+                if (_computergroups == null)
+                    _computergroups = server.GetComputerTargetGroups();
+
+                return _computergroups;
+            }
+        }
 
         public bool CheckDBConnection()
         {
@@ -304,7 +318,6 @@ namespace WSUSAdminAssistant
                 cmdUnassignedComputers.Connection = sql;
                 cmdUpdateErrors.Connection = sql;
                 cmdComputerGroups.Connection = sql;
-                cmdSupercededUpdates.Connection = sql;
             }
 
             // Connect to WSUS server
@@ -416,6 +429,7 @@ namespace WSUSAdminAssistant
         public DataTable GetSupercededUpdates()
         {
             // Run query and return results
+            cmdSupercededUpdates.Connection = sql;
             cmdSupercededUpdates.ExecuteNonQuery();
 
             SqlDataReader r = cmdSupercededUpdates.ExecuteReader();

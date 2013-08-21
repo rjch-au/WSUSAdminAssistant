@@ -828,9 +828,17 @@ namespace WSUSAdminAssistant
 
         private void frmMain_Load(object sender, EventArgs e)
         {
+            // Let the user know something is happening
+            Cursor.Current = Cursors.WaitCursor;
+
             // Link status items to WSUS class
             lblSQLStatus.Text = wsus.dbStatus;
             lblWSUSStatus.Text = wsus.wsusStatus;
+
+            if (wsus.server != null)
+                ShowTabs(true);
+            else
+                ShowTabs(false);
 
             // Return window to it's saved location and state
             this.Location = cfg.WindowLocation;
@@ -857,6 +865,9 @@ namespace WSUSAdminAssistant
             butCheckClick(butUpdateErrors, ba[3]);
             butCheckClick(butDefaultSusID, ba[4]);
             butCheckClick(butGroupRules, ba[5]);
+
+            // Return cursor to normal
+            Cursor.Current = Cursors.Arrow;
         }
 
         private void frmMain_Closing(object sender, FormClosingEventArgs e)
@@ -1414,6 +1425,12 @@ namespace WSUSAdminAssistant
         private void mnuCredentials_Click(object sender, EventArgs e)
         {
             Form f = new frmCredentials();
+            f.ShowDialog();
+        }
+
+        private void mnuGroupApprovalRules_Click(object sender, EventArgs e)
+        {
+            Form f = new frmGroupUpdateRules();
             f.ShowDialog();
         }
 
