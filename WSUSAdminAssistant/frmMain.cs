@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.UpdateServices.Administration;
 using Microsoft.UpdateServices.Administration.Internal;
@@ -1512,7 +1513,8 @@ namespace WSUSAdminAssistant
             r.Cells[tskComputer.Index].Tag = cred;
             r.Cells[tskIP.Index].Value = ip.ToString();
             r.Cells[tskCommand.Index].Value = command;
-            r.Cells[0].Selected = true;
+
+            grdTasks.CurrentCell = r.Cells[0];
 
             // Restart job timer
             timTasks.Interval = 500;
@@ -1555,6 +1557,8 @@ namespace WSUSAdminAssistant
             PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /resetauthorization");
         }
 
+        private string output = "";
+
         private void timTasks_Tick(object sender, EventArgs e)
         {
             // If there are no tasks, we don't need to do anything...
@@ -1572,12 +1576,18 @@ namespace WSUSAdminAssistant
             DataGridViewRow r = null;
 
             foreach (DataGridViewRow gr in grdTasks.Rows)
+            {
+                if (gr.Cells[tskStatus.Index].Value.ToString() == "Running")
+                    // Oops - we're already running one task - break before we start another one!
+                    break;
+
                 if (gr.Cells[tskStatus.Index].Value.ToString() == "Queued")
                 {
                     // Found one - note it and break
                     r = gr;
                     break;
                 }
+            }
 
             // Return if we didn't find a row
             if (r == null) return;
@@ -1607,6 +1617,7 @@ namespace WSUSAdminAssistant
             param += r.Cells[tskCommand.Index].Value.ToString();
 
             r.Cells[tskStatus.Index].Value = "Running";
+            grdTasks.CurrentCell = r.Cells[0];
             grdTasks.Refresh();
 
             // Run PSExec
@@ -1619,37 +1630,30 @@ namespace WSUSAdminAssistant
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
-                    CreateNoWindow = true
+                    CreateNoWindow = true                    
                 }
             };
 
+            psexec.OutputDataReceived += new DataReceivedEventHandler(OutputHandler);
+            psexec.ErrorDataReceived += new DataReceivedEventHandler(OutputHandler);
+
+            output = "";
+
             psexec.Start();
+            psexec.BeginOutputReadLine();
+            psexec.BeginErrorReadLine();
 
             // Read output for 30 seconds or until process has terminated
             DateTime start = DateTime.Now;
-            string output = "";
 
             do
             {
-                string l;
-
-                // Do we have any standard error output?
-                l = psexec.StandardOutput.ReadToEnd();
-                if (!string.IsNullOrEmpty(l))
-                {
-                    output += l;
+                // Is the string in the textbox any different to the output?
+                if ((output != "" && r.Cells[tskOutput.Index].Value == null) || (r.Cells[tskOutput.Index].Value != null && output != r.Cells[tskOutput.Index].Value.ToString()))
+                    // Yes, update the cell
                     r.Cells[tskOutput.Index].Value = output;
-                    grdTasks.Refresh();
-                }
 
-                // Do we have any standard error output?
-                l = psexec.StandardOutput.ReadToEnd();
-                if (!string.IsNullOrEmpty(l))
-                {
-                    output += l;
-                    r.Cells[tskOutput.Index].Value = output;
-                    grdTasks.Refresh();
-                }
+                Application.DoEvents();
             } while (DateTime.Now.Subtract(start).TotalSeconds < 30 && !psexec.HasExited);
 
             if (psexec.HasExited) // Did task complete
@@ -1668,6 +1672,34 @@ namespace WSUSAdminAssistant
 
             // Re-enable the timer
             timTasks.Enabled = true;
+        }
+
+        private void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
+        {
+            if (outLine.Data == null) return;
+
+            // Process each output line individually
+            string[] lines = outLine.Data.Split(new string[] { System.Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string l in lines)
+            {
+                // Does the text match the kind of output we get from PSExec?
+                if (!Regex.IsMatch(l, "^PsExec v.*remotely$") &&
+                    !Regex.IsMatch(l, "^Copyright.*Russinovich$") &&
+                    !Regex.IsMatch(l, "^Sysinternals - www.sysinternals.com$") &&
+                    !Regex.IsMatch(l, @"^Connecting .*\.\.\.$") &&
+                    !Regex.IsMatch(l, @"^Starting .*\.\.\.$"))
+                        // No, we can add it to the string
+                        output += System.Environment.NewLine + l;
+            }
+
+            // Strip all double carriage returns
+            while (output.Replace(System.Environment.NewLine + System.Environment.NewLine, System.Environment.NewLine) != output)
+                output = output.Replace(System.Environment.NewLine + System.Environment.NewLine, System.Environment.NewLine);
+
+            // Strip any leading or tailing carriage returns
+            while (output != output.Trim('\r', '\n'))
+                output = output.Trim('\r', '\n');
         }
     }
 }

@@ -30,15 +30,16 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle16 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle17 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle18 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle22 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle23 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle24 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle25 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle26 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle27 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle28 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle29 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle30 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle21 = new System.Windows.Forms.DataGridViewCellStyle();
             this.timUpdateData = new System.Windows.Forms.Timer(this.components);
             this.gbxWorking = new System.Windows.Forms.GroupBox();
             this.picReloading = new System.Windows.Forms.PictureBox();
@@ -83,11 +84,6 @@
             this.butDefaultSusID = new System.Windows.Forms.ToolStripButton();
             this.butGroupRules = new System.Windows.Forms.ToolStripButton();
             this.grdTasks = new System.Windows.Forms.DataGridView();
-            this.tskStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tskComputer = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tskIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tskCommand = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tskOutput = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabUnapprovedUpdates = new System.Windows.Forms.TabPage();
             this.grdUpdates = new System.Windows.Forms.DataGridView();
             this.UpdateName = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -174,6 +170,11 @@
             this.epReportNow = new System.Windows.Forms.ToolStripMenuItem();
             this.timTasks = new System.Windows.Forms.Timer(this.components);
             this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
+            this.tskStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskComputer = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskCommand = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskOutput = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.gbxWorking.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picReloading)).BeginInit();
             this.tabSuperceded.SuspendLayout();
@@ -622,6 +623,7 @@
             this.grdTasks.AllowUserToDeleteRows = false;
             this.grdTasks.AllowUserToResizeColumns = false;
             this.grdTasks.AllowUserToResizeRows = false;
+            this.grdTasks.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.grdTasks.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.grdTasks.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.tskStatus,
@@ -632,48 +634,9 @@
             this.grdTasks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grdTasks.Location = new System.Drawing.Point(0, 0);
             this.grdTasks.Name = "grdTasks";
+            this.grdTasks.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             this.grdTasks.Size = new System.Drawing.Size(1038, 102);
             this.grdTasks.TabIndex = 0;
-            // 
-            // tskStatus
-            // 
-            this.tskStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.tskStatus.HeaderText = "Status";
-            this.tskStatus.Name = "tskStatus";
-            this.tskStatus.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.tskStatus.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.tskStatus.Width = 43;
-            // 
-            // tskComputer
-            // 
-            this.tskComputer.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.tskComputer.HeaderText = "Computer";
-            this.tskComputer.Name = "tskComputer";
-            this.tskComputer.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.tskComputer.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.tskComputer.Width = 58;
-            // 
-            // tskIP
-            // 
-            this.tskIP.HeaderText = "IP Address";
-            this.tskIP.Name = "tskIP";
-            // 
-            // tskCommand
-            // 
-            this.tskCommand.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.tskCommand.HeaderText = "Command";
-            this.tskCommand.Name = "tskCommand";
-            this.tskCommand.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.tskCommand.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // tskOutput
-            // 
-            this.tskOutput.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.tskOutput.HeaderText = "Output";
-            this.tskOutput.Name = "tskOutput";
-            this.tskOutput.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.tskOutput.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.tskOutput.Width = 45;
             // 
             // tabUnapprovedUpdates
             // 
@@ -769,8 +732,8 @@
             // 
             // T
             // 
-            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.T.DefaultCellStyle = dataGridViewCellStyle10;
+            dataGridViewCellStyle22.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.T.DefaultCellStyle = dataGridViewCellStyle22;
             this.T.HeaderText = "Group T";
             this.T.Name = "T";
             this.T.ReadOnly = true;
@@ -778,8 +741,8 @@
             // 
             // A
             // 
-            dataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.A.DefaultCellStyle = dataGridViewCellStyle11;
+            dataGridViewCellStyle23.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.A.DefaultCellStyle = dataGridViewCellStyle23;
             this.A.HeaderText = "Group A";
             this.A.Name = "A";
             this.A.ReadOnly = true;
@@ -788,8 +751,8 @@
             // 
             // B
             // 
-            dataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.B.DefaultCellStyle = dataGridViewCellStyle12;
+            dataGridViewCellStyle24.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.B.DefaultCellStyle = dataGridViewCellStyle24;
             this.B.HeaderText = "Group B";
             this.B.Name = "B";
             this.B.ReadOnly = true;
@@ -798,8 +761,8 @@
             // 
             // ServerT
             // 
-            dataGridViewCellStyle13.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ServerT.DefaultCellStyle = dataGridViewCellStyle13;
+            dataGridViewCellStyle25.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ServerT.DefaultCellStyle = dataGridViewCellStyle25;
             this.ServerT.HeaderText = "Servers T";
             this.ServerT.Name = "ServerT";
             this.ServerT.ReadOnly = true;
@@ -807,8 +770,8 @@
             // 
             // ChemistT
             // 
-            dataGridViewCellStyle14.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ChemistT.DefaultCellStyle = dataGridViewCellStyle14;
+            dataGridViewCellStyle26.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ChemistT.DefaultCellStyle = dataGridViewCellStyle26;
             this.ChemistT.HeaderText = "Chemist T";
             this.ChemistT.Name = "ChemistT";
             this.ChemistT.ReadOnly = true;
@@ -816,8 +779,8 @@
             // 
             // ChemistA
             // 
-            dataGridViewCellStyle15.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ChemistA.DefaultCellStyle = dataGridViewCellStyle15;
+            dataGridViewCellStyle27.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ChemistA.DefaultCellStyle = dataGridViewCellStyle27;
             this.ChemistA.HeaderText = "Chemist A";
             this.ChemistA.Name = "ChemistA";
             this.ChemistA.ReadOnly = true;
@@ -826,8 +789,8 @@
             // 
             // ChemistB
             // 
-            dataGridViewCellStyle16.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ChemistB.DefaultCellStyle = dataGridViewCellStyle16;
+            dataGridViewCellStyle28.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ChemistB.DefaultCellStyle = dataGridViewCellStyle28;
             this.ChemistB.HeaderText = "Chemist B";
             this.ChemistB.Name = "ChemistB";
             this.ChemistB.ReadOnly = true;
@@ -836,8 +799,8 @@
             // 
             // ChemistServerT
             // 
-            dataGridViewCellStyle17.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ChemistServerT.DefaultCellStyle = dataGridViewCellStyle17;
+            dataGridViewCellStyle29.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ChemistServerT.DefaultCellStyle = dataGridViewCellStyle29;
             this.ChemistServerT.HeaderText = "Chemist Servers T";
             this.ChemistServerT.Name = "ChemistServerT";
             this.ChemistServerT.ReadOnly = true;
@@ -845,8 +808,8 @@
             // 
             // Testing
             // 
-            dataGridViewCellStyle18.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.Testing.DefaultCellStyle = dataGridViewCellStyle18;
+            dataGridViewCellStyle30.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.Testing.DefaultCellStyle = dataGridViewCellStyle30;
             this.Testing.HeaderText = "Testing";
             this.Testing.Name = "Testing";
             this.Testing.ReadOnly = true;
@@ -1392,6 +1355,50 @@
             this.dataGridViewImageColumn1.HeaderText = "Status";
             this.dataGridViewImageColumn1.Name = "dataGridViewImageColumn1";
             // 
+            // tskStatus
+            // 
+            this.tskStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskStatus.HeaderText = "Status";
+            this.tskStatus.Name = "tskStatus";
+            this.tskStatus.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskStatus.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskStatus.Width = 43;
+            // 
+            // tskComputer
+            // 
+            this.tskComputer.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskComputer.HeaderText = "Computer";
+            this.tskComputer.Name = "tskComputer";
+            this.tskComputer.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskComputer.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskComputer.Width = 58;
+            // 
+            // tskIP
+            // 
+            this.tskIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskIP.HeaderText = "IP Address";
+            this.tskIP.Name = "tskIP";
+            this.tskIP.Width = 83;
+            // 
+            // tskCommand
+            // 
+            this.tskCommand.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskCommand.HeaderText = "Command";
+            this.tskCommand.Name = "tskCommand";
+            this.tskCommand.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskCommand.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskCommand.Width = 60;
+            // 
+            // tskOutput
+            // 
+            this.tskOutput.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewCellStyle21.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskOutput.DefaultCellStyle = dataGridViewCellStyle21;
+            this.tskOutput.HeaderText = "Output";
+            this.tskOutput.Name = "tskOutput";
+            this.tskOutput.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskOutput.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1515,11 +1522,6 @@
         private System.Windows.Forms.ToolStripButton butDefaultSusID;
         private System.Windows.Forms.ToolStripButton butGroupRules;
         private System.Windows.Forms.DataGridView grdTasks;
-        private System.Windows.Forms.DataGridViewTextBoxColumn tskStatus;
-        private System.Windows.Forms.DataGridViewTextBoxColumn tskComputer;
-        private System.Windows.Forms.DataGridViewTextBoxColumn tskIP;
-        private System.Windows.Forms.DataGridViewTextBoxColumn tskCommand;
-        private System.Windows.Forms.DataGridViewTextBoxColumn tskOutput;
         private System.Windows.Forms.DataGridView grdUpdates;
         private System.Windows.Forms.DataGridViewTextBoxColumn UpdateName;
         private System.Windows.Forms.DataGridViewTextBoxColumn uaUpdateID;
@@ -1578,6 +1580,11 @@
         private System.Windows.Forms.ToolStripMenuItem CBdeselectToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton butDeclineUnapproved;
         private System.Windows.Forms.ToolStripButton butCancelApprove;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tskStatus;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tskComputer;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tskIP;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tskCommand;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tskOutput;
     }
 }
 

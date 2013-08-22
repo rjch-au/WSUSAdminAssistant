@@ -408,8 +408,8 @@ namespace WSUSAdminAssistant
             UpdateGroupUpdateRules();
 
             numDisplayOrder.Value = grouprules.MaxDisplayOrder + 1;
-            cboComputerGroup.Text = "";
             cboComputerGroup.Enabled = true;
+            cboComputerGroup.Text = "";
             cboParentGroup.Text = "";
 
             numParentInterval.Value = 1;
