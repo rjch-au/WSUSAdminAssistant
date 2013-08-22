@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmComputerGroupRules));
             this.grdRegEx = new System.Windows.Forms.DataGridView();
             this.rxPriority = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.rxComputerRegEx = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -155,8 +154,8 @@
             // 
             // btnSave
             // 
-            this.btnSave.Image = ((System.Drawing.Image)(resources.GetObject("btnSave.Image")));
-            this.btnSave.ImageTransparentColor = System.Drawing.Color.Black;
+            this.btnSave.Image = global::WSUSAdminAssistant.Properties.Resources.Save;
+            this.btnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(82, 22);
             this.btnSave.Text = "Save Rules";
@@ -164,8 +163,8 @@
             // 
             // btnTestRule
             // 
-            this.btnTestRule.Image = ((System.Drawing.Image)(resources.GetObject("btnTestRule.Image")));
-            this.btnTestRule.ImageTransparentColor = System.Drawing.Color.Black;
+            this.btnTestRule.Image = global::WSUSAdminAssistant.Properties.Resources.Zoom;
+            this.btnTestRule.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnTestRule.Name = "btnTestRule";
             this.btnTestRule.Size = new System.Drawing.Size(75, 22);
             this.btnTestRule.Text = "Test Rule";
@@ -173,8 +172,8 @@
             // 
             // btnPCsNotCovered
             // 
-            this.btnPCsNotCovered.Image = ((System.Drawing.Image)(resources.GetObject("btnPCsNotCovered.Image")));
-            this.btnPCsNotCovered.ImageTransparentColor = System.Drawing.Color.Black;
+            this.btnPCsNotCovered.Image = global::WSUSAdminAssistant.Properties.Resources.Legend;
+            this.btnPCsNotCovered.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnPCsNotCovered.Name = "btnPCsNotCovered";
             this.btnPCsNotCovered.Size = new System.Drawing.Size(164, 22);
             this.btnPCsNotCovered.Text = "PCs Not Covered by Rules";

@@ -30,15 +30,15 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle16 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle17 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle18 = new System.Windows.Forms.DataGridViewCellStyle();
             this.timUpdateData = new System.Windows.Forms.Timer(this.components);
             this.gbxWorking = new System.Windows.Forms.GroupBox();
             this.picReloading = new System.Windows.Forms.PictureBox();
@@ -62,6 +62,7 @@
             this.wnuLastSync = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.wnuLastRollup = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabEndpointFaults = new System.Windows.Forms.TabPage();
+            this.splEndpoint = new System.Windows.Forms.SplitContainer();
             this.grdEndpoints = new System.Windows.Forms.DataGridView();
             this.epName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.epUpdate = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -81,6 +82,12 @@
             this.butUnassigned = new System.Windows.Forms.ToolStripButton();
             this.butDefaultSusID = new System.Windows.Forms.ToolStripButton();
             this.butGroupRules = new System.Windows.Forms.ToolStripButton();
+            this.grdTasks = new System.Windows.Forms.DataGridView();
+            this.tskStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskComputer = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskCommand = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskOutput = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabUnapprovedUpdates = new System.Windows.Forms.TabPage();
             this.grdUpdates = new System.Windows.Forms.DataGridView();
             this.UpdateName = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -150,6 +157,7 @@
             this.mnuOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuWSUSServer = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuComputerGroupRules = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuGroupApprovalRules = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuCredentials = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuDefaultSusIDList = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
@@ -164,7 +172,8 @@
             this.mnuResetAuth = new System.Windows.Forms.ToolStripMenuItem();
             this.epDetectNow = new System.Windows.Forms.ToolStripMenuItem();
             this.epReportNow = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuGroupApprovalRules = new System.Windows.Forms.ToolStripMenuItem();
+            this.timTasks = new System.Windows.Forms.Timer(this.components);
+            this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
             this.gbxWorking.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picReloading)).BeginInit();
             this.tabSuperceded.SuspendLayout();
@@ -174,8 +183,13 @@
             this.tabWSUSNotCommunicating.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grdWSUSNotCommunicting)).BeginInit();
             this.tabEndpointFaults.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splEndpoint)).BeginInit();
+            this.splEndpoint.Panel1.SuspendLayout();
+            this.splEndpoint.Panel2.SuspendLayout();
+            this.splEndpoint.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grdEndpoints)).BeginInit();
             this.tlsEndpoint.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grdTasks)).BeginInit();
             this.tabUnapprovedUpdates.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grdUpdates)).BeginInit();
             this.tlsFilterUpdates.SuspendLayout();
@@ -399,14 +413,32 @@
             // 
             // tabEndpointFaults
             // 
-            this.tabEndpointFaults.Controls.Add(this.grdEndpoints);
-            this.tabEndpointFaults.Controls.Add(this.tlsEndpoint);
+            this.tabEndpointFaults.Controls.Add(this.splEndpoint);
             this.tabEndpointFaults.Location = new System.Drawing.Point(4, 22);
             this.tabEndpointFaults.Name = "tabEndpointFaults";
             this.tabEndpointFaults.Size = new System.Drawing.Size(1038, 459);
             this.tabEndpointFaults.TabIndex = 9;
             this.tabEndpointFaults.Text = "Endpoint Faults";
             this.tabEndpointFaults.UseVisualStyleBackColor = true;
+            // 
+            // splEndpoint
+            // 
+            this.splEndpoint.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splEndpoint.Location = new System.Drawing.Point(0, 0);
+            this.splEndpoint.Name = "splEndpoint";
+            this.splEndpoint.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splEndpoint.Panel1
+            // 
+            this.splEndpoint.Panel1.Controls.Add(this.grdEndpoints);
+            this.splEndpoint.Panel1.Controls.Add(this.tlsEndpoint);
+            // 
+            // splEndpoint.Panel2
+            // 
+            this.splEndpoint.Panel2.Controls.Add(this.grdTasks);
+            this.splEndpoint.Size = new System.Drawing.Size(1038, 459);
+            this.splEndpoint.SplitterDistance = 353;
+            this.splEndpoint.TabIndex = 3;
             // 
             // grdEndpoints
             // 
@@ -430,8 +462,8 @@
             this.grdEndpoints.MultiSelect = false;
             this.grdEndpoints.Name = "grdEndpoints";
             this.grdEndpoints.ReadOnly = true;
-            this.grdEndpoints.Size = new System.Drawing.Size(1038, 434);
-            this.grdEndpoints.TabIndex = 2;
+            this.grdEndpoints.Size = new System.Drawing.Size(1038, 328);
+            this.grdEndpoints.TabIndex = 4;
             this.grdEndpoints.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.grdEndpoints_CellMouseClick);
             this.grdEndpoints.SortCompare += new System.Windows.Forms.DataGridViewSortCompareEventHandler(this.grdEndpoints_SortCompare);
             // 
@@ -530,71 +562,118 @@
             this.tlsEndpoint.Location = new System.Drawing.Point(0, 0);
             this.tlsEndpoint.Name = "tlsEndpoint";
             this.tlsEndpoint.Size = new System.Drawing.Size(1038, 25);
-            this.tlsEndpoint.TabIndex = 0;
+            this.tlsEndpoint.TabIndex = 3;
             // 
             // butApproved
             // 
             this.butApproved.Checked = true;
             this.butApproved.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.butApproved.Image = global::WSUSAdminAssistant.Properties.Resources.SuccessComplete;
             this.butApproved.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.butApproved.Name = "butApproved";
-            this.butApproved.Size = new System.Drawing.Size(203, 22);
+            this.butApproved.Size = new System.Drawing.Size(187, 22);
             this.butApproved.Text = "Approved but Unapplied Updates";
-            this.butApproved.Click += new System.EventHandler(this.butApproved_Click);
             // 
             // butUpdateErrors
             // 
             this.butUpdateErrors.Checked = true;
             this.butUpdateErrors.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.butUpdateErrors.Image = global::WSUSAdminAssistant.Properties.Resources.SuccessComplete;
             this.butUpdateErrors.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.butUpdateErrors.Name = "butUpdateErrors";
-            this.butUpdateErrors.Size = new System.Drawing.Size(129, 22);
+            this.butUpdateErrors.Size = new System.Drawing.Size(113, 22);
             this.butUpdateErrors.Text = "Updates with Errors";
-            this.butUpdateErrors.Click += new System.EventHandler(this.butUpdateErrors_Click);
             // 
             // butNotCommunicating
             // 
             this.butNotCommunicating.Checked = true;
             this.butNotCommunicating.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.butNotCommunicating.Image = global::WSUSAdminAssistant.Properties.Resources.SuccessComplete;
             this.butNotCommunicating.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.butNotCommunicating.Name = "butNotCommunicating";
-            this.butNotCommunicating.Size = new System.Drawing.Size(137, 22);
+            this.butNotCommunicating.Size = new System.Drawing.Size(121, 22);
             this.butNotCommunicating.Text = "Not Communicating";
-            this.butNotCommunicating.Click += new System.EventHandler(this.butNotCommunicating_Click);
             // 
             // butUnassigned
             // 
             this.butUnassigned.Checked = true;
             this.butUnassigned.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.butUnassigned.Image = global::WSUSAdminAssistant.Properties.Resources.SuccessComplete;
             this.butUnassigned.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.butUnassigned.Name = "butUnassigned";
-            this.butUnassigned.Size = new System.Drawing.Size(157, 22);
+            this.butUnassigned.Size = new System.Drawing.Size(141, 22);
             this.butUnassigned.Text = "Not Assigned to a Group";
-            this.butUnassigned.Click += new System.EventHandler(this.butUnassigned_Click);
             // 
             // butDefaultSusID
             // 
             this.butDefaultSusID.Checked = true;
             this.butDefaultSusID.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.butDefaultSusID.Image = global::WSUSAdminAssistant.Properties.Resources.SuccessComplete;
             this.butDefaultSusID.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.butDefaultSusID.Name = "butDefaultSusID";
-            this.butDefaultSusID.Size = new System.Drawing.Size(102, 22);
+            this.butDefaultSusID.Size = new System.Drawing.Size(86, 22);
             this.butDefaultSusID.Text = "Default SUS ID";
-            this.butDefaultSusID.Click += new System.EventHandler(this.butDefaultSusID_Click);
             // 
             // butGroupRules
             // 
-            this.butGroupRules.Image = global::WSUSAdminAssistant.Properties.Resources.SuccessComplete;
             this.butGroupRules.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.butGroupRules.Name = "butGroupRules";
-            this.butGroupRules.Size = new System.Drawing.Size(159, 22);
+            this.butGroupRules.Size = new System.Drawing.Size(143, 22);
             this.butGroupRules.Text = "PCs not in Correct Group";
-            this.butGroupRules.Click += new System.EventHandler(this.butGroupRules_Click);
+            // 
+            // grdTasks
+            // 
+            this.grdTasks.AllowUserToAddRows = false;
+            this.grdTasks.AllowUserToDeleteRows = false;
+            this.grdTasks.AllowUserToResizeColumns = false;
+            this.grdTasks.AllowUserToResizeRows = false;
+            this.grdTasks.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.grdTasks.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.tskStatus,
+            this.tskComputer,
+            this.tskIP,
+            this.tskCommand,
+            this.tskOutput});
+            this.grdTasks.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grdTasks.Location = new System.Drawing.Point(0, 0);
+            this.grdTasks.Name = "grdTasks";
+            this.grdTasks.Size = new System.Drawing.Size(1038, 102);
+            this.grdTasks.TabIndex = 0;
+            // 
+            // tskStatus
+            // 
+            this.tskStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskStatus.HeaderText = "Status";
+            this.tskStatus.Name = "tskStatus";
+            this.tskStatus.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskStatus.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskStatus.Width = 43;
+            // 
+            // tskComputer
+            // 
+            this.tskComputer.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskComputer.HeaderText = "Computer";
+            this.tskComputer.Name = "tskComputer";
+            this.tskComputer.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskComputer.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskComputer.Width = 58;
+            // 
+            // tskIP
+            // 
+            this.tskIP.HeaderText = "IP Address";
+            this.tskIP.Name = "tskIP";
+            // 
+            // tskCommand
+            // 
+            this.tskCommand.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.tskCommand.HeaderText = "Command";
+            this.tskCommand.Name = "tskCommand";
+            this.tskCommand.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskCommand.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // tskOutput
+            // 
+            this.tskOutput.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskOutput.HeaderText = "Output";
+            this.tskOutput.Name = "tskOutput";
+            this.tskOutput.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskOutput.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskOutput.Width = 45;
             // 
             // tabUnapprovedUpdates
             // 
@@ -637,7 +716,7 @@
             this.grdUpdates.ReadOnly = true;
             this.grdUpdates.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.grdUpdates.Size = new System.Drawing.Size(1032, 428);
-            this.grdUpdates.TabIndex = 0;
+            this.grdUpdates.TabIndex = 3;
             this.grdUpdates.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.grdUpdates_CellMouseClick);
             // 
             // UpdateName
@@ -690,8 +769,8 @@
             // 
             // T
             // 
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.T.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.T.DefaultCellStyle = dataGridViewCellStyle10;
             this.T.HeaderText = "Group T";
             this.T.Name = "T";
             this.T.ReadOnly = true;
@@ -699,8 +778,8 @@
             // 
             // A
             // 
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.A.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.A.DefaultCellStyle = dataGridViewCellStyle11;
             this.A.HeaderText = "Group A";
             this.A.Name = "A";
             this.A.ReadOnly = true;
@@ -709,8 +788,8 @@
             // 
             // B
             // 
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.B.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.B.DefaultCellStyle = dataGridViewCellStyle12;
             this.B.HeaderText = "Group B";
             this.B.Name = "B";
             this.B.ReadOnly = true;
@@ -719,8 +798,8 @@
             // 
             // ServerT
             // 
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ServerT.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle13.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ServerT.DefaultCellStyle = dataGridViewCellStyle13;
             this.ServerT.HeaderText = "Servers T";
             this.ServerT.Name = "ServerT";
             this.ServerT.ReadOnly = true;
@@ -728,8 +807,8 @@
             // 
             // ChemistT
             // 
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ChemistT.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle14.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ChemistT.DefaultCellStyle = dataGridViewCellStyle14;
             this.ChemistT.HeaderText = "Chemist T";
             this.ChemistT.Name = "ChemistT";
             this.ChemistT.ReadOnly = true;
@@ -737,8 +816,8 @@
             // 
             // ChemistA
             // 
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ChemistA.DefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle15.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ChemistA.DefaultCellStyle = dataGridViewCellStyle15;
             this.ChemistA.HeaderText = "Chemist A";
             this.ChemistA.Name = "ChemistA";
             this.ChemistA.ReadOnly = true;
@@ -747,8 +826,8 @@
             // 
             // ChemistB
             // 
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ChemistB.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle16.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ChemistB.DefaultCellStyle = dataGridViewCellStyle16;
             this.ChemistB.HeaderText = "Chemist B";
             this.ChemistB.Name = "ChemistB";
             this.ChemistB.ReadOnly = true;
@@ -757,8 +836,8 @@
             // 
             // ChemistServerT
             // 
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ChemistServerT.DefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle17.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ChemistServerT.DefaultCellStyle = dataGridViewCellStyle17;
             this.ChemistServerT.HeaderText = "Chemist Servers T";
             this.ChemistServerT.Name = "ChemistServerT";
             this.ChemistServerT.ReadOnly = true;
@@ -766,8 +845,8 @@
             // 
             // Testing
             // 
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.Testing.DefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle18.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.Testing.DefaultCellStyle = dataGridViewCellStyle18;
             this.Testing.HeaderText = "Testing";
             this.Testing.Name = "Testing";
             this.Testing.ReadOnly = true;
@@ -785,7 +864,7 @@
             this.tlsFilterUpdates.Location = new System.Drawing.Point(3, 3);
             this.tlsFilterUpdates.Name = "tlsFilterUpdates";
             this.tlsFilterUpdates.Size = new System.Drawing.Size(1032, 25);
-            this.tlsFilterUpdates.TabIndex = 1;
+            this.tlsFilterUpdates.TabIndex = 4;
             this.tlsFilterUpdates.Text = "Filter Updates";
             // 
             // tlmFilterUpdates
@@ -819,7 +898,6 @@
             this.tlsNoFilter.Name = "tlsNoFilter";
             this.tlsNoFilter.Size = new System.Drawing.Size(151, 22);
             this.tlsNoFilter.Text = "No Filtering";
-            this.tlsNoFilter.Click += new System.EventHandler(this.tlsNoFilter_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -831,28 +909,24 @@
             this.tliXP.Name = "tliXP";
             this.tliXP.Size = new System.Drawing.Size(151, 22);
             this.tliXP.Text = "Windows XP";
-            this.tliXP.Click += new System.EventHandler(this.tliXP_Click);
             // 
             // tliVista
             // 
             this.tliVista.Name = "tliVista";
             this.tliVista.Size = new System.Drawing.Size(151, 22);
             this.tliVista.Text = "Windows Vista";
-            this.tliVista.Click += new System.EventHandler(this.tliVista_Click);
             // 
             // tli7
             // 
             this.tli7.Name = "tli7";
             this.tli7.Size = new System.Drawing.Size(151, 22);
             this.tli7.Text = "Windows 7";
-            this.tli7.Click += new System.EventHandler(this.tli7_Click);
             // 
             // tli8
             // 
             this.tli8.Name = "tli8";
             this.tli8.Size = new System.Drawing.Size(151, 22);
             this.tli8.Text = "Windows 8";
-            this.tli8.Click += new System.EventHandler(this.tli8_Click);
             // 
             // toolStripMenuItem2
             // 
@@ -893,28 +967,24 @@
             this.tliOffice2003.Name = "tliOffice2003";
             this.tliOffice2003.Size = new System.Drawing.Size(151, 22);
             this.tliOffice2003.Text = "Office 2003";
-            this.tliOffice2003.Click += new System.EventHandler(this.tliOffice2003_Click);
             // 
             // tliOffice2007
             // 
             this.tliOffice2007.Name = "tliOffice2007";
             this.tliOffice2007.Size = new System.Drawing.Size(151, 22);
             this.tliOffice2007.Text = "Office 2007";
-            this.tliOffice2007.Click += new System.EventHandler(this.tliOffice2007_Click);
             // 
             // tliOffice2010
             // 
             this.tliOffice2010.Name = "tliOffice2010";
             this.tliOffice2010.Size = new System.Drawing.Size(151, 22);
             this.tliOffice2010.Text = "Office 2010";
-            this.tliOffice2010.Click += new System.EventHandler(this.tliOffice2010_Click);
             // 
             // tliOffice2013
             // 
             this.tliOffice2013.Name = "tliOffice2013";
             this.tliOffice2013.Size = new System.Drawing.Size(151, 22);
             this.tliOffice2013.Text = "Office 2013";
-            this.tliOffice2013.Click += new System.EventHandler(this.tliOffice2012_Click);
             // 
             // tlsUpdateCount
             // 
@@ -927,12 +997,11 @@
             // butApproveUpdates
             // 
             this.butApproveUpdates.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.butApproveUpdates.Image = ((System.Drawing.Image)(resources.GetObject("butApproveUpdates.Image")));
+            this.butApproveUpdates.Image = global::WSUSAdminAssistant.Properties.Resources.OK;
             this.butApproveUpdates.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.butApproveUpdates.Name = "butApproveUpdates";
             this.butApproveUpdates.Size = new System.Drawing.Size(165, 22);
             this.butApproveUpdates.Text = "Approve Selected Updates";
-            this.butApproveUpdates.Click += new System.EventHandler(this.butApproveUpdates_Click);
             // 
             // tlmSelections
             // 
@@ -958,7 +1027,6 @@
             this.clearSelectionsToolStripMenuItem.Name = "clearSelectionsToolStripMenuItem";
             this.clearSelectionsToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
             this.clearSelectionsToolStripMenuItem.Text = "Clear Selections";
-            this.clearSelectionsToolStripMenuItem.Click += new System.EventHandler(this.clearSelectionsToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
@@ -984,14 +1052,12 @@
             this.AselectToolStripMenuItem.Name = "AselectToolStripMenuItem";
             this.AselectToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.AselectToolStripMenuItem.Text = "Select";
-            this.AselectToolStripMenuItem.Click += new System.EventHandler(this.AselectToolStripMenuItem_Click);
             // 
             // AdeselectToolStripMenuItem
             // 
             this.AdeselectToolStripMenuItem.Name = "AdeselectToolStripMenuItem";
             this.AdeselectToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.AdeselectToolStripMenuItem.Text = "Deselect";
-            this.AdeselectToolStripMenuItem.Click += new System.EventHandler(this.AdeselectToolStripMenuItem_Click);
             // 
             // groupBToolStripMenuItem
             // 
@@ -1007,14 +1073,12 @@
             this.BselectToolStripMenuItem.Name = "BselectToolStripMenuItem";
             this.BselectToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.BselectToolStripMenuItem.Text = "Select";
-            this.BselectToolStripMenuItem.Click += new System.EventHandler(this.BselectToolStripMenuItem_Click);
             // 
             // BdeselectToolStripMenuItem
             // 
             this.BdeselectToolStripMenuItem.Name = "BdeselectToolStripMenuItem";
             this.BdeselectToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.BdeselectToolStripMenuItem.Text = "Deselect";
-            this.BdeselectToolStripMenuItem.Click += new System.EventHandler(this.BdeselectToolStripMenuItem_Click);
             // 
             // groupSToolStripMenuItem
             // 
@@ -1030,14 +1094,12 @@
             this.SselectToolStripMenuItem.Name = "SselectToolStripMenuItem";
             this.SselectToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.SselectToolStripMenuItem.Text = "Select";
-            this.SselectToolStripMenuItem.Click += new System.EventHandler(this.SselectToolStripMenuItem_Click);
             // 
             // SdeselectToolStripMenuItem
             // 
             this.SdeselectToolStripMenuItem.Name = "SdeselectToolStripMenuItem";
             this.SdeselectToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.SdeselectToolStripMenuItem.Text = "Deselect";
-            this.SdeselectToolStripMenuItem.Click += new System.EventHandler(this.SdeselectToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
@@ -1058,14 +1120,12 @@
             this.CAselectToolStripMenuItem.Name = "CAselectToolStripMenuItem";
             this.CAselectToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.CAselectToolStripMenuItem.Text = "Select";
-            this.CAselectToolStripMenuItem.Click += new System.EventHandler(this.CAselectToolStripMenuItem_Click);
             // 
             // CAdeselectToolStripMenuItem
             // 
             this.CAdeselectToolStripMenuItem.Name = "CAdeselectToolStripMenuItem";
             this.CAdeselectToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.CAdeselectToolStripMenuItem.Text = "Deselect";
-            this.CAdeselectToolStripMenuItem.Click += new System.EventHandler(this.CAdeselectToolStripMenuItem_Click);
             // 
             // chemistGroupBToolStripMenuItem
             // 
@@ -1081,35 +1141,31 @@
             this.CBselectToolStripMenuItem.Name = "CBselectToolStripMenuItem";
             this.CBselectToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.CBselectToolStripMenuItem.Text = "Select";
-            this.CBselectToolStripMenuItem.Click += new System.EventHandler(this.CBselectToolStripMenuItem_Click);
             // 
             // CBdeselectToolStripMenuItem
             // 
             this.CBdeselectToolStripMenuItem.Name = "CBdeselectToolStripMenuItem";
             this.CBdeselectToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.CBdeselectToolStripMenuItem.Text = "Deselect";
-            this.CBdeselectToolStripMenuItem.Click += new System.EventHandler(this.CBdeselectToolStripMenuItem_Click);
             // 
             // butDeclineUnapproved
             // 
             this.butDeclineUnapproved.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.butDeclineUnapproved.Image = ((System.Drawing.Image)(resources.GetObject("butDeclineUnapproved.Image")));
+            this.butDeclineUnapproved.Image = global::WSUSAdminAssistant.Properties.Resources.Critical;
             this.butDeclineUnapproved.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.butDeclineUnapproved.Name = "butDeclineUnapproved";
             this.butDeclineUnapproved.Size = new System.Drawing.Size(159, 22);
             this.butDeclineUnapproved.Text = "Decline Selected Updates";
-            this.butDeclineUnapproved.Click += new System.EventHandler(this.butDeclineUnapproved_Click);
             // 
             // butCancelApprove
             // 
             this.butCancelApprove.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.butCancelApprove.Image = ((System.Drawing.Image)(resources.GetObject("butCancelApprove.Image")));
+            this.butCancelApprove.Image = global::WSUSAdminAssistant.Properties.Resources.NoAction;
             this.butCancelApprove.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.butCancelApprove.Name = "butCancelApprove";
             this.butCancelApprove.Size = new System.Drawing.Size(119, 22);
             this.butCancelApprove.Text = "Cancel Approvals";
             this.butCancelApprove.Visible = false;
-            this.butCancelApprove.Click += new System.EventHandler(this.butCancelApprove_Click);
             // 
             // tabAdminType
             // 
@@ -1216,6 +1272,14 @@
             this.mnuComputerGroupRules.Text = "Computer &Group Rules";
             this.mnuComputerGroupRules.Click += new System.EventHandler(this.mnuComputerGroupRules_Click);
             // 
+            // mnuGroupApprovalRules
+            // 
+            this.mnuGroupApprovalRules.Name = "mnuGroupApprovalRules";
+            this.mnuGroupApprovalRules.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
+            this.mnuGroupApprovalRules.Size = new System.Drawing.Size(288, 22);
+            this.mnuGroupApprovalRules.Text = "Computer Group &Approval Rules";
+            this.mnuGroupApprovalRules.Click += new System.EventHandler(this.mnuGroupApprovalRules_Click);
+            // 
             // mnuCredentials
             // 
             this.mnuCredentials.Name = "mnuCredentials";
@@ -1318,13 +1382,15 @@
             this.epReportNow.Text = "&Report Update Status Now";
             this.epReportNow.Click += new System.EventHandler(this.epReportNow_Click);
             // 
-            // mnuGroupApprovalRules
+            // timTasks
             // 
-            this.mnuGroupApprovalRules.Name = "mnuGroupApprovalRules";
-            this.mnuGroupApprovalRules.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
-            this.mnuGroupApprovalRules.Size = new System.Drawing.Size(288, 22);
-            this.mnuGroupApprovalRules.Text = "Computer Group &Approval Rules";
-            this.mnuGroupApprovalRules.Click += new System.EventHandler(this.mnuGroupApprovalRules_Click);
+            this.timTasks.Enabled = true;
+            this.timTasks.Tick += new System.EventHandler(this.timTasks_Tick);
+            // 
+            // dataGridViewImageColumn1
+            // 
+            this.dataGridViewImageColumn1.HeaderText = "Status";
+            this.dataGridViewImageColumn1.Name = "dataGridViewImageColumn1";
             // 
             // frmMain
             // 
@@ -1351,10 +1417,15 @@
             this.tabWSUSNotCommunicating.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grdWSUSNotCommunicting)).EndInit();
             this.tabEndpointFaults.ResumeLayout(false);
-            this.tabEndpointFaults.PerformLayout();
+            this.splEndpoint.Panel1.ResumeLayout(false);
+            this.splEndpoint.Panel1.PerformLayout();
+            this.splEndpoint.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splEndpoint)).EndInit();
+            this.splEndpoint.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grdEndpoints)).EndInit();
             this.tlsEndpoint.ResumeLayout(false);
             this.tlsEndpoint.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grdTasks)).EndInit();
             this.tabUnapprovedUpdates.ResumeLayout(false);
             this.tabUnapprovedUpdates.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grdUpdates)).EndInit();
@@ -1395,9 +1466,60 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn wnuLastSync;
         private System.Windows.Forms.DataGridViewTextBoxColumn wnuLastRollup;
         private System.Windows.Forms.TabPage tabEndpointFaults;
+        private System.Windows.Forms.TabPage tabUnapprovedUpdates;
+        private System.Windows.Forms.TabControl tabAdminType;
+        private System.Windows.Forms.TabPage tabHome;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem mnuOptions;
+        private System.Windows.Forms.Label lblWSUSConnection;
+        private System.Windows.Forms.Label lblSQLConnection;
+        private System.Windows.Forms.Label lblWSUSStatus;
+        private System.Windows.Forms.Label lblSQLStatus;
+        private System.Windows.Forms.ToolStripMenuItem mnuComputerGroupRules;
+        private System.Windows.Forms.ToolStripMenuItem mnuWSUSServer;
+        private System.Windows.Forms.ToolStripMenuItem mnuDefaultSusIDList;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
+        private System.Windows.Forms.ToolStripMenuItem mnuPreferences;
+        private System.Windows.Forms.ToolStripMenuItem mnuCredentials;
+        private System.Windows.Forms.ContextMenuStrip cmEndpoint;
+        private System.Windows.Forms.ToolStripMenuItem epGPUpdate;
+        private System.Windows.Forms.ToolStripMenuItem epGPUpdateForce;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem epResetSusID;
+        private System.Windows.Forms.ToolStripMenuItem epDetectNow;
+        private System.Windows.Forms.ToolStripMenuItem epReportNow;
+        private System.Windows.Forms.ToolStripMenuItem mnuResetAuth;
+        private System.Windows.Forms.ToolStripMenuItem epDetails;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
+        private System.Windows.Forms.ToolStripMenuItem mnuGroupApprovalRules;
+        private System.Windows.Forms.Timer timTasks;
+        private System.Windows.Forms.DataGridViewImageColumn dataGridViewImageColumn1;
+        private System.Windows.Forms.SplitContainer splEndpoint;
+        private System.Windows.Forms.DataGridView grdEndpoints;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epUpdate;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epIP;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epApprovedUpdates;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epUpdateErrors;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epComputerGroup;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epFault;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epLastServerContact;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epLastStatus;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epPing;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epPingUpdated;
         private System.Windows.Forms.ToolStrip tlsEndpoint;
         private System.Windows.Forms.ToolStripButton butApproved;
-        private System.Windows.Forms.TabPage tabUnapprovedUpdates;
+        private System.Windows.Forms.ToolStripButton butUpdateErrors;
+        private System.Windows.Forms.ToolStripButton butNotCommunicating;
+        private System.Windows.Forms.ToolStripButton butUnassigned;
+        private System.Windows.Forms.ToolStripButton butDefaultSusID;
+        private System.Windows.Forms.ToolStripButton butGroupRules;
+        private System.Windows.Forms.DataGridView grdTasks;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tskStatus;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tskComputer;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tskIP;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tskCommand;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tskOutput;
         private System.Windows.Forms.DataGridView grdUpdates;
         private System.Windows.Forms.DataGridViewTextBoxColumn UpdateName;
         private System.Windows.Forms.DataGridViewTextBoxColumn uaUpdateID;
@@ -1456,48 +1578,6 @@
         private System.Windows.Forms.ToolStripMenuItem CBdeselectToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton butDeclineUnapproved;
         private System.Windows.Forms.ToolStripButton butCancelApprove;
-        private System.Windows.Forms.TabControl tabAdminType;
-        private System.Windows.Forms.ToolStripButton butNotCommunicating;
-        private System.Windows.Forms.ToolStripButton butUnassigned;
-        private System.Windows.Forms.ToolStripButton butUpdateErrors;
-        private System.Windows.Forms.DataGridView grdEndpoints;
-        private System.Windows.Forms.ToolStripButton butDefaultSusID;
-        private System.Windows.Forms.TabPage tabHome;
-        private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem mnuOptions;
-        private System.Windows.Forms.Label lblWSUSConnection;
-        private System.Windows.Forms.Label lblSQLConnection;
-        private System.Windows.Forms.Label lblWSUSStatus;
-        private System.Windows.Forms.Label lblSQLStatus;
-        private System.Windows.Forms.ToolStripMenuItem mnuComputerGroupRules;
-        private System.Windows.Forms.ToolStripButton butGroupRules;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epUpdate;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epIP;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epApprovedUpdates;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epUpdateErrors;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epComputerGroup;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epFault;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epLastServerContact;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epLastStatus;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epPing;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epPingUpdated;
-        private System.Windows.Forms.ToolStripMenuItem mnuWSUSServer;
-        private System.Windows.Forms.ToolStripMenuItem mnuDefaultSusIDList;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
-        private System.Windows.Forms.ToolStripMenuItem mnuPreferences;
-        private System.Windows.Forms.ToolStripMenuItem mnuCredentials;
-        private System.Windows.Forms.ContextMenuStrip cmEndpoint;
-        private System.Windows.Forms.ToolStripMenuItem epGPUpdate;
-        private System.Windows.Forms.ToolStripMenuItem epGPUpdateForce;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
-        private System.Windows.Forms.ToolStripMenuItem epResetSusID;
-        private System.Windows.Forms.ToolStripMenuItem epDetectNow;
-        private System.Windows.Forms.ToolStripMenuItem epReportNow;
-        private System.Windows.Forms.ToolStripMenuItem mnuResetAuth;
-        private System.Windows.Forms.ToolStripMenuItem epDetails;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
-        private System.Windows.Forms.ToolStripMenuItem mnuGroupApprovalRules;
     }
 }
 

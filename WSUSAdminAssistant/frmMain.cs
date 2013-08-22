@@ -1457,6 +1457,7 @@ namespace WSUSAdminAssistant
         DataGridViewRow epcmRow;
         IPAddress epcmIPAddress;
         clsConfig.SecurityCredential epcmCreds;
+        string epcmFullName;
 
         private void grdEndpoints_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
@@ -1466,7 +1467,8 @@ namespace WSUSAdminAssistant
                 // Yes - save cell context and show pop-up menu
                 epcmRow = grdEndpoints.Rows[e.RowIndex];
                 epcmIPAddress = IPAddress.Parse(epcmRow.Cells["epIP"].Value.ToString());
-                
+                epcmFullName = epcmRow.Cells[epName.Index].Value.ToString();
+
                 // Look for credentials for this PC
                 clsConfig.CredentialCollection cc = cfg.CredentialList;
                 epcmCreds = cc[epcmIPAddress];
@@ -1479,7 +1481,7 @@ namespace WSUSAdminAssistant
             }
         }
 
-        private void PSExecCall(IPAddress ip, clsConfig.SecurityCredential cred, string command)
+        private void PSExecCall(IPAddress ip, string fulldomainname, clsConfig.SecurityCredential cred, string command)
         {
             // Has a valid PSExec path been supplied?
             if (cfg.PSExecPath == "")
@@ -1502,62 +1504,170 @@ namespace WSUSAdminAssistant
                 }
             }
 
-            // Compile parameters for PSExec
+            // Schedule job through datagrid
+            DataGridViewRow r = grdTasks.Rows[grdTasks.Rows.Add()];
+
+            r.Cells[tskStatus.Index].Value = "Queued";
+            r.Cells[tskComputer.Index].Value = fulldomainname;
+            r.Cells[tskComputer.Index].Tag = cred;
+            r.Cells[tskIP.Index].Value = ip.ToString();
+            r.Cells[tskCommand.Index].Value = command;
+            r.Cells[0].Selected = true;
+
+            // Restart job timer
+            timTasks.Interval = 500;
+            timTasks.Enabled = true;
+        }
+
+        private void epGPUpdateForce_Click(object sender, EventArgs e)
+        {
+            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "gpupdate /force");
+        }
+
+        private void epGPUpdate_Click(object sender, EventArgs e)
+        {
+            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "gpupdate");
+        }
+
+        private void epDetectNow_Click(object sender, EventArgs e)
+        {
+            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /detectnow");
+        }
+
+        private void epReportNow_Click(object sender, EventArgs e)
+        {
+            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /reportnow");
+        }
+
+        private void epResetSusID_Click(object sender, EventArgs e)
+        {
+            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "net stop wuauserv");
+            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v AccountDomainSid /f");
+            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v PingID /f");
+            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v SusClientId /f");
+            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "net start wuauserv");
+            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /resetauthorization");
+            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /detectnow");
+        }
+
+        private void mnuResetAuth_Click(object sender, EventArgs e)
+        {
+            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /resetauthorization");
+        }
+
+        private void timTasks_Tick(object sender, EventArgs e)
+        {
+            // If there are no tasks, we don't need to do anything...
+            if (grdTasks.Rows.Count == 0) return;
+
+            // Find the first completed (or timed out) task more than 5 minutes old and delete it
+            foreach (DataGridViewRow gr in grdTasks.Rows)
+                if ((gr.Cells[tskStatus.Index].Value.ToString() == "Complete" || gr.Cells[tskStatus.Index].Value.ToString() == "Timed Out") && DateTime.Now.Subtract(new DateTime((long)gr.Cells[tskStatus.Index].Tag)).TotalSeconds > 300)
+                {
+                    grdTasks.Rows.Remove(gr);
+                    break;
+                }
+            
+            // Get the first queued task
+            DataGridViewRow r = null;
+
+            foreach (DataGridViewRow gr in grdTasks.Rows)
+                if (gr.Cells[tskStatus.Index].Value.ToString() == "Queued")
+                {
+                    // Found one - note it and break
+                    r = gr;
+                    break;
+                }
+
+            // Return if we didn't find a row
+            if (r == null) return;
+
+            // Disable timer since we're going to exceed the timer interval
+            timTasks.Enabled = false;
+
+            // Build the task and run it
+            clsConfig.SecurityCredential cred = (clsConfig.SecurityCredential)r.Cells[tskComputer.Index].Tag;
+            
             string param;
-            param = "\\\\" + epcmIPAddress.ToString() + " -e "; // Computer name.  PSExec should not load account's profile (quicker startup)
+
+            param = "\\\\" + r.Cells[tskIP.Index].Value.ToString() + " -e "; // Computer name.  PSExec should not load account's profile (quicker startup)
 
             // Add credentials only if we have some to add
             if (cred != null)
             {
                 if (cred.domain == null)
-                    param += "-u " + epcmCreds.username;                                // Local user
+                    param += "-u " + cred.username;                                // Local user
                 else
-                    param += "-u " + epcmCreds.domain + "\\" + epcmCreds.username;      // Domain user and password
+                    param += "-u " + cred.domain + "\\" + cred.username;      // Domain user and password
 
-                param += " -p " + epcmCreds.password + " ";
+                param += " -p " + cred.password + " ";
             }
 
-            // Add command to executure
-            param += command;
+            // Add command to execute
+            param += r.Cells[tskCommand.Index].Value.ToString();
+
+            r.Cells[tskStatus.Index].Value = "Running";
+            grdTasks.Refresh();
 
             // Run PSExec
-            Process.Start(cfg.PSExecPath, param);
-        }
+            var psexec = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = cfg.PSExecPath,
+                    Arguments = param,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            };
 
-        private void epGPUpdateForce_Click(object sender, EventArgs e)
-        {
-            PSExecCall(epcmIPAddress, epcmCreds, "gpupdate /force");
-        }
+            psexec.Start();
 
-        private void epGPUpdate_Click(object sender, EventArgs e)
-        {
-            PSExecCall(epcmIPAddress, epcmCreds, "gpupdate");
-        }
+            // Read output for 30 seconds or until process has terminated
+            DateTime start = DateTime.Now;
+            string output = "";
 
-        private void epDetectNow_Click(object sender, EventArgs e)
-        {
-            PSExecCall(epcmIPAddress, epcmCreds, "wuauclt /detectnow");
-        }
+            do
+            {
+                string l;
 
-        private void epReportNow_Click(object sender, EventArgs e)
-        {
-            PSExecCall(epcmIPAddress, epcmCreds, "wuauclt /reportnow");
-        }
+                // Do we have any standard error output?
+                l = psexec.StandardOutput.ReadToEnd();
+                if (!string.IsNullOrEmpty(l))
+                {
+                    output += l;
+                    r.Cells[tskOutput.Index].Value = output;
+                    grdTasks.Refresh();
+                }
 
-        private void epResetSusID_Click(object sender, EventArgs e)
-        {
-            PSExecCall(epcmIPAddress, epcmCreds, "net stop wuauserv");
-            PSExecCall(epcmIPAddress, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v AccountDomainSid /f");
-            PSExecCall(epcmIPAddress, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v PingID /f");
-            PSExecCall(epcmIPAddress, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v SusClientId /f");
-            PSExecCall(epcmIPAddress, epcmCreds, "net start wuauserv");
-            PSExecCall(epcmIPAddress, epcmCreds, "wuauclt /resetauthorization");
-            PSExecCall(epcmIPAddress, epcmCreds, "wuauclt /detectnow");
-        }
+                // Do we have any standard error output?
+                l = psexec.StandardOutput.ReadToEnd();
+                if (!string.IsNullOrEmpty(l))
+                {
+                    output += l;
+                    r.Cells[tskOutput.Index].Value = output;
+                    grdTasks.Refresh();
+                }
+            } while (DateTime.Now.Subtract(start).TotalSeconds < 30 && !psexec.HasExited);
 
-        private void mnuResetAuth_Click(object sender, EventArgs e)
-        {
-            PSExecCall(epcmIPAddress, epcmCreds, "wuauclt /resetauthorization");
+            if (psexec.HasExited) // Did task complete
+                r.Cells[tskStatus.Index].Value = "Complete";
+            else
+            {
+                r.Cells[tskStatus.Index].Value = "Timed Out";
+
+                psexec.Kill();              // Failed to exit
+            }
+
+            // Get output and show end user
+            r.Cells[tskStatus.Index].Tag = DateTime.Now.Ticks;  // Note the time the task finished
+            r.Cells[tskOutput.Index].Value = output;
+            r.Cells[tskOutput.Index].ToolTipText = output;      // Set both the text and the tooltip
+
+            // Re-enable the timer
+            timTasks.Enabled = true;
         }
     }
 }
