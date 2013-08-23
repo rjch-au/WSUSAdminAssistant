@@ -40,6 +40,132 @@ namespace WSUSAdminAssistant
                 ValidateRow(r);
         }
 
+        public class SortByMaskedIP : System.Collections.IComparer
+        {
+            private int ipcol;
+            private int netmaskcol;
+
+            public SortByMaskedIP(int ipindex, int netmaskindex)
+            {
+                ipcol = ipindex;
+                netmaskcol = netmaskindex;
+            }
+
+            // <summary>
+            // Takes object ip addresses and network masks and tries to convert it to a fully masked subnet.
+            // Validation is also performed - if either parameter is invalid, a null is returned.
+            // <param name="ip">The IP address within the subnet to convert</param>
+            // <param name="netmask">The netmask to convert.  This is expected to be the number of bits to mask (e.g. 24, not 255.255.255.0)</param>
+            public bool MaskIPAddress(object ip, object netmask, out byte[] ipaddress, out byte networkmask)
+            {
+                // If either parameter is null, this is not a valid object
+                if (ip == null || netmask == null)
+                {
+                    ipaddress = null;
+                    networkmask = 0;
+                    return false;
+                }
+
+                // Try to convert the IP address
+                IPAddress ia;
+
+                if (!IPAddress.TryParse(ip.ToString(), out ia))
+                {
+                    // Invalid IP address
+                    ipaddress = null;
+                    networkmask = 0;
+                    return false;
+                }
+
+                // Try to convert the netmask
+                byte nm;
+                if (!byte.TryParse(netmask.ToString(), out nm))
+                {
+                    // Invalid netmask
+                    ipaddress = null;
+                    networkmask = 0;
+                    return false;
+                }
+
+                // Convert the IP address to an array of bytes
+                byte[] i = ia.GetAddressBytes();
+
+                // Validate netmask
+                if (nm > i.Length * 8)
+                {
+                    // Invalid netmask
+                    ipaddress = null;
+                    networkmask = 0;
+                    return false;
+                }
+
+                // Mask IP address appropriately
+                int bits = nm;
+
+                for (int b = 0; b < i.Length; b++)
+                {
+                    if (bits > 8)
+                        // No action required, move on to the next load of bits
+                        bits -= 8;
+                    else if (bits == 0)
+                        // Mask out all bytes in this byte
+                        i[b] = 255;
+                    else
+                    {
+                        // Calculate what's left of the bitmask
+                        int msk = (byte)(255 >> bits);
+
+                        // Mask this byte appropriately
+                        i[b] = (byte)(i[b] | msk);
+
+                        // No bits left to process
+                        bits = 0;
+                    }
+                }
+
+                // Successfully masked IP address - return it.
+                ipaddress = i;
+                networkmask = nm;
+                return true;
+            }
+
+            public int Compare(object x, object y)
+            {
+                DataGridViewRow r1 = (DataGridViewRow)x;
+                DataGridViewRow r2 = (DataGridViewRow)y;
+
+                // Try to convert the right columns to IP addresses
+                byte[] i1, i2;
+                byte nm1, nm2;
+
+                bool v1 = MaskIPAddress(r1.Cells[ipcol].Value, r1.Cells[netmaskcol].Value, out i1, out nm1);
+                bool v2 = MaskIPAddress(r2.Cells[ipcol].Value, r2.Cells[netmaskcol].Value, out i2, out nm2);
+
+                // Invalid rows sink to the bottom
+                if (!v1 && v2) return -1;
+                if (v1 && !v2) return 1;
+                if (!v1 && !v2) return 0;
+
+                // If IP address lengths are different, sort by IPv4 first
+                if (i1.Length > i2.Length) return -1;
+                if (i1.Length < i2.Length) return 1;
+
+                // Find first byte that differs and compare them
+                for (int i = 0; i < i1.Length; i++)
+                {
+                    if (i1[i] > i2[i]) return 1;
+                    if (i1[i] < i2[i]) return -1;
+                }
+
+                // Masked IPs are the same - sort by the most specific netmask
+                if (nm1 > nm2) return -1;
+                if (nm1 < nm2) return 1;
+
+                // IPs and masks are exactly the same.
+                return 0;
+            }
+        }
+
         private bool ValidateRow(DataGridViewRow r)
         {
             // Assume everything validates unless one of the following checks fails
@@ -114,6 +240,9 @@ namespace WSUSAdminAssistant
 
         private void btnSave_Click(object sender, EventArgs e)
         {
+            // Sort the datagrid
+            grdCredentials.Sort(new SortByMaskedIP(crNetwork.Index, crNetmask.Index));
+
             // Validate each row
             bool ok = true;
 
@@ -124,6 +253,9 @@ namespace WSUSAdminAssistant
             if (ok || (!ok && MessageBox.Show("Not all rows are valid - rows with errors (highlighted) will not be saved if you continue.  Save security credentials?", "Not all rows are valid", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes))
             {
                 clsConfig.CredentialCollection cc = CollateForm();
+
+                // Sort the collection, then save it.
+                cc.SortByMaskedIP();
 
                 cfg.CredentialList = cc;
 
@@ -137,6 +269,9 @@ namespace WSUSAdminAssistant
             // Populate grid
             clsConfig.CredentialCollection cc = cfg.CredentialList;
 
+            // Sort the collection before populating the grid
+            cc.SortByMaskedIP();
+
             foreach (clsConfig.SecurityCredential c in cc)
             {
                 DataGridViewRow r = grdCredentials.Rows[grdCredentials.Rows.Add()];
@@ -148,6 +283,15 @@ namespace WSUSAdminAssistant
                 r.Cells["crUser"].Value = c.username;
                 r.Cells["crPassword"].Value = c.password;
             }
+
+            // Sort the datagrid
+            grdCredentials.Sort(new SortByMaskedIP(crNetwork.Index, crNetmask.Index));
+        }
+
+        private void grdCredentials_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            // Sort the datagrid
+            grdCredentials.Sort(new SortByMaskedIP(crNetwork.Index, crNetmask.Index));
         }
     }
 }

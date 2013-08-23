@@ -76,6 +76,7 @@
             this.grdCredentials.Size = new System.Drawing.Size(843, 407);
             this.grdCredentials.TabIndex = 1;
             this.grdCredentials.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.grdCredentials_CellFormatting);
+            this.grdCredentials.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.grdCredentials_ColumnHeaderMouseClick);
             this.grdCredentials.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.grdCredentials_RowValidating);
             // 
             // crNetwork
@@ -83,6 +84,7 @@
             this.crNetwork.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.crNetwork.HeaderText = "Network Address";
             this.crNetwork.Name = "crNetwork";
+            this.crNetwork.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             this.crNetwork.Width = 104;
             // 
             // crNetmask
@@ -90,6 +92,7 @@
             this.crNetmask.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.crNetmask.HeaderText = "Network Mask (bits)";
             this.crNetmask.Name = "crNetmask";
+            this.crNetmask.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             this.crNetmask.Width = 96;
             // 
             // crDescription

@@ -816,6 +816,72 @@ namespace WSUSAdminAssistant
                 else
                     this.List.RemoveAt(index);
             }
+
+            public void SortByMaskedIP()
+            {
+                IComparer sorter = new MaskSortHelper();
+                InnerList.Sort(sorter);
+            }
+
+            public class MaskSortHelper : System.Collections.IComparer
+            {
+                private byte[] IPMask(IPAddress ip, byte netmask)
+                {
+                    byte[] i = ip.GetAddressBytes();
+
+                    int bits = netmask;
+
+                    for (int b = 0; b < i.Length; b++)
+                    {
+                        if (bits > 8)
+                            // No action required, move on to the next load of bits
+                            bits -= 8;
+                        else if (bits == 0)
+                            // Mask out all bytes in this byte
+                            i[b] = 255;
+                        else
+                        {
+                            // Calculate what's left of the bitmask
+                            int msk = (byte)(255 >> bits);
+
+                            // Mask this byte appropriately
+                            i[b] = (byte)(i[b] | msk);
+
+                            // No bits left to process
+                            bits = 0;
+                        }
+                    }
+
+                    return i;
+                }
+
+                public int Compare(object x, object y)
+                {
+                    SecurityCredential r1 = (SecurityCredential)x;
+                    SecurityCredential r2 = (SecurityCredential)y;
+
+                    byte[] i1 = IPMask(r1.ipaddress, r1.netmask);
+                    byte[] i2 = IPMask(r2.ipaddress, r2.netmask);
+
+                    // If IP address lengths are different, sort by IPv4 first
+                    if (i1.Length > i2.Length) return -1;
+                    if (i1.Length < i2.Length) return 1;
+
+                    // Find first byte that differs and compare them
+                    for (int i = 0; i < i1.Length; i++)
+                    {
+                        if (i1[i] > i2[i]) return 1;
+                        if (i1[i] < i2[i]) return -1;
+                    }
+
+                    // Masked IPs are the same - sort by the most specific netmask
+                    if (r1.netmask > r2.netmask) return -1;
+                    if (r1.netmask < r2.netmask) return 1;
+
+                    // IPs and masks are exactly the same.
+                    return 0;
+                }
+            }
         }
 
         public string CredentialXmlFile
