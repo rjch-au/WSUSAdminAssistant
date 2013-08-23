@@ -43,6 +43,7 @@
             this.txtDB = new System.Windows.Forms.TextBox();
             this.chkSecure = new System.Windows.Forms.CheckBox();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.chkIntegratedSecurity = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // lblSQL
@@ -64,61 +65,61 @@
             // lblUser
             // 
             this.lblUser.AutoSize = true;
-            this.lblUser.Location = new System.Drawing.Point(13, 68);
+            this.lblUser.Location = new System.Drawing.Point(13, 91);
             this.lblUser.Name = "lblUser";
             this.lblUser.Size = new System.Drawing.Size(82, 13);
-            this.lblUser.TabIndex = 4;
+            this.lblUser.TabIndex = 5;
             this.lblUser.Text = "SQL Username:";
             // 
             // txtUser
             // 
-            this.txtUser.Location = new System.Drawing.Point(138, 65);
+            this.txtUser.Location = new System.Drawing.Point(138, 88);
             this.txtUser.Name = "txtUser";
             this.txtUser.Size = new System.Drawing.Size(100, 20);
-            this.txtUser.TabIndex = 5;
+            this.txtUser.TabIndex = 6;
             // 
             // lblPassword
             // 
             this.lblPassword.AutoSize = true;
-            this.lblPassword.Location = new System.Drawing.Point(13, 95);
+            this.lblPassword.Location = new System.Drawing.Point(13, 118);
             this.lblPassword.Name = "lblPassword";
             this.lblPassword.Size = new System.Drawing.Size(80, 13);
-            this.lblPassword.TabIndex = 6;
+            this.lblPassword.TabIndex = 7;
             this.lblPassword.Text = "SQL Password:";
             // 
             // txtPassword
             // 
-            this.txtPassword.Location = new System.Drawing.Point(138, 92);
+            this.txtPassword.Location = new System.Drawing.Point(138, 115);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '*';
             this.txtPassword.Size = new System.Drawing.Size(100, 20);
-            this.txtPassword.TabIndex = 6;
+            this.txtPassword.TabIndex = 8;
             this.txtPassword.TextChanged += new System.EventHandler(this.txtPassword_TextChanged);
             // 
             // lblConfirm
             // 
             this.lblConfirm.AutoSize = true;
-            this.lblConfirm.Location = new System.Drawing.Point(41, 121);
+            this.lblConfirm.Location = new System.Drawing.Point(41, 144);
             this.lblConfirm.Name = "lblConfirm";
             this.lblConfirm.Size = new System.Drawing.Size(49, 13);
-            this.lblConfirm.TabIndex = 8;
+            this.lblConfirm.TabIndex = 9;
             this.lblConfirm.Text = "(re-enter)";
             // 
             // txtConfirm
             // 
-            this.txtConfirm.Location = new System.Drawing.Point(138, 118);
+            this.txtConfirm.Location = new System.Drawing.Point(138, 141);
             this.txtConfirm.Name = "txtConfirm";
             this.txtConfirm.PasswordChar = '*';
             this.txtConfirm.Size = new System.Drawing.Size(100, 20);
-            this.txtConfirm.TabIndex = 9;
+            this.txtConfirm.TabIndex = 10;
             this.txtConfirm.TextChanged += new System.EventHandler(this.txtConfirm_TextChanged);
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(16, 253);
+            this.btnSave.Location = new System.Drawing.Point(16, 240);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(100, 23);
-            this.btnSave.TabIndex = 13;
+            this.btnSave.TabIndex = 14;
             this.btnSave.Text = "&Save and Restart";
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
@@ -126,18 +127,18 @@
             // lblWSUS
             // 
             this.lblWSUS.AutoSize = true;
-            this.lblWSUS.Location = new System.Drawing.Point(12, 160);
+            this.lblWSUS.Location = new System.Drawing.Point(12, 183);
             this.lblWSUS.Name = "lblWSUS";
             this.lblWSUS.Size = new System.Drawing.Size(77, 13);
-            this.lblWSUS.TabIndex = 10;
+            this.lblWSUS.TabIndex = 11;
             this.lblWSUS.Text = "WSUS Server:";
             // 
             // txtWSUS
             // 
-            this.txtWSUS.Location = new System.Drawing.Point(138, 157);
+            this.txtWSUS.Location = new System.Drawing.Point(138, 180);
             this.txtWSUS.Name = "txtWSUS";
             this.txtWSUS.Size = new System.Drawing.Size(100, 20);
-            this.txtWSUS.TabIndex = 11;
+            this.txtWSUS.TabIndex = 12;
             // 
             // lblDB
             // 
@@ -158,23 +159,34 @@
             // chkSecure
             // 
             this.chkSecure.AutoSize = true;
-            this.chkSecure.Location = new System.Drawing.Point(134, 183);
+            this.chkSecure.Location = new System.Drawing.Point(134, 206);
             this.chkSecure.Name = "chkSecure";
             this.chkSecure.Size = new System.Drawing.Size(117, 17);
-            this.chkSecure.TabIndex = 12;
+            this.chkSecure.TabIndex = 13;
             this.chkSecure.Text = "Secure Connection";
             this.chkSecure.UseVisualStyleBackColor = true;
             // 
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(138, 253);
+            this.btnCancel.Location = new System.Drawing.Point(138, 240);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(100, 23);
-            this.btnCancel.TabIndex = 14;
+            this.btnCancel.TabIndex = 15;
             this.btnCancel.Text = "&Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            // 
+            // chkIntegratedSecurity
+            // 
+            this.chkIntegratedSecurity.AutoSize = true;
+            this.chkIntegratedSecurity.Location = new System.Drawing.Point(123, 65);
+            this.chkIntegratedSecurity.Name = "chkIntegratedSecurity";
+            this.chkIntegratedSecurity.Size = new System.Drawing.Size(115, 17);
+            this.chkIntegratedSecurity.TabIndex = 4;
+            this.chkIntegratedSecurity.Text = "Integrated Security";
+            this.chkIntegratedSecurity.UseVisualStyleBackColor = true;
+            this.chkIntegratedSecurity.CheckedChanged += new System.EventHandler(this.chkIntegratedSecurity_CheckedChanged);
             // 
             // frmWSUSConfig
             // 
@@ -183,6 +195,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(263, 288);
+            this.Controls.Add(this.chkIntegratedSecurity);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.chkSecure);
             this.Controls.Add(this.txtDB);
@@ -227,5 +240,6 @@
         private System.Windows.Forms.TextBox txtDB;
         private System.Windows.Forms.CheckBox chkSecure;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.CheckBox chkIntegratedSecurity;
     }
 }

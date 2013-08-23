@@ -122,7 +122,7 @@ namespace WSUSAdminAssistant
                 }
                 else
                 {
-                    return Convert.ToBoolean((int)reg.GetValue("WSUSSecureConnection"));
+                    return Convert.ToBoolean((int)reg.GetValue("DBIntegratedAuth"));
                 }
             }
 
@@ -204,9 +204,9 @@ namespace WSUSAdminAssistant
         public string SQLConnectionString()
         {
             if (this.DBIntegratedAuth)
-                return "database=" + this.DBDatabase + ";" + "server=" + this.DBServer + ";Trusted_Connection=true";
+                return "database=" + this.DBDatabase + "; server=" + this.DBServer + ";Trusted_Connection=true";
             else
-                return "database=" + this.DBDatabase + ";" + "server=" + this.DBServer + ";" + "User ID=" + this.DBUsername + ";Password=" + this.DBPassword;
+                return "database=" + this.DBDatabase + "; server=" + this.DBServer + ";" + "User ID=" + this.DBUsername + ";Password=" + this.DBPassword;
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////

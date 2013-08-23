@@ -25,6 +25,7 @@ namespace WSUSAdminAssistant
             // Populate form with configuration data
             txtSQL.Text = cfg.DBServer;
             txtDB.Text = cfg.DBDatabase;
+            chkIntegratedSecurity.Checked = cfg.DBIntegratedAuth;
             txtUser.Text = cfg.DBUsername;
             txtPassword.Text = cfg.DBPassword;
             txtConfirm.Text = txtPassword.Text;
@@ -63,10 +64,10 @@ namespace WSUSAdminAssistant
             // Try to connect to SQL database
             string sqlconnect;
 
-            if (chkSecure.Checked)
-                sqlconnect = "database=" + txtDB.Text + ";" + "server=" + txtSQL.Text + ";Trusted_Connection=true";
+            if (chkIntegratedSecurity.Checked)
+                sqlconnect = "database=" + txtDB.Text + "; server=" + txtSQL.Text + ";Trusted_Connection=true";
             else
-                sqlconnect = "database=" + txtDB.Text + ";" + "server=" + txtSQL.Text + ";" + "User ID=" + txtUser.Text + ";Password=" + txtPassword.Text;
+                sqlconnect = "database=" + txtDB.Text + "; server=" + txtSQL.Text + ";" + "User ID=" + txtUser.Text + ";Password=" + txtPassword.Text;
 
             SqlConnection sql = new SqlConnection(sqlconnect);
 
@@ -97,7 +98,7 @@ namespace WSUSAdminAssistant
             cfg.DBDatabase = txtDB.Text;
             cfg.DBUsername = txtUser.Text;
             cfg.DBPassword = txtPassword.Text;
-            cfg.DBIntegratedAuth = chkSecure.Checked;
+            cfg.DBIntegratedAuth = chkIntegratedSecurity.Checked;
             cfg.WSUSServer = txtWSUS.Text;
             cfg.WSUSSecureConnection = chkSecure.Checked;
 
@@ -107,6 +108,13 @@ namespace WSUSAdminAssistant
         private void btnCancel_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void chkIntegratedSecurity_CheckedChanged(object sender, EventArgs e)
+        {
+            txtUser.Enabled = !chkIntegratedSecurity.Checked;
+            txtPassword.Enabled = !chkIntegratedSecurity.Checked;
+            txtConfirm.Enabled = !chkIntegratedSecurity.Checked;
         }
     }
 }
