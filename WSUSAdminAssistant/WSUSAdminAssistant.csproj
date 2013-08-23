@@ -82,8 +82,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="clsWSUS.cs" />
-    <Compile Include="clsConfig.cs" />
     <Compile Include="frmGroupUpdateRules.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -231,6 +229,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Zoom.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WSUSLibraries\WSUSLibraries.csproj">
+      <Project>{250d44f2-b273-4b91-957d-3cb76814fa53}</Project>
+      <Name>WSUSLibraries</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
