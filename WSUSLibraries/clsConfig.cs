@@ -442,7 +442,7 @@ namespace WSUSAdminAssistant
                     xmlpath = (string)o;
                 }
 
-                xmlpath = Path.Combine(xmlpath, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "\\DefaultSusIds.xml");
+                xmlpath = Path.Combine(xmlpath, "WSUSAdminAssistant\\DefaultSusIds.xml");
 
                 // Check if XML file exists
                 if (File.Exists(xmlpath))
@@ -604,7 +604,7 @@ namespace WSUSAdminAssistant
                 else
                     xmlpath = (string)o;
 
-                xmlpath = Path.Combine(xmlpath, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "\\ComputerRegEx.xml");
+                xmlpath = Path.Combine(xmlpath, "WSUSAdminAssistant\\ComputerRegEx.xml");
 
                 // Check if XML file exists
                 if (File.Exists(xmlpath))
@@ -830,7 +830,7 @@ namespace WSUSAdminAssistant
                 else
                     xmlpath = (string)o;
 
-                xmlpath = Path.Combine(xmlpath, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "\\CredentialXmlFile.xml");
+                xmlpath = Path.Combine(xmlpath, "WSUSAdminAssistant\\CredentialXmlFile.xml");
 
                 // Check if XML file exists
                 if (File.Exists(xmlpath))
@@ -1232,7 +1232,7 @@ namespace WSUSAdminAssistant
                 else
                     xmlpath = (string)o;
 
-                xmlpath = Path.Combine(xmlpath, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "\\GroupUpdateRules.xml");
+                xmlpath = Path.Combine(xmlpath, "WSUSAdminAssistant\\GroupUpdateRules.xml");
 
                 // Check if XML file exists
                 if (File.Exists(xmlpath))
