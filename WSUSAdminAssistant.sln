@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSUSAdminAssistant", "WSUSA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSUSLibraries", "WSUSLibraries\WSUSLibraries.csproj", "{250D44F2-B273-4B91-957D-3CB76814FA53}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SUSWatcher", "SUSWatcher\SUSWatcher.csproj", "{296BF46B-0D8E-48C2-B1D7-04FF19720E8A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{250D44F2-B273-4B91-957D-3CB76814FA53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{250D44F2-B273-4B91-957D-3CB76814FA53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{250D44F2-B273-4B91-957D-3CB76814FA53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{296BF46B-0D8E-48C2-B1D7-04FF19720E8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{296BF46B-0D8E-48C2-B1D7-04FF19720E8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{296BF46B-0D8E-48C2-B1D7-04FF19720E8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{296BF46B-0D8E-48C2-B1D7-04FF19720E8A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
