@@ -16,6 +16,17 @@ using Microsoft.UpdateServices.Administration;
 
 namespace WSUSAdminAssistant
 {
+    // Define a basic exception for configuration issues
+    public class ConfigurationException : System.Exception
+    {
+        public string Summary;
+
+        public ConfigurationException(string message, string problemsummary) : base(message)
+        {
+            Summary = problemsummary;
+        }
+    }
+    
     public class clsConfig
     {
         public clsConfig()

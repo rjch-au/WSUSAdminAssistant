@@ -30,6 +30,9 @@ namespace WSUSAdminAssistant
 
         BackgroundWorker wrkPinger = new BackgroundWorker();
 
+        TaskCollection tasks = new TaskCollection();
+        BindingSource datasource = new BindingSource();
+
         public frmMain()
         {
             InitializeComponent();
@@ -164,9 +167,9 @@ namespace WSUSAdminAssistant
                     if (rn != -1)
                         DoPing(grdEndpoints.Rows[rn]);
 
-                    // Only continue immediately pinging if we found a row *and* the tab is still active
+                    // Only continue immediately pinging if we found a row
                 }
-                while (rn != -1 && tabAdminType.SelectedTab.Name == tabEndpointFaults.Name);
+                while (rn != -1);
 
                 // Snooze for 10 seconds before starting again.
                 Thread.Sleep(10000);
@@ -894,6 +897,9 @@ namespace WSUSAdminAssistant
             wrkPinger.DoWork += new DoWorkEventHandler(PingWorker);
             wrkPinger.RunWorkerAsync();
 
+            // Bind grdTasks datasource to the TaskCollection datasource
+            grdTasks.DataSource = datasource;
+
             // Return cursor to normal
             Cursor.Current = Cursors.Arrow;
         }
@@ -1509,45 +1515,6 @@ namespace WSUSAdminAssistant
             }
         }
 
-        private void PSExecCall(IPAddress ip, string fulldomainname, clsConfig.SecurityCredential cred, string command)
-        {
-            // Has a valid PSExec path been supplied?
-            if (cfg.PSExecPath == "")
-            {
-                // No - show messagebox and return
-                MessageBox.Show("No valid path to PSExec has been set in Preferences.  Please set a path to PSExec in Helper Preferences.", "PSExec path not valid", MessageBoxButtons.OK);
-                return;
-            }
-
-            // Did we get valid credentials?
-            if (cred == null)
-            {
-                // No - do we run with the current credentials?
-                if (!cfg.RunWithLocalCreds)
-                {
-                    // No - show messagebox and return
-                    MessageBox.Show("No credentials found for IP address " + ip.ToString() + " and running with local credentials disabled.  To run with local credentials, check \"Supply current credentials if no other security credentials found for IP address\" in General Preferences.",
-                        "No local credentials found for remote PC", MessageBoxButtons.OK);
-                    return;
-                }
-            }
-
-            // Schedule job through datagrid
-            DataGridViewRow r = grdTasks.Rows[grdTasks.Rows.Add()];
-
-            r.Cells[tskStatus.Index].Value = "Queued";
-            r.Cells[tskComputer.Index].Value = fulldomainname;
-            r.Cells[tskComputer.Index].Tag = cred;
-            r.Cells[tskIP.Index].Value = ip.ToString();
-            r.Cells[tskCommand.Index].Value = command;
-
-            grdTasks.CurrentCell = r.Cells[0];
-
-            // Restart job timer
-            timTasks.Interval = 500;
-            timTasks.Enabled = true;
-        }
-
         private void epGPUpdateForce_Click(object sender, EventArgs e)
         {
             PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "gpupdate /force");
@@ -1570,13 +1537,38 @@ namespace WSUSAdminAssistant
 
         private void epResetSusID_Click(object sender, EventArgs e)
         {
-            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "net stop wuauserv");
-            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v AccountDomainSid /f");
-            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v PingID /f");
-            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v SusClientId /f");
-            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "net start wuauserv");
-            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /resetauthorization");
-            PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /detectnow");
+            try
+            {
+                // Stop the Windows Update service
+                Task stop = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "net stop wuauserv");
+                stop.TimeoutInterval = new TimeSpan(0, 1, 0);
+                stop.Status = TaskStatus.Queued;
+
+                // Delete the three registry keys only if the service successfully stops
+                Task reg = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v AccountDomainSid /f");
+                reg.DependsOnTask = stop;
+
+                reg = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v PingID /f");
+                reg.DependsOnTask = stop;
+
+                reg = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v SusClientId /f");
+                reg.DependsOnTask = stop;
+
+                Task start = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "net start wuauserv");
+                start.TimeoutInterval = new TimeSpan(0, 1, 0);
+                start.Status = TaskStatus.Queued;
+
+                Task wu = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /resetauthorization");
+                wu.DependsOnTask = start;
+
+                wu = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /detectnow");
+                wu.DependsOnTask = start;
+            }
+            catch (ConfigurationException ex)
+            {
+                // Could not schedule task - inform user of reason why
+                MessageBox.Show(ex.Message, ex.Summary, MessageBoxButtons.OK);
+            }
         }
 
         private void mnuResetAuth_Click(object sender, EventArgs e)
@@ -1584,149 +1576,136 @@ namespace WSUSAdminAssistant
             PSExecCall(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /resetauthorization");
         }
 
-        private string output = "";
+        /// <summary>
+        /// Scheule a simple task with no dependent tasks
+        /// </summary>
+        private void PSExecCall(IPAddress ip, string computername, clsConfig.SecurityCredential credentials, string command)
+        {
+            try
+            {
+                Task task = tasks.AddTask(ip, computername, credentials, command);
+                task.Ready();
+            }
+            catch (ConfigurationException ex)
+            {
+                // Could not schedule task - inform user of reason why
+                MessageBox.Show(ex.Message, ex.Summary, MessageBoxButtons.OK);
+            }
+        }
 
         private void timTasks_Tick(object sender, EventArgs e)
         {
-            // If there are no tasks, we don't need to do anything...
-            if (grdTasks.Rows.Count == 0) return;
+            //// If there are no tasks, we don't need to do anything...
+            //if (grdTasks.Rows.Count == 0) return;
 
-            // Find the first completed (or timed out) task more than 5 minutes old and delete it
-            foreach (DataGridViewRow gr in grdTasks.Rows)
-                if ((gr.Cells[tskStatus.Index].Value.ToString() == "Complete" || gr.Cells[tskStatus.Index].Value.ToString() == "Timed Out") && DateTime.Now.Subtract(new DateTime((long)gr.Cells[tskStatus.Index].Tag)).TotalSeconds > 300)
-                {
-                    grdTasks.Rows.Remove(gr);
-                    break;
-                }
+            //// Find the first completed (or timed out) task more than 5 minutes old and delete it
+            //foreach (DataGridViewRow gr in grdTasks.Rows)
+            //    if ((gr.Cells[tskStatus.Index].Value.ToString() == "Complete" || gr.Cells[tskStatus.Index].Value.ToString() == "Timed Out") && DateTime.Now.Subtract(new DateTime((long)gr.Cells[tskStatus.Index].Tag)).TotalSeconds > 300)
+            //    {
+            //        grdTasks.Rows.Remove(gr);
+            //        break;
+            //    }
 
-            // Get the first queued task
-            DataGridViewRow r = null;
+            //// Get the first queued task
+            //DataGridViewRow r = null;
 
-            foreach (DataGridViewRow gr in grdTasks.Rows)
-            {
-                if (gr.Cells[tskStatus.Index].Value.ToString() == "Running")
-                    // Oops - we're already running one task - break before we start another one!
-                    break;
+            //foreach (DataGridViewRow gr in grdTasks.Rows)
+            //{
+            //    if (gr.Cells[tskStatus.Index].Value.ToString() == "Running")
+            //        // Oops - we're already running one task - break before we start another one!
+            //        break;
 
-                if (gr.Cells[tskStatus.Index].Value.ToString() == "Queued")
-                {
-                    // Found one - note it and break
-                    r = gr;
-                    break;
-                }
-            }
+            //    if (gr.Cells[tskStatus.Index].Value.ToString() == "Queued")
+            //    {
+            //        // Found one - note it and break
+            //        r = gr;
+            //        break;
+            //    }
+            //}
 
-            // Return if we didn't find a row
-            if (r == null) return;
+            //// Return if we didn't find a row
+            //if (r == null) return;
 
-            // Disable timer since we're going to exceed the timer interval
-            timTasks.Enabled = false;
+            //// Disable timer since we're going to exceed the timer interval
+            //timTasks.Enabled = false;
 
-            // Build the task and run it
-            clsConfig.SecurityCredential cred = (clsConfig.SecurityCredential)r.Cells[tskComputer.Index].Tag;
+            //// Build the task and run it
+            //clsConfig.SecurityCredential cred = (clsConfig.SecurityCredential)r.Cells[tskComputer.Index].Tag;
             
-            string param;
+            //string param;
 
-            param = "\\\\" + r.Cells[tskIP.Index].Value.ToString() + " -e "; // Computer name.  PSExec should not load account's profile (quicker startup)
+            //param = "\\\\" + r.Cells[tskIP.Index].Value.ToString() + " -e "; // Computer name.  PSExec should not load account's profile (quicker startup)
 
-            // Add credentials only if we have some to add
-            if (cred != null)
-            {
-                if (cred.domain == null)
-                    param += "-u " + cred.username;                                // Local user
-                else
-                    param += "-u " + cred.domain + "\\" + cred.username;      // Domain user and password
+            //// Add credentials only if we have some to add
+            //if (cred != null)
+            //{
+            //    if (cred.domain == null)
+            //        param += "-u " + cred.username;                                // Local user
+            //    else
+            //        param += "-u " + cred.domain + "\\" + cred.username;      // Domain user and password
 
-                param += " -p " + cred.password + " ";
-            }
+            //    param += " -p " + cred.password + " ";
+            //}
 
-            // Add command to execute
-            param += r.Cells[tskCommand.Index].Value.ToString();
+            //// Add command to execute
+            //param += r.Cells[tskCommand.Index].Value.ToString();
 
-            r.Cells[tskStatus.Index].Value = "Running";
-            grdTasks.CurrentCell = r.Cells[0];
-            grdTasks.Refresh();
+            //r.Cells[tskStatus.Index].Value = "Running";
+            //grdTasks.CurrentCell = r.Cells[0];
+            //grdTasks.Refresh();
 
-            // Run PSExec
-            var psexec = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = cfg.PSExecPath,
-                    Arguments = param,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true                    
-                }
-            };
+            //// Run PSExec
+            //var psexec = new Process
+            //{
+            //    StartInfo = new ProcessStartInfo
+            //    {
+            //        FileName = cfg.PSExecPath,
+            //        Arguments = param,
+            //        UseShellExecute = false,
+            //        RedirectStandardOutput = true,
+            //        RedirectStandardError = true,
+            //        CreateNoWindow = true                    
+            //    }
+            //};
 
-            psexec.OutputDataReceived += new DataReceivedEventHandler(OutputHandler);
-            psexec.ErrorDataReceived += new DataReceivedEventHandler(OutputHandler);
+            //psexec.OutputDataReceived += new DataReceivedEventHandler(OutputHandler);
+            //psexec.ErrorDataReceived += new DataReceivedEventHandler(OutputHandler);
 
-            output = "";
+            //output = "";
 
-            psexec.Start();
-            psexec.BeginOutputReadLine();
-            psexec.BeginErrorReadLine();
+            //psexec.Start();
+            //psexec.BeginOutputReadLine();
+            //psexec.BeginErrorReadLine();
 
-            // Read output for 30 seconds or until process has terminated
-            DateTime start = DateTime.Now;
+            //// Read output for 30 seconds or until process has terminated
+            //DateTime start = DateTime.Now;
 
-            do
-            {
-                // Is the string in the textbox any different to the output?
-                if ((output != "" && r.Cells[tskOutput.Index].Value == null) || (r.Cells[tskOutput.Index].Value != null && output != r.Cells[tskOutput.Index].Value.ToString()))
-                    // Yes, update the cell
-                    r.Cells[tskOutput.Index].Value = output;
+            //do
+            //{
+            //    // Is the string in the textbox any different to the output?
+            //    if ((output != "" && r.Cells[tskOutput.Index].Value == null) || (r.Cells[tskOutput.Index].Value != null && output != r.Cells[tskOutput.Index].Value.ToString()))
+            //        // Yes, update the cell
+            //        r.Cells[tskOutput.Index].Value = output;
 
-                Application.DoEvents();
-            } while (DateTime.Now.Subtract(start).TotalSeconds < 30 && !psexec.HasExited);
+            //    Application.DoEvents();
+            //} while (DateTime.Now.Subtract(start).TotalSeconds < 30 && !psexec.HasExited);
 
-            if (psexec.HasExited) // Did task complete
-                r.Cells[tskStatus.Index].Value = "Complete";
-            else
-            {
-                r.Cells[tskStatus.Index].Value = "Timed Out";
+            //if (psexec.HasExited) // Did task complete
+            //    r.Cells[tskStatus.Index].Value = "Complete";
+            //else
+            //{
+            //    r.Cells[tskStatus.Index].Value = "Timed Out";
 
-                psexec.Kill();              // Failed to exit
-            }
+            //    psexec.Kill();              // Failed to exit
+            //}
 
-            // Get output and show end user
-            r.Cells[tskStatus.Index].Tag = DateTime.Now.Ticks;  // Note the time the task finished
-            r.Cells[tskOutput.Index].Value = output;
-            r.Cells[tskOutput.Index].ToolTipText = output;      // Set both the text and the tooltip
+            //// Get output and show end user
+            //r.Cells[tskStatus.Index].Tag = DateTime.Now.Ticks;  // Note the time the task finished
+            //r.Cells[tskOutput.Index].Value = output;
+            //r.Cells[tskOutput.Index].ToolTipText = output;      // Set both the text and the tooltip
 
-            // Re-enable the timer
-            timTasks.Enabled = true;
-        }
-
-        private void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
-        {
-            if (outLine.Data == null) return;
-
-            // Process each output line individually
-            string[] lines = outLine.Data.Split(new string[] { System.Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string l in lines)
-            {
-                // Does the text match the kind of output we get from PSExec?
-                if (!Regex.IsMatch(l, "^PsExec v.*remotely$") &&
-                    !Regex.IsMatch(l, "^Copyright.*Russinovich$") &&
-                    !Regex.IsMatch(l, "^Sysinternals - www.sysinternals.com$") &&
-                    !Regex.IsMatch(l, @"^Connecting .*\.\.\.$") &&
-                    !Regex.IsMatch(l, @"^Starting .*\.\.\.$"))
-                        // No, we can add it to the string
-                        output += System.Environment.NewLine + l;
-            }
-
-            // Strip all double carriage returns
-            while (output.Replace(System.Environment.NewLine + System.Environment.NewLine, System.Environment.NewLine) != output)
-                output = output.Replace(System.Environment.NewLine + System.Environment.NewLine, System.Environment.NewLine);
-
-            // Strip any leading or tailing carriage returns
-            while (output != output.Trim('\r', '\n'))
-                output = output.Trim('\r', '\n');
+            //// Re-enable the timer
+            //timTasks.Enabled = true;
         }
 
         private void mnuSUSWatcher_Click(object sender, EventArgs e)
