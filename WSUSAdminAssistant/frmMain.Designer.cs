@@ -30,16 +30,16 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle16 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle17 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle18 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle19 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle20 = new System.Windows.Forms.DataGridViewCellStyle();
             this.timUpdateData = new System.Windows.Forms.Timer(this.components);
             this.gbxWorking = new System.Windows.Forms.GroupBox();
             this.picReloading = new System.Windows.Forms.PictureBox();
@@ -163,6 +163,8 @@
             this.mnuDefaultSusIDList = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuPreferences = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuUtilities = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuSUSWatcher = new System.Windows.Forms.ToolStripMenuItem();
             this.cmEndpoint = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.epDetails = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
@@ -175,6 +177,7 @@
             this.epReportNow = new System.Windows.Forms.ToolStripMenuItem();
             this.timTasks = new System.Windows.Forms.Timer(this.components);
             this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
+            this.worker = new System.ComponentModel.BackgroundWorker();
             this.gbxWorking.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picReloading)).BeginInit();
             this.tabSuperceded.SuspendLayout();
@@ -681,8 +684,8 @@
             // tskOutput
             // 
             this.tskOutput.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.tskOutput.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskOutput.DefaultCellStyle = dataGridViewCellStyle11;
             this.tskOutput.HeaderText = "Output";
             this.tskOutput.Name = "tskOutput";
             this.tskOutput.Resizable = System.Windows.Forms.DataGridViewTriState.True;
@@ -782,8 +785,8 @@
             // 
             // T
             // 
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.T.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.T.DefaultCellStyle = dataGridViewCellStyle12;
             this.T.HeaderText = "Group T";
             this.T.Name = "T";
             this.T.ReadOnly = true;
@@ -791,8 +794,8 @@
             // 
             // A
             // 
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.A.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle13.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.A.DefaultCellStyle = dataGridViewCellStyle13;
             this.A.HeaderText = "Group A";
             this.A.Name = "A";
             this.A.ReadOnly = true;
@@ -801,8 +804,8 @@
             // 
             // B
             // 
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.B.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle14.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.B.DefaultCellStyle = dataGridViewCellStyle14;
             this.B.HeaderText = "Group B";
             this.B.Name = "B";
             this.B.ReadOnly = true;
@@ -811,8 +814,8 @@
             // 
             // ServerT
             // 
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ServerT.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle15.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ServerT.DefaultCellStyle = dataGridViewCellStyle15;
             this.ServerT.HeaderText = "Servers T";
             this.ServerT.Name = "ServerT";
             this.ServerT.ReadOnly = true;
@@ -820,8 +823,8 @@
             // 
             // ChemistT
             // 
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ChemistT.DefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle16.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ChemistT.DefaultCellStyle = dataGridViewCellStyle16;
             this.ChemistT.HeaderText = "Chemist T";
             this.ChemistT.Name = "ChemistT";
             this.ChemistT.ReadOnly = true;
@@ -829,8 +832,8 @@
             // 
             // ChemistA
             // 
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ChemistA.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle17.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ChemistA.DefaultCellStyle = dataGridViewCellStyle17;
             this.ChemistA.HeaderText = "Chemist A";
             this.ChemistA.Name = "ChemistA";
             this.ChemistA.ReadOnly = true;
@@ -839,8 +842,8 @@
             // 
             // ChemistB
             // 
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ChemistB.DefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle18.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ChemistB.DefaultCellStyle = dataGridViewCellStyle18;
             this.ChemistB.HeaderText = "Chemist B";
             this.ChemistB.Name = "ChemistB";
             this.ChemistB.ReadOnly = true;
@@ -849,8 +852,8 @@
             // 
             // ChemistServerT
             // 
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.ChemistServerT.DefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle19.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.ChemistServerT.DefaultCellStyle = dataGridViewCellStyle19;
             this.ChemistServerT.HeaderText = "Chemist Servers T";
             this.ChemistServerT.Name = "ChemistServerT";
             this.ChemistServerT.ReadOnly = true;
@@ -858,8 +861,8 @@
             // 
             // Testing
             // 
-            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.Testing.DefaultCellStyle = dataGridViewCellStyle10;
+            dataGridViewCellStyle20.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.Testing.DefaultCellStyle = dataGridViewCellStyle20;
             this.Testing.HeaderText = "Testing";
             this.Testing.Name = "Testing";
             this.Testing.ReadOnly = true;
@@ -1251,7 +1254,8 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuOptions});
+            this.mnuOptions,
+            this.mnuUtilities});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1038, 24);
@@ -1324,6 +1328,21 @@
             this.mnuPreferences.Size = new System.Drawing.Size(288, 22);
             this.mnuPreferences.Text = "&Preferences";
             this.mnuPreferences.Click += new System.EventHandler(this.mnuPreferences_Click);
+            // 
+            // mnuUtilities
+            // 
+            this.mnuUtilities.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuSUSWatcher});
+            this.mnuUtilities.Name = "mnuUtilities";
+            this.mnuUtilities.Size = new System.Drawing.Size(58, 20);
+            this.mnuUtilities.Text = "&Utilities";
+            // 
+            // mnuSUSWatcher
+            // 
+            this.mnuSUSWatcher.Name = "mnuSUSWatcher";
+            this.mnuSUSWatcher.Size = new System.Drawing.Size(208, 22);
+            this.mnuSUSWatcher.Text = "Duplicate SUS ID Watcher";
+            this.mnuSUSWatcher.Click += new System.EventHandler(this.mnuSUSWatcher_Click);
             // 
             // cmEndpoint
             // 
@@ -1407,6 +1426,10 @@
             // 
             this.dataGridViewImageColumn1.HeaderText = "Status";
             this.dataGridViewImageColumn1.Name = "dataGridViewImageColumn1";
+            // 
+            // worker
+            // 
+            this.worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_DoWork);
             // 
             // frmMain
             // 
@@ -1594,6 +1617,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn tskIP;
         private System.Windows.Forms.DataGridViewTextBoxColumn tskCommand;
         private System.Windows.Forms.DataGridViewTextBoxColumn tskOutput;
+        private System.Windows.Forms.ToolStripMenuItem mnuUtilities;
+        private System.Windows.Forms.ToolStripMenuItem mnuSUSWatcher;
+        private System.ComponentModel.BackgroundWorker worker;
     }
 }
 

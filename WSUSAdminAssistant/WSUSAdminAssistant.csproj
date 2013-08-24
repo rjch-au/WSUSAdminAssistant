@@ -231,6 +231,10 @@
     <None Include="Resources\Zoom.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SUSWatcher\SUSWatcher.csproj">
+      <Project>{296bf46b-0d8e-48c2-b1d7-04ff19720e8a}</Project>
+      <Name>SUSWatcher</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WSUSLibraries\WSUSLibraries.csproj">
       <Project>{250d44f2-b273-4b91-957d-3cb76814fa53}</Project>
       <Name>WSUSLibraries</Name>

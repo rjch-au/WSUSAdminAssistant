@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 using Microsoft.UpdateServices.Administration;
 using Microsoft.UpdateServices.Administration.Internal;
@@ -1700,6 +1701,24 @@ namespace WSUSAdminAssistant
             // Strip any leading or tailing carriage returns
             while (output != output.Trim('\r', '\n'))
                 output = output.Trim('\r', '\n');
+        }
+
+        private void mnuSUSWatcher_Click(object sender, EventArgs e)
+        {
+            if (worker.IsBusy)
+            {
+                MessageBox.Show("SUS ID Watcher already running", "Can't start SUS ID Watcher", MessageBoxButtons.OK);
+                return;
+            }
+
+            worker.RunWorkerAsync();
+        }
+
+        private void worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            Form f = new SUSWatcher.frmSUSWatch();
+
+            f.ShowDialog();
         }
     }
 }
