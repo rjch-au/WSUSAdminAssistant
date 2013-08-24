@@ -28,6 +28,8 @@ namespace WSUSAdminAssistant
         private bool forceUpdate = true;
         private bool cancelNow = false;
 
+        BackgroundWorker wrkPinger = new BackgroundWorker();
+
         public frmMain()
         {
             InitializeComponent();
@@ -52,8 +54,6 @@ namespace WSUSAdminAssistant
 
         private void UpdateEndpointFaults()
         {
-            int rn;
-
             // Update list when forced or after 2 minutes
             if (forceUpdate || DateTime.Now.Subtract(lastupdaterun).TotalSeconds > 120)
             {
@@ -101,33 +101,6 @@ namespace WSUSAdminAssistant
                 }
             }
 
-            // Find least recently pinged machine
-            rn = -1;
-            long lp = DateTime.Now.Ticks;
-
-            foreach (DataGridViewRow r in grdEndpoints.Rows)
-            {
-                // Has this machine ever been pinged?
-                if (r.Cells["epPingUpdated"].Value == null || r.Cells["epPingUpdated"].Value.ToString() == "")
-                {
-                    // Nope, let's do this one...
-                    rn = r.Index;
-                    break;
-                }
-
-                // Yes.  Has it been pinged more than 30 seconds ago and longer ago than the last one found?
-                if (long.Parse(r.Cells["epPingUpdated"].Value.ToString()) < lp && (DateTime.Now.Ticks - long.Parse(r.Cells["epPingUpdated"].Value.ToString())) > (30 * TimeSpan.TicksPerSecond))
-                {
-                    // Yep, make a note of it and keep going...
-                    lp = long.Parse(r.Cells["epPingUpdated"].Value.ToString());
-                    rn = r.Index;
-                }
-            }
-
-            // If a row was found, ping it.
-            if (rn != -1)
-                DoPing(grdEndpoints.Rows[rn]);
-
             // Sort the datagrid
             grdEndpoints.Sort(grdEndpoints.Columns["epIP"], ListSortDirection.Ascending);
 
@@ -153,7 +126,56 @@ namespace WSUSAdminAssistant
             forceUpdate = false;
             timUpdateData.Interval = 500;
         }
-        
+
+        private void PingWorker(object sender, DoWorkEventArgs e)
+        {
+            // Overall loop that sleeps for 10 seconds while a form isn't active, or while all machines have been pinged in the last 30 seconds
+            do
+            {
+                // Internal loop that keeps pinging machines whilst there are machines there to ping
+                int rn;
+
+                do
+                {
+                    // Find least recently pinged machine
+                    rn = -1;
+                    long lp = DateTime.Now.Ticks;
+
+                    foreach (DataGridViewRow r in grdEndpoints.Rows)
+                    {
+                        // Has this machine ever been pinged?
+                        if (r.Cells["epPingUpdated"].Value == null || r.Cells["epPingUpdated"].Value.ToString() == "")
+                        {
+                            // Nope, let's do this one...
+                            rn = r.Index;
+                            break;
+                        }
+
+                        // Yes.  Has it been pinged more than 30 seconds ago and longer ago than the last one found?
+                        if (long.Parse(r.Cells["epPingUpdated"].Value.ToString()) < lp && (DateTime.Now.Ticks - long.Parse(r.Cells["epPingUpdated"].Value.ToString())) > (30 * TimeSpan.TicksPerSecond))
+                        {
+                            // Yep, make a note of it and keep going...
+                            lp = long.Parse(r.Cells["epPingUpdated"].Value.ToString());
+                            rn = r.Index;
+                        }
+                    }
+
+                    // If a row was found, ping it.
+                    if (rn != -1)
+                        DoPing(grdEndpoints.Rows[rn]);
+
+                    // Only continue immediately pinging if we found a row *and* the tab is still active
+                }
+                while (rn != -1 && tabAdminType.SelectedTab.Name == tabEndpointFaults.Name);
+
+                // Snooze for 10 seconds before starting again.
+                Thread.Sleep(10000);
+            }
+            while (true);
+
+            // This thread should only exit when it is killed by the form being closed.
+        }
+
         private void DoPing(DataGridViewRow r)
         {
             try
@@ -868,6 +890,10 @@ namespace WSUSAdminAssistant
             butCheckClick(butDefaultSusID, ba[4]);
             butCheckClick(butGroupRules, ba[5]);
 
+            // Set up and start the background pinger
+            wrkPinger.DoWork += new DoWorkEventHandler(PingWorker);
+            wrkPinger.RunWorkerAsync();
+
             // Return cursor to normal
             Cursor.Current = Cursors.Arrow;
         }
@@ -1572,7 +1598,7 @@ namespace WSUSAdminAssistant
                     grdTasks.Rows.Remove(gr);
                     break;
                 }
-            
+
             // Get the first queued task
             DataGridViewRow r = null;
 
