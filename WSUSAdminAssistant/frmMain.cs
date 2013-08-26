@@ -1498,10 +1498,11 @@ namespace WSUSAdminAssistant
             // Was this a right-click?
             if (e.Button == System.Windows.Forms.MouseButtons.Right)
             {
-                // Yes - save cell context and show pop-up menu
+                // Yes - save cell context, select cell and show pop-up menu
                 epcmRow = grdEndpoints.Rows[e.RowIndex];
                 epcmIPAddress = IPAddress.Parse(epcmRow.Cells["epIP"].Value.ToString());
                 epcmFullName = epcmRow.Cells[epName.Index].Value.ToString();
+                grdEndpoints.CurrentCell = grdEndpoints.Rows[e.RowIndex].Cells[e.ColumnIndex];
 
                 // Look for credentials for this PC
                 clsConfig.CredentialCollection cc = cfg.CredentialList;
