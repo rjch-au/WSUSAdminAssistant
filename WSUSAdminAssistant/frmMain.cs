@@ -30,8 +30,7 @@ namespace WSUSAdminAssistant
 
         BackgroundWorker wrkPinger = new BackgroundWorker();
 
-        TaskCollection tasks = new TaskCollection();
-        BindingSource datasource = new BindingSource();
+        TaskCollection tasks;
 
         public frmMain()
         {
@@ -897,11 +896,43 @@ namespace WSUSAdminAssistant
             wrkPinger.DoWork += new DoWorkEventHandler(PingWorker);
             wrkPinger.RunWorkerAsync();
 
-            // Bind grdTasks datasource to the TaskCollection datasource
-            grdTasks.DataSource = datasource;
+            // Initialise task collection
+            tasks = new TaskCollection();
+            tasks.TaskRun += tasks_TaskRun;
+            // Bind the task list to grdTasks
+            grdTasks.AutoGenerateColumns = false;
+            grdTasks.DataSource = tasks.Tasks;
+
+            tskID.DataPropertyName = "TaskID";
+            tskStatus.DataPropertyName = "CurrentStatus";
+            tskIP.DataPropertyName = "IPAddress";
+            tskCommand.DataPropertyName = "Command";
+            tskOutput.DataPropertyName = "Output";
 
             // Return cursor to normal
             Cursor.Current = Cursors.Arrow;
+        }
+
+        void tasks_TaskRun(object sender, EventArgs e)
+        {
+            Task t = (Task)sender;
+
+            // Find active task and select it
+            DataGridViewRow r = null;
+
+            foreach (DataGridViewRow gr in grdTasks.Rows)
+                if (gr.Cells[tskID.Index].Value != null && gr.Cells[tskID.Index].Value.ToString() == t.TaskID.ToString())
+                    r = gr;
+
+            // Did we find a row?
+            if (r != null)
+                // Yes - select it
+                grdTasks.CurrentCell = r.Cells[tskID.Index];
+        }
+
+        void tasks_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            Debug.WriteLine("Tasks list changed: Type {0},  Property {1}", e.ListChangedType.ToString(), e.PropertyDescriptor);
         }
 
         private void frmMain_Closing(object sender, FormClosingEventArgs e)

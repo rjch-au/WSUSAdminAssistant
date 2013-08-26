@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace WSUSAdminAssistant
 {
@@ -21,13 +23,14 @@ namespace WSUSAdminAssistant
         Running,
         TimedOut,
         Complete,
-        Cancelled
+        Cancelled,
+        Failed
     };
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Class describing a single task
     //
-    class Task
+    class Task : INotifyPropertyChanged
     {
         public Task()
         {
@@ -38,17 +41,29 @@ namespace WSUSAdminAssistant
             TimeoutInterval = new TimeSpan(0, 0, 30);
         }
 
-        private int _DependsOnTask;
+        private TaskStatus _Status;
+        private string _Command;
+        private string _Output;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string property = "")
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(property));
+        }
 
         public int TaskID;
-        
+        private int _DependsOnTaskID;
+
         public int DependsOnTaskID
         {
-            get { return _DependsOnTask; }
+            get { return _DependsOnTaskID; }
 
             set 
             {
-                _DependsOnTask = value;
+                _DependsOnTaskID = value;
                 
                 // If a task was new, it can be marked as pending now
                 if (Status == TaskStatus.New) Status = TaskStatus.Pending;
@@ -63,7 +78,12 @@ namespace WSUSAdminAssistant
             set { DependsOnTaskID = value.TaskID; }
         }
 
-        public TaskStatus Status;
+        public TaskStatus Status
+        {
+            get { return _Status; }
+            set { _Status = value; OnPropertyChanged("Status"); OnPropertyChanged("CurrentStatus"); }
+        }
+
         public string CurrentStatus { get { return Status.ToString(); } }
 
         public DateTime TaskStarted;
@@ -75,8 +95,17 @@ namespace WSUSAdminAssistant
         public string IPAddress { get { return IP.ToString(); } }
 
         public clsConfig.SecurityCredential Credentials;
-        public string Command;
-        public string Output;
+        public string Command
+        {
+            get { return _Command; }
+            set { _Command = value; OnPropertyChanged("Command"); }
+        }
+
+        public string Output
+        {
+            get { return _Output; }
+            set { _Output = value; OnPropertyChanged("Output"); }
+        }
 
         /// <summary>
         /// Mark a task as ready for execution
@@ -90,14 +119,23 @@ namespace WSUSAdminAssistant
     ////////////////////////////////////////////////////////////////////////////////////
     // Class that contains and processes a list of tasks
     //
-    class TaskCollection : System.Collections.CollectionBase
+    class TaskCollection
     {
         // Class initialisation
         public TaskCollection()
         {
             // Kick off the background worker
             wrkTaskManager.DoWork += wrkTaskManager_DoWork;
-            wrkTaskManager.RunWorkerAsync();
+            wrkTaskManager.RunWorkerCompleted += wrkTaskManager_RunWorkerCompleted;
+            wrkTaskManager.RunWorkerAsync(SynchronizationContext.Current);
+        }
+
+        void wrkTaskManager_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            Debug.WriteLine("Task Worker exited: " + e.Error.Message);
+
+            // Since it wasn't supposed to exit, restart it
+            wrkTaskManager.RunWorkerAsync(SynchronizationContext.Current);
         }
 
         // Private class properties and methods
@@ -106,40 +144,7 @@ namespace WSUSAdminAssistant
         private clsConfig cfg = new clsConfig();
 
         // Public properties and methods
-        public Task this[int taskid]
-        {
-            get
-            {
-                // Find the task with the appropriate task ID
-                foreach (Task t in this.List)
-                    if (t.TaskID == taskid)
-                        // Found the task - return it
-                        return t;
-
-                // Didn't find a task - return null
-                return null;
-            }
-
-            set
-            {
-                // Locate the taskid in question
-                for (int i = 0; i < this.List.Count; i++)
-                {
-                    Task t = (Task)this.List[i];
-
-                    if (t.TaskID == taskid)
-                    {
-                        // Found it - update it and return
-                        this.List[i] = value;
-                        return;
-                    }
-                }
-
-                // Couldn't find the task ID - throw exception
-
-                throw new KeyNotFoundException();
-            }
-        }
+        public BindingList<Task> Tasks = new BindingList<Task>();
 
         public Task AddTask(IPAddress ip, string computername, clsConfig.SecurityCredential credentials, string command)
         {
@@ -168,7 +173,7 @@ namespace WSUSAdminAssistant
             t.Command = command;
 
             // Add the task to the list and return it
-            this.List.Add(t);
+            this.Tasks.Add(t);
             return t;
         }
 
@@ -182,40 +187,54 @@ namespace WSUSAdminAssistant
                 TaskRun(task, e);
         }
 
+        public void RemoveTask(int index) { this.Tasks.RemoveAt(index); }
+
+        public void UpdateStatus(int index, TaskStatus status) { this.Tasks[index].Status = status; }
+
+        public void UpdateOutput(int index, string output) { this.Tasks[index].Output = output; }
+
         // Background worker that processes tasks as they become available
         private string output;
 
         private void wrkTaskManager_DoWork(object sender, DoWorkEventArgs e)
         {
-            // Overall loop that sleeps for 1 second when there are no active tasks
+            // Make a note of the synchronization context
+            SynchronizationContext ct = (SynchronizationContext)e.Argument;
+
+            // Loop continuously, looking for new tasks.  Sleep for a second 
             do
             {
                 Thread.Sleep(1000);
 
                 // If there are no tasks, we don't need to do anything...
-                while (this.List.Count != 0)
+                while (this.Tasks.Count != 0)
                 {
                     // Find the first completed, cancelled or task more than 5 minutes old and delete it
-                    foreach (Task st in this.List)
-                        if ((st.Status == TaskStatus.Complete || st.Status == TaskStatus.TimedOut || st.Status == TaskStatus.Cancelled) && DateTime.Now.Subtract(st.TaskFinished).TotalSeconds > 300)
+                    for (int i = 0; i < Tasks.Count; i++)
+                        if ((Tasks[i].Status == TaskStatus.Complete || Tasks[i].Status == TaskStatus.TimedOut || Tasks[i].Status == TaskStatus.Cancelled) &&
+                            DateTime.Now.Subtract(Tasks[i].TaskFinished).TotalSeconds > 300)
                         {
-                            this.List.Remove(st);
+                            // Signal the main thread to remove the task
+                            ct.Send(new SendOrPostCallback((o) => { RemoveTask(i); }), null);
+                            //this.Tasks.Remove(Tasks[i]);
                             break;
                         }
 
                     // Get the first queued task
                     Task t = null;
+                    int idx = -1;
 
-                    foreach (Task st in this.List)
+                    for (int i = 0; i < Tasks.Count; i++)
                     {
-                        if (st.Status == TaskStatus.Running)
+                        if (this.Tasks[i].Status == TaskStatus.Running)
                             // Oops - we're already running one task - break before we start another one!
                             break;
 
-                        if (st.Status == TaskStatus.Queued)
+                        if (this.Tasks[i].Status == TaskStatus.Queued)
                         {
                             // Found one - note it and break
-                            t = st;
+                            t = this.Tasks[i];
+                            idx = i;
                             break;
                         }
                     }
@@ -243,8 +262,8 @@ namespace WSUSAdminAssistant
                         param += t.Command;
 
                         // Trigger an event so other code can take action it may want to
-                        t.Status = TaskStatus.Running;
-                        OnRunning(t, EventArgs.Empty);
+                        ct.Send(new SendOrPostCallback((o) => { UpdateStatus(idx, TaskStatus.Running); }), null);
+                        ct.Send(new SendOrPostCallback((o) => { OnRunning(t, EventArgs.Empty); }), null);
 
                         // Run PSExec
                         var psexec = new Process
@@ -277,7 +296,7 @@ namespace WSUSAdminAssistant
                             // Is the publically available output any different to the building output?
                             if ((output != "" && t.Output == null) || (t.Output != null && output != t.Output))
                                 // Yes, update the publically available output
-                                t.Output = output;
+                                ct.Send(new SendOrPostCallback((o) => { UpdateOutput(idx, output); }), null);
 
                             // Attempt to flush all output then sleep for a second
                             psexec.CancelErrorRead();
@@ -292,16 +311,16 @@ namespace WSUSAdminAssistant
                         if (psexec.HasExited)
                         {
                             // Yes, mark it as complete and release any dependent tasks
-                            t.Status = TaskStatus.Complete;
-                            ProcessDependentTasks(t.TaskID, TaskStatus.Complete);
+                            ct.Send(new SendOrPostCallback((o) => { UpdateStatus(idx, TaskStatus.Complete); }), null);
+                            ct.Send(new SendOrPostCallback((o) => { ProcessDependentTasks(t.TaskID, TaskStatus.Complete); }), null);
                         }
                         else
                         {
                             // No, kill it and cancel all dependent tasks
                             psexec.Kill();
 
-                            t.Status = TaskStatus.TimedOut;
-                            ProcessDependentTasks(t.TaskID, TaskStatus.TimedOut);
+           /****/                 ct.Send(delegate { this.UpdateStatus(idx, TaskStatus.TimedOut); }, null);
+                            ct.Send(delegate { ProcessDependentTasks(t.TaskID, TaskStatus.TimedOut); }, null);
                         }
 
                         // Note the time the task finished
@@ -314,7 +333,7 @@ namespace WSUSAdminAssistant
         private void ProcessDependentTasks(int taskid, TaskStatus status)
         {
             // Loop through all tasks, looking for tasks dependent on the supplied taskid
-            foreach (Task t in this.List)
+            foreach (Task t in this.Tasks)
             {
                 if (t.DependsOnTaskID == taskid)
                 {
@@ -359,8 +378,8 @@ namespace WSUSAdminAssistant
                     !Regex.IsMatch(l, "^Sysinternals - www.sysinternals.com$") &&
                     !Regex.IsMatch(l, @"^Connecting .*\.\.\.$") &&
                     !Regex.IsMatch(l, @"^Starting .*\.\.\.$"))
-                        // No, we can add it to the string
-                        output += System.Environment.NewLine + l;
+                    // No, we can add it to the string
+                    output += System.Environment.NewLine + l;
             }
 
             // Strip all double carriage returns
@@ -371,6 +390,5 @@ namespace WSUSAdminAssistant
             while (output != output.Trim('\r', '\n'))
                 output = output.Trim('\r', '\n');
         }
-
-            }
+    }
 }
