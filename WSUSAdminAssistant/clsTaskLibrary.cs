@@ -41,6 +41,7 @@ namespace WSUSAdminAssistant
             TimeoutInterval = new TimeSpan(0, 0, 30);
         }
 
+        private int _TaskID;
         private TaskStatus _Status;
         private string _Command;
         private string _Output;
@@ -54,7 +55,12 @@ namespace WSUSAdminAssistant
                 handler(this, new PropertyChangedEventArgs(property));
         }
 
-        public int TaskID;
+        public int TaskID
+        {
+            get { return _TaskID; }
+            set { _TaskID = value; OnPropertyChanged("TaskID"); }
+        }
+
         private int _DependsOnTaskID;
 
         public int DependsOnTaskID
@@ -293,18 +299,22 @@ namespace WSUSAdminAssistant
 
                         do
                         {
-                            // Is the publically available output any different to the building output?
-                            if ((output != "" && t.Output == null) || (t.Output != null && output != t.Output))
-                                // Yes, update the publically available output
-                                ct.Send(new SendOrPostCallback((o) => { UpdateOutput(idx, output); }), null);
-
-                            // Attempt to flush all output then sleep for a second
+                            // Wait 200ms for more output
+                            Thread.Sleep(200);
+                            
+                            // Flush output and process events
                             psexec.CancelErrorRead();
                             psexec.CancelOutputRead();
                             psexec.BeginOutputReadLine();
                             psexec.BeginErrorReadLine();
 
-                            Thread.Sleep(1000);
+                            Application.DoEvents();
+
+                            // Is the publically available output any different to the building output?
+                            if ((output != "" && t.Output == null) || (t.Output != null && output != t.Output))
+                                // Yes, update the publically available output
+                                ct.Send(new SendOrPostCallback((o) => { UpdateOutput(idx, output); }), null);
+
                         } while (DateTime.Now.Subtract(t.TaskStarted) < t.TimeoutInterval && !psexec.HasExited);
 
                         // Did task complete

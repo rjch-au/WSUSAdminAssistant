@@ -209,8 +209,8 @@ namespace WSUSAdminAssistant
             }
             catch (Exception e)
             {
-                r.Cells["epPing"].Value = "Error";
-                r.Cells["epPing"].ToolTipText = e.Message;
+                r.Cells[epPing.Index].Value = "Error";
+                r.Cells[epPing.Index].ToolTipText = e.Message;
             }
 
             // Note time was last updated

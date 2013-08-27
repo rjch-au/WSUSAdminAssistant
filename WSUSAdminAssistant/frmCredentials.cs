@@ -286,6 +286,9 @@ namespace WSUSAdminAssistant
 
             // Sort the datagrid
             grdCredentials.Sort(new SortByMaskedIP(crNetwork.Index, crNetmask.Index));
+
+            // Set default selected cell to the first column of the last row
+            grdCredentials.CurrentCell = grdCredentials.Rows[grdCredentials.Rows.Count - 1].Cells[0];
         }
 
         private void grdCredentials_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
