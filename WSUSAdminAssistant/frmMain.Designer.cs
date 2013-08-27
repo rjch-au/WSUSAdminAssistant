@@ -83,6 +83,11 @@
             this.butDefaultSusID = new System.Windows.Forms.ToolStripButton();
             this.butGroupRules = new System.Windows.Forms.ToolStripButton();
             this.grdTasks = new System.Windows.Forms.DataGridView();
+            this.tskID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskCommand = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskOutput = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabUnapprovedUpdates = new System.Windows.Forms.TabPage();
             this.grdUpdates = new System.Windows.Forms.DataGridView();
             this.UpdateName = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -171,13 +176,6 @@
             this.epReportNow = new System.Windows.Forms.ToolStripMenuItem();
             this.timTasks = new System.Windows.Forms.Timer(this.components);
             this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
-            this.worker = new System.ComponentModel.BackgroundWorker();
-            this.taskCollectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.tskID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tskStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tskIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tskCommand = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tskOutput = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.gbxWorking.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picReloading)).BeginInit();
             this.tabSuperceded.SuspendLayout();
@@ -201,7 +199,6 @@
             this.tabHome.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.cmEndpoint.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.taskCollectionBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // timUpdateData
@@ -647,6 +644,55 @@
             this.grdTasks.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             this.grdTasks.Size = new System.Drawing.Size(1038, 102);
             this.grdTasks.TabIndex = 0;
+            // 
+            // tskID
+            // 
+            this.tskID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskID.DataPropertyName = "TaskID";
+            this.tskID.HeaderText = "Task ID";
+            this.tskID.Name = "tskID";
+            this.tskID.ReadOnly = true;
+            this.tskID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskID.Width = 51;
+            // 
+            // tskStatus
+            // 
+            this.tskStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskStatus.DataPropertyName = "CurrentStatus";
+            this.tskStatus.HeaderText = "Status";
+            this.tskStatus.Name = "tskStatus";
+            this.tskStatus.ReadOnly = true;
+            this.tskStatus.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskStatus.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskStatus.Width = 43;
+            // 
+            // tskIP
+            // 
+            this.tskIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskIP.DataPropertyName = "IPAddress";
+            this.tskIP.HeaderText = "IP Address";
+            this.tskIP.Name = "tskIP";
+            this.tskIP.ReadOnly = true;
+            this.tskIP.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskIP.Width = 64;
+            // 
+            // tskCommand
+            // 
+            this.tskCommand.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskCommand.DataPropertyName = "Command";
+            this.tskCommand.HeaderText = "Command";
+            this.tskCommand.Name = "tskCommand";
+            this.tskCommand.ReadOnly = true;
+            this.tskCommand.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskCommand.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskCommand.Width = 60;
+            // 
+            // tskOutput
+            // 
+            this.tskOutput.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.tskOutput.HeaderText = "Output";
+            this.tskOutput.Name = "tskOutput";
+            this.tskOutput.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             // 
             // tabUnapprovedUpdates
             // 
@@ -1374,72 +1420,10 @@
             this.epReportNow.Text = "&Report Update Status Now";
             this.epReportNow.Click += new System.EventHandler(this.epReportNow_Click);
             // 
-            // timTasks
-            // 
-            this.timTasks.Enabled = true;
-            this.timTasks.Tick += new System.EventHandler(this.timTasks_Tick);
-            // 
             // dataGridViewImageColumn1
             // 
             this.dataGridViewImageColumn1.HeaderText = "Status";
             this.dataGridViewImageColumn1.Name = "dataGridViewImageColumn1";
-            // 
-            // worker
-            // 
-            this.worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_DoWork);
-            // 
-            // taskCollectionBindingSource
-            // 
-            this.taskCollectionBindingSource.DataSource = typeof(WSUSAdminAssistant.TaskCollection);
-            // 
-            // tskID
-            // 
-            this.tskID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.tskID.DataPropertyName = "TaskID";
-            this.tskID.HeaderText = "Task ID";
-            this.tskID.Name = "tskID";
-            this.tskID.ReadOnly = true;
-            this.tskID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.tskID.Width = 51;
-            // 
-            // tskStatus
-            // 
-            this.tskStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.tskStatus.DataPropertyName = "CurrentStatus";
-            this.tskStatus.HeaderText = "Status";
-            this.tskStatus.Name = "tskStatus";
-            this.tskStatus.ReadOnly = true;
-            this.tskStatus.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.tskStatus.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.tskStatus.Width = 43;
-            // 
-            // tskIP
-            // 
-            this.tskIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.tskIP.DataPropertyName = "IPAddress";
-            this.tskIP.HeaderText = "IP Address";
-            this.tskIP.Name = "tskIP";
-            this.tskIP.ReadOnly = true;
-            this.tskIP.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.tskIP.Width = 64;
-            // 
-            // tskCommand
-            // 
-            this.tskCommand.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.tskCommand.DataPropertyName = "Command";
-            this.tskCommand.HeaderText = "Command";
-            this.tskCommand.Name = "tskCommand";
-            this.tskCommand.ReadOnly = true;
-            this.tskCommand.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.tskCommand.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.tskCommand.Width = 60;
-            // 
-            // tskOutput
-            // 
-            this.tskOutput.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.tskOutput.HeaderText = "Output";
-            this.tskOutput.Name = "tskOutput";
-            this.tskOutput.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             // 
             // frmMain
             // 
@@ -1486,7 +1470,6 @@
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.cmEndpoint.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.taskCollectionBindingSource)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1625,8 +1608,6 @@
         private System.Windows.Forms.ToolStripButton butCancelApprove;
         private System.Windows.Forms.ToolStripMenuItem mnuUtilities;
         private System.Windows.Forms.ToolStripMenuItem mnuSUSWatcher;
-        private System.ComponentModel.BackgroundWorker worker;
-        private System.Windows.Forms.BindingSource taskCollectionBindingSource;
         private System.Windows.Forms.DataGridViewTextBoxColumn tskID;
         private System.Windows.Forms.DataGridViewTextBoxColumn tskStatus;
         private System.Windows.Forms.DataGridViewTextBoxColumn tskIP;

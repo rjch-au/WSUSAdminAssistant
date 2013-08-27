@@ -359,6 +359,7 @@ namespace WSUSAdminAssistant
                             // All dependent tasks of both this any any task dependent on this must be cancelled
                             t.Status = TaskStatus.Cancelled;
                             t.Output = "Task cancelled due to the failure of task #" + taskid.ToString();
+                            t.TaskFinished = DateTime.Now;
                             ProcessDependentTasks(t.TaskID, TaskStatus.Cancelled);
                             break;
 
@@ -366,6 +367,7 @@ namespace WSUSAdminAssistant
                             // All dependent tasks of both this any any task dependent on this must be cancelled
                             t.Status = TaskStatus.Cancelled;
                             t.Output = "Task cancelled due to the cancellation of task #" + taskid.ToString();
+                            t.TaskFinished = DateTime.Now;
                             ProcessDependentTasks(t.TaskID, TaskStatus.Cancelled);
                             break;
                     }

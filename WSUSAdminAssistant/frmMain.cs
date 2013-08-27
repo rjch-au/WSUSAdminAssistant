@@ -29,6 +29,7 @@ namespace WSUSAdminAssistant
         private bool cancelNow = false;
 
         BackgroundWorker wrkPinger = new BackgroundWorker();
+        BackgroundWorker wrkSUSID = new BackgroundWorker();
 
         TaskCollection tasks;
 
@@ -896,6 +897,8 @@ namespace WSUSAdminAssistant
             wrkPinger.DoWork += new DoWorkEventHandler(PingWorker);
             wrkPinger.RunWorkerAsync();
 
+            wrkSUSID.DoWork += new DoWorkEventHandler(wrkSUSID_DoWork);
+
             // Initialise task collection
             tasks = new TaskCollection();
             tasks.TaskRun += tasks_TaskRun;
@@ -1625,133 +1628,18 @@ namespace WSUSAdminAssistant
             }
         }
 
-        private void timTasks_Tick(object sender, EventArgs e)
-        {
-            //// If there are no tasks, we don't need to do anything...
-            //if (grdTasks.Rows.Count == 0) return;
-
-            //// Find the first completed (or timed out) task more than 5 minutes old and delete it
-            //foreach (DataGridViewRow gr in grdTasks.Rows)
-            //    if ((gr.Cells[tskStatus.Index].Value.ToString() == "Complete" || gr.Cells[tskStatus.Index].Value.ToString() == "Timed Out") && DateTime.Now.Subtract(new DateTime((long)gr.Cells[tskStatus.Index].Tag)).TotalSeconds > 300)
-            //    {
-            //        grdTasks.Rows.Remove(gr);
-            //        break;
-            //    }
-
-            //// Get the first queued task
-            //DataGridViewRow r = null;
-
-            //foreach (DataGridViewRow gr in grdTasks.Rows)
-            //{
-            //    if (gr.Cells[tskStatus.Index].Value.ToString() == "Running")
-            //        // Oops - we're already running one task - break before we start another one!
-            //        break;
-
-            //    if (gr.Cells[tskStatus.Index].Value.ToString() == "Queued")
-            //    {
-            //        // Found one - note it and break
-            //        r = gr;
-            //        break;
-            //    }
-            //}
-
-            //// Return if we didn't find a row
-            //if (r == null) return;
-
-            //// Disable timer since we're going to exceed the timer interval
-            //timTasks.Enabled = false;
-
-            //// Build the task and run it
-            //clsConfig.SecurityCredential cred = (clsConfig.SecurityCredential)r.Cells[tskComputer.Index].Tag;
-            
-            //string param;
-
-            //param = "\\\\" + r.Cells[tskIP.Index].Value.ToString() + " -e "; // Computer name.  PSExec should not load account's profile (quicker startup)
-
-            //// Add credentials only if we have some to add
-            //if (cred != null)
-            //{
-            //    if (cred.domain == null)
-            //        param += "-u " + cred.username;                                // Local user
-            //    else
-            //        param += "-u " + cred.domain + "\\" + cred.username;      // Domain user and password
-
-            //    param += " -p " + cred.password + " ";
-            //}
-
-            //// Add command to execute
-            //param += r.Cells[tskCommand.Index].Value.ToString();
-
-            //r.Cells[tskStatus.Index].Value = "Running";
-            //grdTasks.CurrentCell = r.Cells[0];
-            //grdTasks.Refresh();
-
-            //// Run PSExec
-            //var psexec = new Process
-            //{
-            //    StartInfo = new ProcessStartInfo
-            //    {
-            //        FileName = cfg.PSExecPath,
-            //        Arguments = param,
-            //        UseShellExecute = false,
-            //        RedirectStandardOutput = true,
-            //        RedirectStandardError = true,
-            //        CreateNoWindow = true                    
-            //    }
-            //};
-
-            //psexec.OutputDataReceived += new DataReceivedEventHandler(OutputHandler);
-            //psexec.ErrorDataReceived += new DataReceivedEventHandler(OutputHandler);
-
-            //output = "";
-
-            //psexec.Start();
-            //psexec.BeginOutputReadLine();
-            //psexec.BeginErrorReadLine();
-
-            //// Read output for 30 seconds or until process has terminated
-            //DateTime start = DateTime.Now;
-
-            //do
-            //{
-            //    // Is the string in the textbox any different to the output?
-            //    if ((output != "" && r.Cells[tskOutput.Index].Value == null) || (r.Cells[tskOutput.Index].Value != null && output != r.Cells[tskOutput.Index].Value.ToString()))
-            //        // Yes, update the cell
-            //        r.Cells[tskOutput.Index].Value = output;
-
-            //    Application.DoEvents();
-            //} while (DateTime.Now.Subtract(start).TotalSeconds < 30 && !psexec.HasExited);
-
-            //if (psexec.HasExited) // Did task complete
-            //    r.Cells[tskStatus.Index].Value = "Complete";
-            //else
-            //{
-            //    r.Cells[tskStatus.Index].Value = "Timed Out";
-
-            //    psexec.Kill();              // Failed to exit
-            //}
-
-            //// Get output and show end user
-            //r.Cells[tskStatus.Index].Tag = DateTime.Now.Ticks;  // Note the time the task finished
-            //r.Cells[tskOutput.Index].Value = output;
-            //r.Cells[tskOutput.Index].ToolTipText = output;      // Set both the text and the tooltip
-
-            //// Re-enable the timer
-            //timTasks.Enabled = true;
-        }
-
         private void mnuSUSWatcher_Click(object sender, EventArgs e)
         {
-            if (worker.IsBusy)
+            if (wrkSUSID.IsBusy)
             {
                 MessageBox.Show("SUS ID Watcher already running", "Can't start SUS ID Watcher", MessageBoxButtons.OK);
                 return;
             }
 
-            worker.RunWorkerAsync();
+            wrkSUSID.RunWorkerAsync();
         }
 
-        private void worker_DoWork(object sender, DoWorkEventArgs e)
+        private void wrkSUSID_DoWork(object sender, DoWorkEventArgs e)
         {
             Form f = new SUSWatcher.frmSUSWatch();
 
