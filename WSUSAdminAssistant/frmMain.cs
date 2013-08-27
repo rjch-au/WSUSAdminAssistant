@@ -906,11 +906,15 @@ namespace WSUSAdminAssistant
             grdTasks.AutoGenerateColumns = false;
             grdTasks.DataSource = tasks.Tasks;
 
+            // Bind to datagrid and configure row properties
             tskID.DataPropertyName = "TaskID";
             tskStatus.DataPropertyName = "CurrentStatus";
             tskIP.DataPropertyName = "IPAddress";
             tskCommand.DataPropertyName = "Command";
             tskOutput.DataPropertyName = "Output";
+            
+            tskOutput.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            grdEndpoints.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
             // Return cursor to normal
             Cursor.Current = Cursors.Arrow;
