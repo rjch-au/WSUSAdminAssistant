@@ -25,6 +25,7 @@ namespace WSUSAdminAssistant
             // Set Priority column as an integer
             rxPriority.ValueType = typeof(int);
 
+            cfg = cfgobject;
             wsus = cfg.wsus;
         }
 
