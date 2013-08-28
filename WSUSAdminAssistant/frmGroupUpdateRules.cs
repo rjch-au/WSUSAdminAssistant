@@ -13,8 +13,8 @@ namespace WSUSAdminAssistant
 {
     public partial class frmGroupUpdateRules : Form
     {
-        private clsConfig cfg = new clsConfig();
-        private clsWSUS wsus = new clsWSUS();
+        private clsConfig cfg;
+        private clsWSUS wsus;
 
         private clsConfig.GroupUpdateRuleCollection grouprules;
         private ComputerTargetGroupCollection gc;
@@ -22,15 +22,18 @@ namespace WSUSAdminAssistant
 
         private TreeNode root;
         
-        public frmGroupUpdateRules()
+        public frmGroupUpdateRules(clsConfig cfgobject, clsWSUS wsusobject)
         {
             // Let the user know something is happening
             Cursor.Current = Cursors.WaitCursor;
 
             InitializeComponent();
 
+            cfg = cfgobject;
+            wsus = wsusobject;
+
             // Get list of computer groups and sort it.
-            gc = wsus.computergroups;
+            gc = wsus.ComputerGroups;
             groupnames = new List<string>();
 
             foreach (IComputerTargetGroup tg in gc) groupnames.Add(tg.Name);
@@ -367,7 +370,7 @@ namespace WSUSAdminAssistant
         private IComputerTargetGroup FindComputerGroup(string groupname)
         {
             // Loop through all computer groups, looking for a matching group
-            foreach (IComputerTargetGroup tg in wsus.computergroups)
+            foreach (IComputerTargetGroup tg in wsus.ComputerGroups)
             {
                 if (tg.Name == groupname)
                     // Found group - return it
@@ -381,7 +384,7 @@ namespace WSUSAdminAssistant
         private void btnAdd_Click(object sender, EventArgs e)
         {
             // Try to convert to a group update rule object
-            clsConfig.GroupUpdateRule ur = new clsConfig.GroupUpdateRule();
+            clsConfig.GroupUpdateRule ur = new clsConfig.GroupUpdateRule(wsus);
 
             ur.displayorder = (int)numDisplayOrder.Value;
             ur.computergroup = FindComputerGroup(cboComputerGroup.Text);

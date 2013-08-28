@@ -15,16 +15,17 @@ namespace WSUSAdminAssistant
 {
     public partial class frmComputerGroupRules : Form
     {
-        clsConfig cfg = new clsConfig();
-        clsWSUS wsus = new clsWSUS();
+        clsConfig cfg;
+        clsWSUS wsus;
 
-
-        public frmComputerGroupRules()
+        public frmComputerGroupRules(clsConfig cfgobject)
         {
             InitializeComponent();
 
             // Set Priority column as an integer
             rxPriority.ValueType = typeof(int);
+
+            wsus = cfg.wsus;
         }
 
         private void frmComputerGroupRules_Load(object sender, EventArgs e)

@@ -13,11 +13,13 @@ namespace WSUSAdminAssistant
 {
     public partial class frmWSUSConfig : Form
     {
-        private clsConfig cfg = new clsConfig();
+        private clsConfig cfg;
 
-        public frmWSUSConfig()
+        public frmWSUSConfig(clsConfig cfgobject)
         {
             InitializeComponent();
+
+            cfg = cfgobject;
         }
 
         private void frmWSUSConfig_Load(object sender, EventArgs e)

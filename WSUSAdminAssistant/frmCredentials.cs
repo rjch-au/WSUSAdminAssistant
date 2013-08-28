@@ -13,11 +13,13 @@ namespace WSUSAdminAssistant
 {
     public partial class frmCredentials : Form
     {
-        public clsConfig cfg = new clsConfig();
+        public clsConfig cfg;
 
-        public frmCredentials()
+        public frmCredentials(clsConfig cfgobject)
         {
             InitializeComponent();
+
+            cfg = cfgobject;
         }
 
         private void grdCredentials_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)

@@ -17,7 +17,7 @@ namespace SUSWatcher
     public partial class frmSUSWatch : Form
     {
         private clsConfig cfg = new clsConfig();
-        private clsWSUS wsus = new clsWSUS();
+        private clsWSUS wsus;
 
         private ComputerCollection ctc = new ComputerCollection();
 
@@ -109,6 +109,8 @@ namespace SUSWatcher
         public frmSUSWatch()
         {
             InitializeComponent();
+
+            wsus = cfg.wsus;
 
             // Populate duplicated SUS ID grid from XML
             foreach (string susid in cfg.DefaultSusIDCollection)

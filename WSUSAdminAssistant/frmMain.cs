@@ -21,7 +21,8 @@ namespace WSUSAdminAssistant
     public partial class frmMain : Form
     {
         private clsConfig cfg = new clsConfig();
-        private clsWSUS wsus = new clsWSUS();
+        private clsWSUS wsus;
+
         private DateTime lastupdate = Convert.ToDateTime("1970-01-01 00:00:00");
         private DateTime lastupdaterun = Convert.ToDateTime("1970-01-01 00:00:00");
 
@@ -36,6 +37,8 @@ namespace WSUSAdminAssistant
         public frmMain()
         {
             InitializeComponent();
+
+            wsus = cfg.wsus;
         }
 
         private void timUpdateData_Tick(object sender, EventArgs e)
@@ -900,7 +903,7 @@ namespace WSUSAdminAssistant
             wrkSUSID.DoWork += new DoWorkEventHandler(wrkSUSID_DoWork);
 
             // Initialise task collection
-            tasks = new TaskCollection();
+            tasks = new TaskCollection(cfg);
             tasks.TaskRun += tasks_TaskRun;
             // Bind the task list to grdTasks
             grdTasks.AutoGenerateColumns = false;
@@ -1472,37 +1475,37 @@ namespace WSUSAdminAssistant
 
         private void mnuWSUSServer_Click(object sender, EventArgs e)
         {
-            Form f = new frmWSUSConfig();
+            Form f = new frmWSUSConfig(cfg);
             f.ShowDialog();
         }
 
         private void mnuComputerGroupRules_Click(object sender, EventArgs e)
         {
-            Form f = new frmComputerGroupRules();
+            Form f = new frmComputerGroupRules(cfg);
             f.ShowDialog();
         }
 
         private void mnuDefaultSusIDList_Click(object sender, EventArgs e)
         {
-            Form f = new frmDefaultSUS();
+            Form f = new frmDefaultSUS(cfg);
             f.Show();
         }
 
         private void mnuPreferences_Click(object sender, EventArgs e)
         {
-            Form f = new frmPreferences();
+            Form f = new frmPreferences(cfg);
             f.ShowDialog();
         }
 
         private void mnuCredentials_Click(object sender, EventArgs e)
         {
-            Form f = new frmCredentials();
+            Form f = new frmCredentials(cfg);
             f.ShowDialog();
         }
 
         private void mnuGroupApprovalRules_Click(object sender, EventArgs e)
         {
-            Form f = new frmGroupUpdateRules();
+            Form f = new frmGroupUpdateRules(cfg, wsus);
             f.ShowDialog();
         }
 

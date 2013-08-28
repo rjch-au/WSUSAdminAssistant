@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.IO;
@@ -37,7 +38,13 @@ namespace WSUSAdminAssistant
             if (reg == null)
                 // If the registry key doesn't already exist, create it.
                 reg = Registry.CurrentUser.CreateSubKey(regPath);
+
+            wsus = new clsWSUS(this);
         }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // WSUS related classes
+        public clsWSUS wsus;
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Useful private variables
@@ -990,7 +997,12 @@ namespace WSUSAdminAssistant
 
         public class GroupUpdateRule
         {
-            private clsWSUS wsus = new clsWSUS();
+            private clsWSUS wsus;
+
+            public GroupUpdateRule(clsWSUS wsusobject)
+            {
+                wsus = wsusobject;
+            }
 
             public int displayorder;                                        // Display order on Unapproved Updates grid
             [XmlIgnore] public IComputerTargetGroup computergroup;
@@ -1016,7 +1028,7 @@ namespace WSUSAdminAssistant
                     else
                     {
                         // Loop through list of computer groups and find the one we reference
-                        foreach (IComputerTargetGroup g in wsus.computergroups)
+                        foreach (IComputerTargetGroup g in wsus.ComputerGroups)
                             if (g.Id.ToString() == value)
                             {
                                 // Found the right group - return it
@@ -1059,7 +1071,7 @@ namespace WSUSAdminAssistant
                     else
                     {
                         // Loop through list of computer groups and find the one we reference
-                        foreach (IComputerTargetGroup g in wsus.computergroups)
+                        foreach (IComputerTargetGroup g in wsus.ComputerGroups)
                             if (g.Id.ToString() == value)
                             {
                                 // Found the right group - set it
