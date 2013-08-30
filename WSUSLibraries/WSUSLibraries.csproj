@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="clsTaskLibrary.cs" />
     <Compile Include="clsWSUS.cs" />
     <Compile Include="clsConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
