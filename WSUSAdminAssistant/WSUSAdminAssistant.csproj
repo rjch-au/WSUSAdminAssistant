@@ -82,7 +82,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="clsTaskLibrary.cs" />
     <Compile Include="frmGroupUpdateRules.cs">
       <SubType>Form</SubType>
     </Compile>

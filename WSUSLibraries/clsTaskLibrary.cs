@@ -15,7 +15,7 @@ namespace WSUSAdminAssistant
     ////////////////////////////////////////////////////////////////////////////////////
     /// Define some easily read task conditions
     //
-    enum TaskStatus
+    public enum TaskStatus
     {
         New,
         Queued,
@@ -30,7 +30,7 @@ namespace WSUSAdminAssistant
     ////////////////////////////////////////////////////////////////////////////////////
     // Class describing a single task
     //
-    class Task : INotifyPropertyChanged
+    public class Task : INotifyPropertyChanged
     {
         public Task()
         {

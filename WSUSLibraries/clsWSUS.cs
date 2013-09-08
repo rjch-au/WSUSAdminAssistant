@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 using Microsoft.UpdateServices.Administration;
 using Microsoft.UpdateServices.Administration.Internal;
@@ -13,10 +16,11 @@ namespace WSUSAdminAssistant
 {
     public class clsWSUS
     {
-        private clsConfig cfg = new clsConfig();
+        private clsConfig cfg;
 
         private SqlConnection sql = new SqlConnection();
 
+        #region OldUpdatesQuery
         private SqlCommand cmdUnapproved = new SqlCommand(@"
             use SUSDB
 
@@ -180,6 +184,72 @@ namespace WSUSAdminAssistant
 
             drop table #computers, #updaterevs, #updates, #updateapprovals, #vCategory, #updatecategory, #test, #t, #a, #b, #st, #ct, #ca, #cb, #cst
         ");
+        #endregion
+
+        private SqlCommand cmdUnapprovedUpdates;
+        private string strUnapprovedUpdates = @"
+            use SUSDB
+
+            select c.targetid, fulldomainname, gi.targetgroupid, gi.name into #computers
+            from tbcomputertarget c with (nolock)
+            join tbtargetintargetgroup g with (nolock) on g.targetid = c.targetid
+            join tbtargetgroup gi with (nolock) on gi.targetgroupid = g.targetgroupid
+
+            create clustered index ix_targetid on #computers (targetid)
+
+            /***********************************************************************************************************************************/
+
+            select updateid, max(revisionnumber) rn into #updaterevs
+            from PUBLIC_VIEWS.vUpdate
+            group by updateid
+
+            /***********************************************************************************************************************************/
+
+            select uc.localupdateid, ud.updateid, defaulttitle, defaultdescription, knowledgebasearticle, fulldomainname as PC, ud.arrivaldate, c.name as pcgroup into #updates
+            from tbupdatestatuspercomputer uc with (nolock)
+            join #computers c on c.targetid = uc.targetid
+            join tbupdate u with (nolock) on u.localupdateid = uc.localupdateid and ishidden = 0
+            join PUBLIC_VIEWS.vUpdate ud on ud.updateid = u.updateid and isdeclined = 0
+            join #updaterevs ur on ud.updateid = ur.updateid
+            left outer join PUBLIC_VIEWS.vUpdateApproval ua on ua.updateid = u.updateid and ua.computertargetgroupid = c.targetgroupid
+            where uc.summarizationstate = 2 and ua.updateapprovalid is null
+
+            create clustered index ix_localupdateid on #updates (localupdateid)
+            create index ix_updateid on #updates (updateid)
+            create index ix_pcgroup on #updates (pcgroup)
+
+            /***********************************************************************************************************************************/
+
+            select ua.updateid, ua.creationdate approvaldate, ctg.name groupname into #updateapprovals
+            from PUBLIC_VIEWS.vUpdateApproval ua
+            join PUBLIC_VIEWS.vComputerTargetGroup ctg on ua.computertargetgroupid = ctg.computertargetgroupid
+            where ua.action = 'Install'
+
+            create clustered index ix on #updateapprovals (updateid,groupname)
+
+            /***********************************************************************************************************************************/
+
+            select localupdateid, pcgroup, count(*) as PCs into #groups
+            from #updates
+            where pcgroup in ({0})
+            group by localupdateid, pcgroup
+
+            /***********************************************************************************************************************************/
+
+            select u.localupdateid, u.updateid, u.defaulttitle, u.defaultdescription, knowledgebasearticle, arrivaldate, g.pcgroup, g.PCs, ua.approvaldate
+            from (
+                    select distinct localupdateid, defaultdescription, updateid, defaulttitle, knowledgebasearticle, arrivaldate
+                    from #updates
+                ) u
+            left outer join #groups g on g.localupdateid = u.localupdateid
+            left outer join #updateapprovals ua on ua.updateid = u.updateid and ua.groupname = g.pcgroup
+            where g.PCs > 0
+            order by defaulttitle
+
+            /***********************************************************************************************************************************/
+
+            drop table #computers, #updaterevs, #updates, #updateapprovals, #groups
+        ";
 
         private SqlCommand cmdApprovedUpdates = new SqlCommand(@"
             use susdb
@@ -258,7 +328,7 @@ namespace WSUSAdminAssistant
         public IUpdateServer server;
 
         private ComputerTargetGroupCollection _computergroups = null;
-        public ComputerTargetGroupCollection computergroups
+        public ComputerTargetGroupCollection ComputerGroups
         {
             get
             {
@@ -305,8 +375,10 @@ namespace WSUSAdminAssistant
             }
         }
 
-        public clsWSUS()
+        public clsWSUS(clsConfig configobject)
         {
+            cfg = configobject;
+
             // Initialise SQL query
             sql.ConnectionString = cfg.SQLConnectionString();
 
@@ -314,6 +386,7 @@ namespace WSUSAdminAssistant
             {
                 // Set connection to SQL server for all queries
                 cmdUnapproved.Connection = sql;
+                cmdUnapprovedUpdates.Connection = sql;
                 cmdLastUpdate.Connection = sql;
                 cmdApprovedUpdates.Connection = sql;
                 cmdLastSync.Connection = sql;
@@ -374,6 +447,35 @@ namespace WSUSAdminAssistant
             cmdUnapproved.ExecuteNonQuery();
 
             SqlDataReader r = cmdUnapproved.ExecuteReader();
+            DataTable t = new DataTable();
+
+            // Load the data table
+            t.Load(r);
+            r.Close();
+
+            return t;
+        }
+
+        public DataTable GetUnapprovedUpdatesNew()
+        {
+            // Inject the right parameters into the Unapproved Updates query
+            cmdUnapprovedUpdates.Parameters.Clear();
+            clsConfig.GroupUpdateRuleCollection ur = cfg.GroupUpdateRules;
+            string[] parameters = new string[ur.Count];
+
+            for (int i = 0; i < ur.Count; i++)
+            {
+                parameters[i] = string.Format("@Age{0}", i);
+                cmdUnapprovedUpdates.Parameters.AddWithValue(parameters[i], ur[i].computergroup.Name);
+            }
+
+            cmdUnapprovedUpdates.CommandText = string.Format(strUnapprovedUpdates, "'" + string.Join("', '", parameters) + "'");
+            cmdUnapprovedUpdates.Connection = sql;
+
+            // Run query and return results
+            cmdUnapprovedUpdates.ExecuteNonQuery();
+
+            SqlDataReader r = cmdUnapprovedUpdates.ExecuteReader();
             DataTable t = new DataTable();
 
             // Load the data table
@@ -444,5 +546,24 @@ namespace WSUSAdminAssistant
             return t;
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //  Class that returns the list of PCs requiring updates
+        public class PerGroupInformation : ICollection<string>
+        {
+            public List<string> Groups;
+
+            public string this[int index]
+            {
+            }
+        }
+
+        public class UnapprovedUpdate
+        {
+            public string UpdateID;
+            public string Title;
+            public string Description;
+            public string KBArticle;
+
+            public List<PerGroupInformation> GroupUpdateStatus;
     }
 }
