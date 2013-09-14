@@ -125,7 +125,7 @@ namespace WSUSAdminAssistant
     ////////////////////////////////////////////////////////////////////////////////////
     // Class that contains and processes a list of tasks
     //
-    class TaskCollection
+    public class TaskCollection
     {
         // Class initialisation
         private clsConfig cfg;

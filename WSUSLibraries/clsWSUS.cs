@@ -190,10 +190,10 @@ namespace WSUSAdminAssistant
         private string strUnapprovedUpdates = @"
             use SUSDB
 
-            select c.targetid, fulldomainname, gi.targetgroupid, gi.name into #computers
+            select c.targetid, fulldomainname, gi.targetgroupid, gi.name as pcgroup into #computers
             from tbcomputertarget c with (nolock)
             join tbtargetintargetgroup g with (nolock) on g.targetid = c.targetid
-            join tbtargetgroup gi with (nolock) on gi.targetgroupid = g.targetgroupid
+            join tbtargetgroup gi with (nolock) on gi.targetgroupid = g.targetgroupid and gi.name in ({0});
 
             create clustered index ix_targetid on #computers (targetid)
 
@@ -205,7 +205,7 @@ namespace WSUSAdminAssistant
 
             /***********************************************************************************************************************************/
 
-            select uc.localupdateid, ud.updateid, defaulttitle, defaultdescription, knowledgebasearticle, fulldomainname as PC, ud.arrivaldate, c.name as pcgroup into #updates
+            select uc.localupdateid, ud.updateid, defaulttitle, defaultdescription, knowledgebasearticle, fulldomainname as PC, ud.arrivaldate, c.pcgroup into #updates
             from tbupdatestatuspercomputer uc with (nolock)
             join #computers c on c.targetid = uc.targetid
             join tbupdate u with (nolock) on u.localupdateid = uc.localupdateid and ishidden = 0
@@ -236,15 +236,16 @@ namespace WSUSAdminAssistant
 
             /***********************************************************************************************************************************/
 
-            select u.localupdateid, u.updateid, u.defaulttitle, u.defaultdescription, knowledgebasearticle, arrivaldate, g.pcgroup, g.PCs, ua.approvaldate
+            select u.localupdateid, u.updateid, u.defaulttitle, u.defaultdescription, knowledgebasearticle, arrivaldate, tg.name pcgroup, g.PCs, ua.approvaldate
             from (
                     select distinct localupdateid, defaultdescription, updateid, defaulttitle, knowledgebasearticle, arrivaldate
                     from #updates
                 ) u
-            left outer join #groups g on g.localupdateid = u.localupdateid
-            left outer join #updateapprovals ua on ua.updateid = u.updateid and ua.groupname = g.pcgroup
-            where g.PCs > 0
-            order by defaulttitle
+            left outer join tbtargetgroup tg on tg.name in ({0})
+            left outer join #groups g on g.localupdateid = u.localupdateid and g.pcgroup = tg.name
+            left outer join #updateapprovals ua on ua.updateid = u.updateid and ua.groupname = tg.name
+            where g.PCs is not null or approvaldate is not null
+            order by defaulttitle, approvaldate
 
             /***********************************************************************************************************************************/
 
@@ -386,7 +387,6 @@ namespace WSUSAdminAssistant
             {
                 // Set connection to SQL server for all queries
                 cmdUnapproved.Connection = sql;
-                cmdUnapprovedUpdates.Connection = sql;
                 cmdLastUpdate.Connection = sql;
                 cmdApprovedUpdates.Connection = sql;
                 cmdLastSync.Connection = sql;
@@ -548,22 +548,308 @@ namespace WSUSAdminAssistant
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //  Class that returns the list of PCs requiring updates
-        public class PerGroupInformation : ICollection<string>
+        public class PerGroupInformation
         {
-            public List<string> Groups;
-
-            public string this[int index]
+            public PerGroupInformation(clsConfig.GroupUpdateRule updaterule)
             {
+                _grouprule = updaterule;
+            }
+
+            public IComputerTargetGroup Group { get { return _grouprule.computergroup; } }
+
+            private clsConfig.GroupUpdateRule _grouprule;
+            public clsConfig.GroupUpdateRule GroupRule { get { return _grouprule; } }
+
+            public Nullable<DateTime> Approved = null;
+            public Nullable<DateTime> Approvable = null;
+            public Nullable<int> PCs = null;
+
+            public bool UpdateApprovableNow
+            {
+                get
+                {
+                    if (Approvable.HasValue && DateTime.Now < Approvable)
+                        // Update can be installed now
+                        return true;
+                    else
+                        return false;
+                }
+            }
+        }
+
+        public class PerGroupCollection : System.Collections.CollectionBase
+        {
+            private Dictionary<string, int> _namedict = new Dictionary<string, int>();
+            private Dictionary<Guid, int> _guiddict = new Dictionary<Guid, int>();
+
+            public PerGroupCollection(clsConfig.GroupUpdateRuleCollection groups)
+            {
+                // Loop through each group and add to the list and the dictionaries.  This is the only way items can be created.
+                foreach (clsConfig.GroupUpdateRule ur in groups)
+                {
+                    int idx = this.List.Add(new PerGroupInformation(ur));
+                    _namedict.Add(ur.computergroup.Name, idx);
+                    _guiddict.Add(ur.computergroup.Id, idx);
+                }
+            }
+
+            // Locate item by index number
+            public PerGroupInformation this[int index]
+            {
+                // Search and set items by index number
+                get { return (PerGroupInformation)this.List[index]; }
+                set { this.List[index] = value; }
+            }
+
+            // Locate item by group name
+            public PerGroupInformation this[string group]
+            {
+                get { return (PerGroupInformation)this.List[_namedict[group]]; }
+                set { this.List[_namedict[group]] = value; }
+            }
+
+            // Locate item by GUID
+            public PerGroupInformation this[Guid groupid]
+            {
+                get { return (PerGroupInformation)this.List[_guiddict[groupid]]; }
+                set { this.List[_guiddict[groupid]] = value; }
             }
         }
 
         public class UnapprovedUpdate
         {
-            public string UpdateID;
-            public string Title;
-            public string Description;
-            public string KBArticle;
+            public UnapprovedUpdate(clsConfig.GroupUpdateRuleCollection groups, string updateid, string title, string description, string kbarticle, DateTime arrivaldate)
+            {
+                _groups = new PerGroupCollection(groups);
+                _updateid = updateid;
+                _title = title;
+                _description = description;
+                _kbarticle = kbarticle;
+                _arrivaldate = arrivaldate;
+            }
 
-            public List<PerGroupInformation> GroupUpdateStatus;
+            private string _updateid;
+            public string UpdateID { get { return _updateid; } }
+
+            private string _title;
+            public string Title { get { return _title; } }
+
+            private string _description;
+            public string Description { get { return _description; } }
+
+            private string _kbarticle;
+            public string KBArticle { get { return _kbarticle; } }
+
+            private DateTime _arrivaldate;
+            public DateTime ArrivalDate { get { return _arrivaldate; } }
+
+            private PerGroupCollection _groups;
+            public PerGroupCollection Groups { get { return _groups; } }
+
+            public string SortIndex
+            {
+                get
+                {
+                    List<PerGroupInformation> sortedbyweight = new List<PerGroupInformation>();
+
+                    // Loop through each group, adding it to the list in the appropriate weighted order
+                    foreach (PerGroupInformation i in _groups)
+                    {
+                        if (sortedbyweight.Count == 0)
+                            // First item just gets added
+                            sortedbyweight.Add(i);
+                        else
+                        {
+                            // Assume we haven't added the item
+                            bool added = false;
+
+                            // Loop through each item, looking for a higher sort order than this item
+                            for (int ix = 0; ix < sortedbyweight.Count; ix++)
+                            {
+                                if (sortedbyweight[ix].GroupRule.sortweight > i.GroupRule.sortweight)
+                                {
+                                    // Found one - insert it here
+                                    sortedbyweight.Insert(ix, i);
+                                    added = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (!added)
+                                // Item wasn't added - therefore add it to the end of the list
+                                sortedbyweight.Add(i);
+                        }
+                    }
+
+                    string idx = "";
+
+                    // Loop through the list, determining the appropriate sort order
+                    foreach (PerGroupInformation i in sortedbyweight)
+                    {
+                        if (!i.PCs.HasValue || i.PCs == 0)
+                            // If no PCs require this update (or it hasn't been initialized) it should be sorted lower in the list
+                            if (i.Approved.HasValue)
+                                // Higher if it has been approved
+                                idx += "P";
+                            else
+                                // Lower if it hasn't
+                                idx += "Z";
+                        else
+                            // If PCs require this update, it should be sorted higher in the list
+                            idx += "A";
+                    }
+
+                    return idx + _title;
+                }
+            }
+        }
+
+        public class UnapprovedUpdates : System.Collections.CollectionBase
+        {
+            private clsConfig.GroupUpdateRuleCollection groups;
+            private Dictionary<string, int> _dict = new Dictionary<string, int>();
+            private clsConfig cfg;
+
+            // Class initialisation.  List of groups must be provided at creation time.
+            public UnapprovedUpdates(clsConfig configobject, clsConfig.GroupUpdateRuleCollection grouprules)
+            {
+                // Store the groups to be managed, sorting them by display order
+                groups = grouprules;
+                groups.SortByDisplayOrder();
+
+                // Store the config object for use
+                cfg = configobject;
+            }
+
+            /// <summary>
+            /// Get an unapproved update item by index
+            /// </summary>
+            /// <param name="index">Index number of the unapproved update</param>
+            public UnapprovedUpdate this[int index]
+            {
+                get { return (UnapprovedUpdate)this.List[index]; }
+            }
+
+            /// <summary>
+            /// Get an unapproved update by GUID or update name
+            /// </summary>
+            /// <param name="updatename"></param>
+            /// <returns></returns>
+            private UnapprovedUpdate this[string searchstring]
+            {
+                get
+                {
+                    // Does the key exist?
+                    if (_dict.ContainsKey(searchstring))
+                        // Found update, return it
+                        return (UnapprovedUpdate)this.List[_dict[searchstring]];
+                    else
+                        // No update found, return null
+                        return null;
+                }
+            }
+
+            /// <summary>
+            /// Add a new unapproved update to the list using the supplied details
+            /// </summary>
+            /// <param name="UpdateID">GUID of the update</param>
+            /// <param name="UpdateName">Update Name</param>
+            /// <param name="Description">Update Description</param>
+            /// <param name="KBArticle">Knowledge Base Article</param>
+            /// <returns>Object containing added update</returns>
+            private UnapprovedUpdate Add(string UpdateID, string UpdateName, string Description, string KBArticle, DateTime ArrivalDate)
+            {
+                int idx = this.List.Add(new UnapprovedUpdate(groups, UpdateID, UpdateName, Description, KBArticle, ArrivalDate));
+                _dict.Add(UpdateID, idx);
+                _dict.Add(UpdateName, idx);
+
+                return (UnapprovedUpdate)this.List[idx];
+            }
+
+            public void UpdateUnapprovedUpdates()
+            {
+                // Get list of unapproved updates
+                DataTable uudt = cfg.wsus.GetUnapprovedUpdatesNew();
+
+                // Empty collection and start populating based on results
+                this.List.Clear();
+
+                foreach (DataRow r in uudt.Rows)
+                {
+                    // Do we already know about this update?
+                    UnapprovedUpdate uu = this[r["updateid"].ToString()];
+
+                    if (uu == null)
+                        // No we don't - add it.
+                        uu = this.Add(r["updateid"].ToString(), r["defaultitle"].ToString(), r["defaultdescription"].ToString(), r["knowledgebasearticle"].ToString(), (DateTime)r["arrivaldate"]);
+
+                    // Find the group that this row refers to
+                    PerGroupInformation gi = uu.Groups[r["pcgroup"].ToString()];
+
+                    if (gi != null)
+                    {
+                        // Update the group information
+
+                        // Update the number of PCs requiring this update (null if none)
+                        if (r["PCs"] == null)
+                            gi.PCs = null;
+                        else
+                            gi.PCs = int.Parse(r["PCs"].ToString());
+
+                        // Update the date this update was approved (null if it hasn't)
+                        if (r["approvaldate"] == null)
+                            gi.Approved = null;
+                        else
+                            gi.Approved = DateTime.Parse(r["approvaldate"].ToString());
+                    }
+                }
+
+                // Now that we have a full collection of results, find each child of "release day" and process it, followed by any children
+                foreach (UnapprovedUpdate uu in this.List)
+                {
+                    // Loop through each group
+                    foreach (PerGroupInformation gi in uu.Groups)
+                    {
+                        // Is this a child of "release day"?
+                        if (gi.GroupRule.parentcomputergroup == null)
+                            // Yes - process this rule and it's children
+                            ProcessReleaseDayGroup(uu, gi);
+                    }
+                }
+            }
+
+            private void ProcessReleaseDayGroup(UnapprovedUpdate update, PerGroupInformation group)
+            {
+                // Calculate the date this update can be approved
+                group.Approvable = update.ArrivalDate.Add(group.GroupRule.updateinterval);
+
+                // Process child groups
+                foreach (PerGroupInformation gi in update.Groups)
+                {
+                    if (gi.GroupRule.parentcomputergroup.Id == gi.Group.Id)
+                        // Found child - process this group
+                        ProcessChildGroup(update, group, gi);
+                }
+            }
+
+            private void ProcessChildGroup(UnapprovedUpdate update, PerGroupInformation parent, PerGroupInformation group)
+            {
+                // Has parent been approved?
+                if (parent.Approved.HasValue)
+                    // Yes.  Update to be approved at parent.Approved + group.updateinterval
+                    group.Approvable = parent.Approved.Value.Add(group.GroupRule.updateinterval);
+                else
+                    // No.  Update to be approved at parent.Approvable + group.childupdateinterval
+                    group.Approvable = parent.Approvable.Value.Add(group.GroupRule.childupdateinterval);
+
+                // Recursively process child groups
+                foreach (PerGroupInformation gi in update.Groups)
+                {
+                    if (gi.GroupRule.parentcomputergroup.Id == gi.Group.Id)
+                        // Found child - process this group
+                        ProcessChildGroup(update, group, gi);
+                }
+            }
+        }
     }
 }

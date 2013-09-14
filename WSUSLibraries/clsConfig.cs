@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -999,13 +1000,23 @@ namespace WSUSAdminAssistant
         {
             private clsWSUS wsus;
 
+            // This constructor is private so that we can serialize and and deserialize properly without exposing it for use within code
+            private GroupUpdateRule()
+            {
+                // This is evil and inefficient, but currently unavoidable /*** must fix later! ***/
+                wsus = new clsConfig().wsus;
+            }
+
             public GroupUpdateRule(clsWSUS wsusobject)
             {
                 wsus = wsusobject;
             }
 
             public int displayorder;                                        // Display order on Unapproved Updates grid
+            [DefaultValueAttribute(-1)] public int sortweight;              // Sort weight
+
             [XmlIgnore] public IComputerTargetGroup computergroup;
+            [DefaultValueAttribute("")] public string shortname;            // The short displayname for the group
             [XmlIgnore] public TimeSpan updateinterval;                     // The interval after the update is approved for the parent group (or after first being downloaded if no parent group) that updates should be approved for this group
             [XmlIgnore] public IComputerTargetGroup parentcomputergroup;    // Parent update group for update approval purposes.  Null if this is a first-release group
             [XmlIgnore] public TimeSpan childupdateinterval;                // The interval after which child computer groups may install updates if no computer within this group requires the update
@@ -1361,6 +1372,10 @@ namespace WSUSAdminAssistant
                 XmlSerializer xs = new XmlSerializer(typeof(GroupUpdateRuleCollection));
                 xs.Serialize(fs, c);
             }
+
+            // Update stored rule collection and reset the last updated timestamp
+            _groupupdaterules = c;
+            _gurupdated = DateTime.Now;
         }
 
         private GroupUpdateRuleCollection ReadComputerGroupRuleXML(string file)
@@ -1371,17 +1386,37 @@ namespace WSUSAdminAssistant
                 GroupUpdateRuleCollection c = new GroupUpdateRuleCollection();
                 XmlSerializer xs = new XmlSerializer(typeof(GroupUpdateRuleCollection));
                 c = (GroupUpdateRuleCollection)xs.Deserialize(fs);
+
+                // Apply appropriate defaults to any field that had no value in the XML file
+                foreach (GroupUpdateRule ur in c)
+                {
+                    if (ur.sortweight == -1) ur.sortweight = ur.displayorder;
+                    if (ur.shortname == null) ur.shortname = ur.computergroup.Name;
+                }
+
                 return c;
             }
         }
+
+        private GroupUpdateRuleCollection _groupupdaterules = null;
+        private DateTime _gurupdated = DateTime.MinValue;
 
         public GroupUpdateRuleCollection GroupUpdateRules
         {
             get
             {
+                // Have the group update rules been reloaded in the last 10 seconds?
+                if (_groupupdaterules != null && DateTime.Now.Subtract(_gurupdated).TotalSeconds < 10)
+                    // Yes they have - return them.
+                    return _groupupdaterules;
+
+                // No they haven't - read them.
                 try
                 {
-                    return ReadComputerGroupRuleXML(GroupUpdateRulesXMLFile);
+                    _groupupdaterules = ReadComputerGroupRuleXML(GroupUpdateRulesXMLFile);
+                    _gurupdated = DateTime.Now;
+
+                    return _groupupdaterules;
                 }
                 catch
                 {
