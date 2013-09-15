@@ -153,7 +153,7 @@
             this.lblSQLStatus = new System.Windows.Forms.Label();
             this.lblWSUSConnection = new System.Windows.Forms.Label();
             this.lblSQLConnection = new System.Windows.Forms.Label();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.mnu = new System.Windows.Forms.MenuStrip();
             this.mnuOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuWSUSServer = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuComputerGroupRules = new System.Windows.Forms.ToolStripMenuItem();
@@ -164,6 +164,14 @@
             this.mnuPreferences = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuUtilities = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuSUSWatcher = new System.Windows.Forms.ToolStripMenuItem();
+            this.tabUnapproved = new System.Windows.Forms.TabPage();
+            this.grdUnapproved = new System.Windows.Forms.DataGridView();
+            this.uaUpdateName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uaID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uaUpdated = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uaDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uaKB = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uaSortOrder = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.cmEndpoint = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.epDetails = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
@@ -197,7 +205,9 @@
             this.tlsFilterUpdates.SuspendLayout();
             this.tabAdminType.SuspendLayout();
             this.tabHome.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
+            this.mnu.SuspendLayout();
+            this.tabUnapproved.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grdUnapproved)).BeginInit();
             this.cmEndpoint.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -703,7 +713,7 @@
             this.tabUnapprovedUpdates.Padding = new System.Windows.Forms.Padding(3);
             this.tabUnapprovedUpdates.Size = new System.Drawing.Size(1038, 459);
             this.tabUnapprovedUpdates.TabIndex = 0;
-            this.tabUnapprovedUpdates.Text = "Unapproved updates";
+            this.tabUnapprovedUpdates.Text = "Unapproved updates (legacy)";
             this.tabUnapprovedUpdates.UseVisualStyleBackColor = true;
             // 
             // grdUpdates
@@ -1193,6 +1203,7 @@
             // 
             this.tabAdminType.Controls.Add(this.tabHome);
             this.tabAdminType.Controls.Add(this.tabUnapprovedUpdates);
+            this.tabAdminType.Controls.Add(this.tabUnapproved);
             this.tabAdminType.Controls.Add(this.tabEndpointFaults);
             this.tabAdminType.Controls.Add(this.tabWSUSNotCommunicating);
             this.tabAdminType.Controls.Add(this.tabServerRestarts);
@@ -1212,7 +1223,7 @@
             this.tabHome.Controls.Add(this.lblSQLStatus);
             this.tabHome.Controls.Add(this.lblWSUSConnection);
             this.tabHome.Controls.Add(this.lblSQLConnection);
-            this.tabHome.Controls.Add(this.menuStrip1);
+            this.tabHome.Controls.Add(this.mnu);
             this.tabHome.Location = new System.Drawing.Point(4, 22);
             this.tabHome.Name = "tabHome";
             this.tabHome.Size = new System.Drawing.Size(1038, 459);
@@ -1254,16 +1265,16 @@
             this.lblSQLConnection.TabIndex = 1;
             this.lblSQLConnection.Text = "SQL Server Connection:";
             // 
-            // menuStrip1
+            // mnu
             // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuOptions,
             this.mnuUtilities});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1038, 24);
-            this.menuStrip1.TabIndex = 0;
-            this.menuStrip1.Text = "menuStrip1";
+            this.mnu.Location = new System.Drawing.Point(0, 0);
+            this.mnu.Name = "mnu";
+            this.mnu.Size = new System.Drawing.Size(1038, 24);
+            this.mnu.TabIndex = 0;
+            this.mnu.Text = "menuStrip1";
             // 
             // mnuOptions
             // 
@@ -1346,6 +1357,88 @@
             this.mnuSUSWatcher.Size = new System.Drawing.Size(208, 22);
             this.mnuSUSWatcher.Text = "Duplicate SUS ID Watcher";
             this.mnuSUSWatcher.Click += new System.EventHandler(this.mnuSUSWatcher_Click);
+            // 
+            // tabUnapproved
+            // 
+            this.tabUnapproved.Controls.Add(this.grdUnapproved);
+            this.tabUnapproved.Location = new System.Drawing.Point(4, 22);
+            this.tabUnapproved.Name = "tabUnapproved";
+            this.tabUnapproved.Padding = new System.Windows.Forms.Padding(3);
+            this.tabUnapproved.Size = new System.Drawing.Size(1038, 459);
+            this.tabUnapproved.TabIndex = 11;
+            this.tabUnapproved.Text = "Unapproved Updates";
+            this.tabUnapproved.UseVisualStyleBackColor = true;
+            // 
+            // grdUnapproved
+            // 
+            this.grdUnapproved.AllowUserToAddRows = false;
+            this.grdUnapproved.AllowUserToDeleteRows = false;
+            this.grdUnapproved.AllowUserToResizeColumns = false;
+            this.grdUnapproved.AllowUserToResizeRows = false;
+            this.grdUnapproved.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.grdUnapproved.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.uaUpdateName,
+            this.uaID,
+            this.uaUpdated,
+            this.uaDescription,
+            this.uaKB,
+            this.uaSortOrder});
+            this.grdUnapproved.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grdUnapproved.Location = new System.Drawing.Point(3, 3);
+            this.grdUnapproved.Name = "grdUnapproved";
+            this.grdUnapproved.ReadOnly = true;
+            this.grdUnapproved.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.grdUnapproved.Size = new System.Drawing.Size(1032, 453);
+            this.grdUnapproved.TabIndex = 4;
+            this.grdUnapproved.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.grdUnapproved_CellFormatting);
+            // 
+            // uaUpdateName
+            // 
+            this.uaUpdateName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.uaUpdateName.FillWeight = 50F;
+            this.uaUpdateName.HeaderText = "Update Name";
+            this.uaUpdateName.Name = "uaUpdateName";
+            this.uaUpdateName.ReadOnly = true;
+            this.uaUpdateName.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.uaUpdateName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.uaUpdateName.Width = 79;
+            // 
+            // uaID
+            // 
+            this.uaID.HeaderText = "Update ID";
+            this.uaID.Name = "uaID";
+            this.uaID.ReadOnly = true;
+            this.uaID.Visible = false;
+            // 
+            // uaUpdated
+            // 
+            this.uaUpdated.HeaderText = "Updated";
+            this.uaUpdated.Name = "uaUpdated";
+            this.uaUpdated.ReadOnly = true;
+            this.uaUpdated.Visible = false;
+            // 
+            // uaDescription
+            // 
+            this.uaDescription.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.uaDescription.HeaderText = "Description";
+            this.uaDescription.Name = "uaDescription";
+            this.uaDescription.ReadOnly = true;
+            // 
+            // uaKB
+            // 
+            this.uaKB.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.uaKB.HeaderText = "KB Article";
+            this.uaKB.Name = "uaKB";
+            this.uaKB.ReadOnly = true;
+            this.uaKB.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.uaKB.Width = 78;
+            // 
+            // uaSortOrder
+            // 
+            this.uaSortOrder.HeaderText = "SortOrder";
+            this.uaSortOrder.Name = "uaSortOrder";
+            this.uaSortOrder.ReadOnly = true;
+            this.uaSortOrder.Visible = false;
             // 
             // cmEndpoint
             // 
@@ -1432,7 +1525,7 @@
             this.ClientSize = new System.Drawing.Size(1046, 485);
             this.Controls.Add(this.gbxWorking);
             this.Controls.Add(this.tabAdminType);
-            this.MainMenuStrip = this.menuStrip1;
+            this.MainMenuStrip = this.mnu;
             this.Name = "frmMain";
             this.Text = "WSUS Administration Assistant";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_Closing);
@@ -1467,8 +1560,10 @@
             this.tabAdminType.ResumeLayout(false);
             this.tabHome.ResumeLayout(false);
             this.tabHome.PerformLayout();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
+            this.mnu.ResumeLayout(false);
+            this.mnu.PerformLayout();
+            this.tabUnapproved.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.grdUnapproved)).EndInit();
             this.cmEndpoint.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -1502,7 +1597,7 @@
         private System.Windows.Forms.TabPage tabUnapprovedUpdates;
         private System.Windows.Forms.TabControl tabAdminType;
         private System.Windows.Forms.TabPage tabHome;
-        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.MenuStrip mnu;
         private System.Windows.Forms.ToolStripMenuItem mnuOptions;
         private System.Windows.Forms.Label lblWSUSConnection;
         private System.Windows.Forms.Label lblSQLConnection;
@@ -1613,6 +1708,14 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn tskIP;
         private System.Windows.Forms.DataGridViewTextBoxColumn tskCommand;
         private System.Windows.Forms.DataGridViewTextBoxColumn tskOutput;
+        private System.Windows.Forms.TabPage tabUnapproved;
+        private System.Windows.Forms.DataGridView grdUnapproved;
+        private System.Windows.Forms.DataGridViewTextBoxColumn uaUpdateName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn uaID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn uaUpdated;
+        private System.Windows.Forms.DataGridViewTextBoxColumn uaDescription;
+        private System.Windows.Forms.DataGridViewTextBoxColumn uaKB;
+        private System.Windows.Forms.DataGridViewTextBoxColumn uaSortOrder;
     }
 }
 
