@@ -48,30 +48,36 @@
             this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
             this.tabRefresh = new System.Windows.Forms.TabPage();
             this.tabSuperceded = new System.Windows.Forms.TabPage();
+            this.grdSupercededUpdates = new System.Windows.Forms.DataGridView();
+            this.suUpdateName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.suUpdateID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.suSelect = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.tlsSuperceded = new System.Windows.Forms.ToolStrip();
             this.lblUpdateCount = new System.Windows.Forms.ToolStripButton();
             this.butDeclineSelected = new System.Windows.Forms.ToolStripButton();
             this.butSelectNone = new System.Windows.Forms.ToolStripButton();
             this.butSelectAll = new System.Windows.Forms.ToolStripButton();
-            this.grdSupercededUpdates = new System.Windows.Forms.DataGridView();
-            this.suSelect = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.suUpdateID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.suUpdateName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabServerRestarts = new System.Windows.Forms.TabPage();
             this.lstServers = new System.Windows.Forms.ListBox();
             this.tabWSUSNotCommunicating = new System.Windows.Forms.TabPage();
             this.grdWSUSNotCommunicting = new System.Windows.Forms.DataGridView();
-            this.wnuLastRollup = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.wnuLastSync = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.wnuServerName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.wnuLastSync = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.wnuLastRollup = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabEndpointFaults = new System.Windows.Forms.TabPage();
             this.splEndpoint = new System.Windows.Forms.SplitContainer();
-            this.grdTasks = new System.Windows.Forms.DataGridView();
-            this.tskOutput = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tskCommand = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tskIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tskStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tskID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.grdEndpoints = new System.Windows.Forms.DataGridView();
+            this.epName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epUpdate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epApprovedUpdates = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epUpdateErrors = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epComputerGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epFault = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epLastServerContact = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epLastStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epPing = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epPingUpdated = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tlsEndpoint = new System.Windows.Forms.ToolStrip();
             this.butApproved = new System.Windows.Forms.ToolStripButton();
             this.butUpdateErrors = new System.Windows.Forms.ToolStripButton();
@@ -79,32 +85,30 @@
             this.butUnassigned = new System.Windows.Forms.ToolStripButton();
             this.butDefaultSusID = new System.Windows.Forms.ToolStripButton();
             this.butGroupRules = new System.Windows.Forms.ToolStripButton();
-            this.grdEndpoints = new System.Windows.Forms.DataGridView();
-            this.epPingUpdated = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epPing = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epLastStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epLastServerContact = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epFault = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epComputerGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epUpdateErrors = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epApprovedUpdates = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epUpdate = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.grdTasks = new System.Windows.Forms.DataGridView();
+            this.tskID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskCommand = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tskOutput = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabUnapproved = new System.Windows.Forms.TabPage();
+            this.grdUnapproved = new System.Windows.Forms.DataGridView();
+            this.uaUpdateName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uaID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uaUpdated = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uaDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uaKB = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uaSortOrder = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tlsUnapproved = new System.Windows.Forms.ToolStrip();
             this.btnUAApprove = new System.Windows.Forms.ToolStripButton();
             this.btnUADecline = new System.Windows.Forms.ToolStripButton();
             this.btnUACancel = new System.Windows.Forms.ToolStripButton();
             this.lblUpdatesToApprove = new System.Windows.Forms.ToolStripLabel();
-            this.grdUnapproved = new System.Windows.Forms.DataGridView();
-            this.uaSortOrder = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.uaKB = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.uaDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.uaUpdated = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.uaID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.uaUpdateName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabHome = new System.Windows.Forms.TabPage();
+            this.lblWSUSStatus = new System.Windows.Forms.Label();
+            this.lblSQLStatus = new System.Windows.Forms.Label();
+            this.lblWSUSConnection = new System.Windows.Forms.Label();
+            this.lblSQLConnection = new System.Windows.Forms.Label();
             this.mnu = new System.Windows.Forms.MenuStrip();
             this.mnuOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuWSUSServer = new System.Windows.Forms.ToolStripMenuItem();
@@ -116,17 +120,13 @@
             this.mnuPreferences = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuUtilities = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuSUSWatcher = new System.Windows.Forms.ToolStripMenuItem();
-            this.lblSQLConnection = new System.Windows.Forms.Label();
-            this.lblWSUSConnection = new System.Windows.Forms.Label();
-            this.lblSQLStatus = new System.Windows.Forms.Label();
-            this.lblWSUSStatus = new System.Windows.Forms.Label();
             this.tabAdminType = new System.Windows.Forms.TabControl();
             this.gbxWorking.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picReloading)).BeginInit();
             this.cmEndpoint.SuspendLayout();
             this.tabSuperceded.SuspendLayout();
-            this.tlsSuperceded.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grdSupercededUpdates)).BeginInit();
+            this.tlsSuperceded.SuspendLayout();
             this.tabServerRestarts.SuspendLayout();
             this.tabWSUSNotCommunicating.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grdWSUSNotCommunicting)).BeginInit();
@@ -135,12 +135,12 @@
             this.splEndpoint.Panel1.SuspendLayout();
             this.splEndpoint.Panel2.SuspendLayout();
             this.splEndpoint.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.grdTasks)).BeginInit();
-            this.tlsEndpoint.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grdEndpoints)).BeginInit();
+            this.tlsEndpoint.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grdTasks)).BeginInit();
             this.tabUnapproved.SuspendLayout();
-            this.tlsUnapproved.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grdUnapproved)).BeginInit();
+            this.tlsUnapproved.SuspendLayout();
             this.tabHome.SuspendLayout();
             this.mnu.SuspendLayout();
             this.tabAdminType.SuspendLayout();
@@ -281,6 +281,43 @@
             this.tabSuperceded.Text = "Superceded Updates";
             this.tabSuperceded.UseVisualStyleBackColor = true;
             // 
+            // grdSupercededUpdates
+            // 
+            this.grdSupercededUpdates.AllowUserToAddRows = false;
+            this.grdSupercededUpdates.AllowUserToDeleteRows = false;
+            this.grdSupercededUpdates.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.ColumnHeader;
+            this.grdSupercededUpdates.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.grdSupercededUpdates.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.suUpdateName,
+            this.suUpdateID,
+            this.suSelect});
+            this.grdSupercededUpdates.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grdSupercededUpdates.Location = new System.Drawing.Point(3, 28);
+            this.grdSupercededUpdates.Name = "grdSupercededUpdates";
+            this.grdSupercededUpdates.Size = new System.Drawing.Size(1032, 428);
+            this.grdSupercededUpdates.TabIndex = 0;
+            // 
+            // suUpdateName
+            // 
+            this.suUpdateName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.suUpdateName.HeaderText = "Update Name";
+            this.suUpdateName.Name = "suUpdateName";
+            this.suUpdateName.ReadOnly = true;
+            // 
+            // suUpdateID
+            // 
+            this.suUpdateID.HeaderText = "Update ID";
+            this.suUpdateID.Name = "suUpdateID";
+            this.suUpdateID.ReadOnly = true;
+            this.suUpdateID.Visible = false;
+            this.suUpdateID.Width = 81;
+            // 
+            // suSelect
+            // 
+            this.suSelect.HeaderText = "Select";
+            this.suSelect.Name = "suSelect";
+            this.suSelect.Width = 43;
+            // 
             // tlsSuperceded
             // 
             this.tlsSuperceded.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -332,43 +369,6 @@
             this.butSelectAll.Text = "Select All";
             this.butSelectAll.Click += new System.EventHandler(this.butSelectAll_Click);
             // 
-            // grdSupercededUpdates
-            // 
-            this.grdSupercededUpdates.AllowUserToAddRows = false;
-            this.grdSupercededUpdates.AllowUserToDeleteRows = false;
-            this.grdSupercededUpdates.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.ColumnHeader;
-            this.grdSupercededUpdates.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.grdSupercededUpdates.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.suUpdateName,
-            this.suUpdateID,
-            this.suSelect});
-            this.grdSupercededUpdates.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grdSupercededUpdates.Location = new System.Drawing.Point(3, 28);
-            this.grdSupercededUpdates.Name = "grdSupercededUpdates";
-            this.grdSupercededUpdates.Size = new System.Drawing.Size(1032, 428);
-            this.grdSupercededUpdates.TabIndex = 0;
-            // 
-            // suSelect
-            // 
-            this.suSelect.HeaderText = "Select";
-            this.suSelect.Name = "suSelect";
-            this.suSelect.Width = 43;
-            // 
-            // suUpdateID
-            // 
-            this.suUpdateID.HeaderText = "Update ID";
-            this.suUpdateID.Name = "suUpdateID";
-            this.suUpdateID.ReadOnly = true;
-            this.suUpdateID.Visible = false;
-            this.suUpdateID.Width = 81;
-            // 
-            // suUpdateName
-            // 
-            this.suUpdateName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.suUpdateName.HeaderText = "Update Name";
-            this.suUpdateName.Name = "suUpdateName";
-            this.suUpdateName.ReadOnly = true;
-            // 
             // tabServerRestarts
             // 
             this.tabServerRestarts.Controls.Add(this.lstServers);
@@ -415,12 +415,12 @@
             this.grdWSUSNotCommunicting.Size = new System.Drawing.Size(1038, 459);
             this.grdWSUSNotCommunicting.TabIndex = 2;
             // 
-            // wnuLastRollup
+            // wnuServerName
             // 
-            this.wnuLastRollup.HeaderText = "Last Rollup Time";
-            this.wnuLastRollup.Name = "wnuLastRollup";
-            this.wnuLastRollup.ReadOnly = true;
-            this.wnuLastRollup.Width = 150;
+            this.wnuServerName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.wnuServerName.HeaderText = "Server Name";
+            this.wnuServerName.Name = "wnuServerName";
+            this.wnuServerName.ReadOnly = true;
             // 
             // wnuLastSync
             // 
@@ -429,12 +429,12 @@
             this.wnuLastSync.ReadOnly = true;
             this.wnuLastSync.Width = 150;
             // 
-            // wnuServerName
+            // wnuLastRollup
             // 
-            this.wnuServerName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.wnuServerName.HeaderText = "Server Name";
-            this.wnuServerName.Name = "wnuServerName";
-            this.wnuServerName.ReadOnly = true;
+            this.wnuLastRollup.HeaderText = "Last Rollup Time";
+            this.wnuLastRollup.Name = "wnuLastRollup";
+            this.wnuLastRollup.ReadOnly = true;
+            this.wnuLastRollup.Width = 150;
             // 
             // tabEndpointFaults
             // 
@@ -465,75 +465,114 @@
             this.splEndpoint.SplitterDistance = 353;
             this.splEndpoint.TabIndex = 3;
             // 
-            // grdTasks
+            // grdEndpoints
             // 
-            this.grdTasks.AllowUserToAddRows = false;
-            this.grdTasks.AllowUserToDeleteRows = false;
-            this.grdTasks.AllowUserToResizeColumns = false;
-            this.grdTasks.AllowUserToResizeRows = false;
-            this.grdTasks.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
-            this.grdTasks.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.grdTasks.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.tskID,
-            this.tskStatus,
-            this.tskIP,
-            this.tskCommand,
-            this.tskOutput});
-            this.grdTasks.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grdTasks.Location = new System.Drawing.Point(0, 0);
-            this.grdTasks.Name = "grdTasks";
-            this.grdTasks.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
-            this.grdTasks.Size = new System.Drawing.Size(1038, 102);
-            this.grdTasks.TabIndex = 0;
+            this.grdEndpoints.AllowUserToAddRows = false;
+            this.grdEndpoints.AllowUserToDeleteRows = false;
+            this.grdEndpoints.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.grdEndpoints.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.epName,
+            this.epUpdate,
+            this.epIP,
+            this.epApprovedUpdates,
+            this.epUpdateErrors,
+            this.epComputerGroup,
+            this.epFault,
+            this.epLastServerContact,
+            this.epLastStatus,
+            this.epPing,
+            this.epPingUpdated});
+            this.grdEndpoints.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grdEndpoints.Location = new System.Drawing.Point(0, 25);
+            this.grdEndpoints.MultiSelect = false;
+            this.grdEndpoints.Name = "grdEndpoints";
+            this.grdEndpoints.ReadOnly = true;
+            this.grdEndpoints.Size = new System.Drawing.Size(1038, 328);
+            this.grdEndpoints.TabIndex = 4;
+            this.grdEndpoints.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.grdEndpoints_CellMouseClick);
+            this.grdEndpoints.SortCompare += new System.Windows.Forms.DataGridViewSortCompareEventHandler(this.grdEndpoints_SortCompare);
             // 
-            // tskOutput
+            // epName
             // 
-            this.tskOutput.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.tskOutput.HeaderText = "Output";
-            this.tskOutput.Name = "tskOutput";
-            this.tskOutput.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.epName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.epName.HeaderText = "PC Name";
+            this.epName.Name = "epName";
+            this.epName.ReadOnly = true;
             // 
-            // tskCommand
+            // epUpdate
             // 
-            this.tskCommand.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.tskCommand.DataPropertyName = "Command";
-            this.tskCommand.HeaderText = "Command";
-            this.tskCommand.Name = "tskCommand";
-            this.tskCommand.ReadOnly = true;
-            this.tskCommand.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.tskCommand.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.tskCommand.Width = 60;
+            this.epUpdate.HeaderText = "Update";
+            this.epUpdate.Name = "epUpdate";
+            this.epUpdate.ReadOnly = true;
+            this.epUpdate.Visible = false;
             // 
-            // tskIP
+            // epIP
             // 
-            this.tskIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.tskIP.DataPropertyName = "IPAddress";
-            this.tskIP.HeaderText = "IP Address";
-            this.tskIP.Name = "tskIP";
-            this.tskIP.ReadOnly = true;
-            this.tskIP.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.tskIP.Width = 64;
+            this.epIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.epIP.HeaderText = "IP Address";
+            this.epIP.Name = "epIP";
+            this.epIP.ReadOnly = true;
+            this.epIP.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             // 
-            // tskStatus
+            // epApprovedUpdates
             // 
-            this.tskStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.tskStatus.DataPropertyName = "CurrentStatus";
-            this.tskStatus.HeaderText = "Status";
-            this.tskStatus.Name = "tskStatus";
-            this.tskStatus.ReadOnly = true;
-            this.tskStatus.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.tskStatus.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.tskStatus.Width = 43;
+            this.epApprovedUpdates.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.epApprovedUpdates.HeaderText = "Approved Updates";
+            this.epApprovedUpdates.Name = "epApprovedUpdates";
+            this.epApprovedUpdates.ReadOnly = true;
+            this.epApprovedUpdates.Width = 70;
             // 
-            // tskID
+            // epUpdateErrors
             // 
-            this.tskID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.tskID.DataPropertyName = "TaskID";
-            this.tskID.HeaderText = "Task ID";
-            this.tskID.Name = "tskID";
-            this.tskID.ReadOnly = true;
-            this.tskID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.tskID.Width = 51;
+            this.epUpdateErrors.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.epUpdateErrors.HeaderText = "Updates With Errors";
+            this.epUpdateErrors.Name = "epUpdateErrors";
+            this.epUpdateErrors.ReadOnly = true;
+            this.epUpdateErrors.Width = 92;
+            // 
+            // epComputerGroup
+            // 
+            this.epComputerGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.epComputerGroup.HeaderText = "Computer Group";
+            this.epComputerGroup.Name = "epComputerGroup";
+            this.epComputerGroup.ReadOnly = true;
+            // 
+            // epFault
+            // 
+            this.epFault.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.epFault.HeaderText = "Endpoint Fault";
+            this.epFault.Name = "epFault";
+            this.epFault.ReadOnly = true;
+            this.epFault.Width = 92;
+            // 
+            // epLastServerContact
+            // 
+            this.epLastServerContact.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.epLastServerContact.HeaderText = "Last Server Contact";
+            this.epLastServerContact.Name = "epLastServerContact";
+            this.epLastServerContact.ReadOnly = true;
+            this.epLastServerContact.Width = 115;
+            // 
+            // epLastStatus
+            // 
+            this.epLastStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.epLastStatus.HeaderText = "Last Status";
+            this.epLastStatus.Name = "epLastStatus";
+            this.epLastStatus.ReadOnly = true;
+            this.epLastStatus.Width = 78;
+            // 
+            // epPing
+            // 
+            this.epPing.HeaderText = "Ping";
+            this.epPing.Name = "epPing";
+            this.epPing.ReadOnly = true;
+            // 
+            // epPingUpdated
+            // 
+            this.epPingUpdated.HeaderText = "Updated";
+            this.epPingUpdated.Name = "epPingUpdated";
+            this.epPingUpdated.ReadOnly = true;
+            this.epPingUpdated.Visible = false;
             // 
             // tlsEndpoint
             // 
@@ -608,114 +647,75 @@
             this.butGroupRules.Text = "PCs not in Correct Group";
             this.butGroupRules.Click += new System.EventHandler(this.butGroupRules_Click);
             // 
-            // grdEndpoints
+            // grdTasks
             // 
-            this.grdEndpoints.AllowUserToAddRows = false;
-            this.grdEndpoints.AllowUserToDeleteRows = false;
-            this.grdEndpoints.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.grdEndpoints.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.epName,
-            this.epUpdate,
-            this.epIP,
-            this.epApprovedUpdates,
-            this.epUpdateErrors,
-            this.epComputerGroup,
-            this.epFault,
-            this.epLastServerContact,
-            this.epLastStatus,
-            this.epPing,
-            this.epPingUpdated});
-            this.grdEndpoints.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grdEndpoints.Location = new System.Drawing.Point(0, 25);
-            this.grdEndpoints.MultiSelect = false;
-            this.grdEndpoints.Name = "grdEndpoints";
-            this.grdEndpoints.ReadOnly = true;
-            this.grdEndpoints.Size = new System.Drawing.Size(1038, 328);
-            this.grdEndpoints.TabIndex = 4;
-            this.grdEndpoints.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.grdEndpoints_CellMouseClick);
-            this.grdEndpoints.SortCompare += new System.Windows.Forms.DataGridViewSortCompareEventHandler(this.grdEndpoints_SortCompare);
+            this.grdTasks.AllowUserToAddRows = false;
+            this.grdTasks.AllowUserToDeleteRows = false;
+            this.grdTasks.AllowUserToResizeColumns = false;
+            this.grdTasks.AllowUserToResizeRows = false;
+            this.grdTasks.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            this.grdTasks.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.grdTasks.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.tskID,
+            this.tskStatus,
+            this.tskIP,
+            this.tskCommand,
+            this.tskOutput});
+            this.grdTasks.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grdTasks.Location = new System.Drawing.Point(0, 0);
+            this.grdTasks.Name = "grdTasks";
+            this.grdTasks.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
+            this.grdTasks.Size = new System.Drawing.Size(1038, 102);
+            this.grdTasks.TabIndex = 0;
             // 
-            // epPingUpdated
+            // tskID
             // 
-            this.epPingUpdated.HeaderText = "Updated";
-            this.epPingUpdated.Name = "epPingUpdated";
-            this.epPingUpdated.ReadOnly = true;
-            this.epPingUpdated.Visible = false;
+            this.tskID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskID.DataPropertyName = "TaskID";
+            this.tskID.HeaderText = "Task ID";
+            this.tskID.Name = "tskID";
+            this.tskID.ReadOnly = true;
+            this.tskID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskID.Width = 51;
             // 
-            // epPing
+            // tskStatus
             // 
-            this.epPing.HeaderText = "Ping";
-            this.epPing.Name = "epPing";
-            this.epPing.ReadOnly = true;
+            this.tskStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskStatus.DataPropertyName = "CurrentStatus";
+            this.tskStatus.HeaderText = "Status";
+            this.tskStatus.Name = "tskStatus";
+            this.tskStatus.ReadOnly = true;
+            this.tskStatus.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskStatus.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskStatus.Width = 43;
             // 
-            // epLastStatus
+            // tskIP
             // 
-            this.epLastStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.epLastStatus.HeaderText = "Last Status";
-            this.epLastStatus.Name = "epLastStatus";
-            this.epLastStatus.ReadOnly = true;
-            this.epLastStatus.Width = 78;
+            this.tskIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskIP.DataPropertyName = "IPAddress";
+            this.tskIP.HeaderText = "IP Address";
+            this.tskIP.Name = "tskIP";
+            this.tskIP.ReadOnly = true;
+            this.tskIP.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskIP.Width = 64;
             // 
-            // epLastServerContact
+            // tskCommand
             // 
-            this.epLastServerContact.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.epLastServerContact.HeaderText = "Last Server Contact";
-            this.epLastServerContact.Name = "epLastServerContact";
-            this.epLastServerContact.ReadOnly = true;
-            this.epLastServerContact.Width = 115;
+            this.tskCommand.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.tskCommand.DataPropertyName = "Command";
+            this.tskCommand.HeaderText = "Command";
+            this.tskCommand.Name = "tskCommand";
+            this.tskCommand.ReadOnly = true;
+            this.tskCommand.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.tskCommand.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.tskCommand.Width = 60;
             // 
-            // epFault
+            // tskOutput
             // 
-            this.epFault.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.epFault.HeaderText = "Endpoint Fault";
-            this.epFault.Name = "epFault";
-            this.epFault.ReadOnly = true;
-            this.epFault.Width = 92;
-            // 
-            // epComputerGroup
-            // 
-            this.epComputerGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.epComputerGroup.HeaderText = "Computer Group";
-            this.epComputerGroup.Name = "epComputerGroup";
-            this.epComputerGroup.ReadOnly = true;
-            // 
-            // epUpdateErrors
-            // 
-            this.epUpdateErrors.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.epUpdateErrors.HeaderText = "Updates With Errors";
-            this.epUpdateErrors.Name = "epUpdateErrors";
-            this.epUpdateErrors.ReadOnly = true;
-            this.epUpdateErrors.Width = 92;
-            // 
-            // epApprovedUpdates
-            // 
-            this.epApprovedUpdates.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.epApprovedUpdates.HeaderText = "Approved Updates";
-            this.epApprovedUpdates.Name = "epApprovedUpdates";
-            this.epApprovedUpdates.ReadOnly = true;
-            this.epApprovedUpdates.Width = 70;
-            // 
-            // epIP
-            // 
-            this.epIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.epIP.HeaderText = "IP Address";
-            this.epIP.Name = "epIP";
-            this.epIP.ReadOnly = true;
-            this.epIP.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // epUpdate
-            // 
-            this.epUpdate.HeaderText = "Update";
-            this.epUpdate.Name = "epUpdate";
-            this.epUpdate.ReadOnly = true;
-            this.epUpdate.Visible = false;
-            // 
-            // epName
-            // 
-            this.epName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.epName.HeaderText = "PC Name";
-            this.epName.Name = "epName";
-            this.epName.ReadOnly = true;
+            this.tskOutput.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.tskOutput.HeaderText = "Output";
+            this.tskOutput.Name = "tskOutput";
+            this.tskOutput.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             // 
             // tabUnapproved
             // 
@@ -728,6 +728,78 @@
             this.tabUnapproved.TabIndex = 11;
             this.tabUnapproved.Text = "Unapproved Updates";
             this.tabUnapproved.UseVisualStyleBackColor = true;
+            // 
+            // grdUnapproved
+            // 
+            this.grdUnapproved.AllowUserToAddRows = false;
+            this.grdUnapproved.AllowUserToDeleteRows = false;
+            this.grdUnapproved.AllowUserToResizeColumns = false;
+            this.grdUnapproved.AllowUserToResizeRows = false;
+            this.grdUnapproved.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.grdUnapproved.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.uaUpdateName,
+            this.uaID,
+            this.uaUpdated,
+            this.uaDescription,
+            this.uaKB,
+            this.uaSortOrder});
+            this.grdUnapproved.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grdUnapproved.Location = new System.Drawing.Point(3, 28);
+            this.grdUnapproved.Name = "grdUnapproved";
+            this.grdUnapproved.ReadOnly = true;
+            this.grdUnapproved.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.grdUnapproved.Size = new System.Drawing.Size(1032, 428);
+            this.grdUnapproved.TabIndex = 4;
+            this.grdUnapproved.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.grdUnapproved_CellFormatting);
+            this.grdUnapproved.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.grdUnapproved_CellMouseClick);
+            // 
+            // uaUpdateName
+            // 
+            this.uaUpdateName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.uaUpdateName.FillWeight = 50F;
+            this.uaUpdateName.HeaderText = "Update Name";
+            this.uaUpdateName.Name = "uaUpdateName";
+            this.uaUpdateName.ReadOnly = true;
+            this.uaUpdateName.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.uaUpdateName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.uaUpdateName.Width = 79;
+            // 
+            // uaID
+            // 
+            this.uaID.HeaderText = "Update ID";
+            this.uaID.Name = "uaID";
+            this.uaID.ReadOnly = true;
+            this.uaID.Visible = false;
+            // 
+            // uaUpdated
+            // 
+            this.uaUpdated.HeaderText = "Updated";
+            this.uaUpdated.Name = "uaUpdated";
+            this.uaUpdated.ReadOnly = true;
+            this.uaUpdated.Visible = false;
+            // 
+            // uaDescription
+            // 
+            this.uaDescription.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.uaDescription.HeaderText = "Description";
+            this.uaDescription.Name = "uaDescription";
+            this.uaDescription.ReadOnly = true;
+            // 
+            // uaKB
+            // 
+            this.uaKB.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.uaKB.HeaderText = "KB Article";
+            this.uaKB.Name = "uaKB";
+            this.uaKB.ReadOnly = true;
+            this.uaKB.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.uaKB.Width = 78;
+            // 
+            // uaSortOrder
+            // 
+            this.uaSortOrder.HeaderText = "SortOrder";
+            this.uaSortOrder.Name = "uaSortOrder";
+            this.uaSortOrder.ReadOnly = true;
+            this.uaSortOrder.Visible = false;
             // 
             // tlsUnapproved
             // 
@@ -779,78 +851,6 @@
             this.lblUpdatesToApprove.Name = "lblUpdatesToApprove";
             this.lblUpdatesToApprove.Size = new System.Drawing.Size(0, 22);
             // 
-            // grdUnapproved
-            // 
-            this.grdUnapproved.AllowUserToAddRows = false;
-            this.grdUnapproved.AllowUserToDeleteRows = false;
-            this.grdUnapproved.AllowUserToResizeColumns = false;
-            this.grdUnapproved.AllowUserToResizeRows = false;
-            this.grdUnapproved.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.grdUnapproved.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.uaUpdateName,
-            this.uaID,
-            this.uaUpdated,
-            this.uaDescription,
-            this.uaKB,
-            this.uaSortOrder});
-            this.grdUnapproved.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grdUnapproved.Location = new System.Drawing.Point(3, 28);
-            this.grdUnapproved.Name = "grdUnapproved";
-            this.grdUnapproved.ReadOnly = true;
-            this.grdUnapproved.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.grdUnapproved.Size = new System.Drawing.Size(1032, 428);
-            this.grdUnapproved.TabIndex = 4;
-            this.grdUnapproved.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.grdUnapproved_CellFormatting);
-            this.grdUnapproved.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.grdUnapproved_CellMouseClick);
-            // 
-            // uaSortOrder
-            // 
-            this.uaSortOrder.HeaderText = "SortOrder";
-            this.uaSortOrder.Name = "uaSortOrder";
-            this.uaSortOrder.ReadOnly = true;
-            this.uaSortOrder.Visible = false;
-            // 
-            // uaKB
-            // 
-            this.uaKB.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.uaKB.HeaderText = "KB Article";
-            this.uaKB.Name = "uaKB";
-            this.uaKB.ReadOnly = true;
-            this.uaKB.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.uaKB.Width = 78;
-            // 
-            // uaDescription
-            // 
-            this.uaDescription.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.uaDescription.HeaderText = "Description";
-            this.uaDescription.Name = "uaDescription";
-            this.uaDescription.ReadOnly = true;
-            // 
-            // uaUpdated
-            // 
-            this.uaUpdated.HeaderText = "Updated";
-            this.uaUpdated.Name = "uaUpdated";
-            this.uaUpdated.ReadOnly = true;
-            this.uaUpdated.Visible = false;
-            // 
-            // uaID
-            // 
-            this.uaID.HeaderText = "Update ID";
-            this.uaID.Name = "uaID";
-            this.uaID.ReadOnly = true;
-            this.uaID.Visible = false;
-            // 
-            // uaUpdateName
-            // 
-            this.uaUpdateName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.uaUpdateName.FillWeight = 50F;
-            this.uaUpdateName.HeaderText = "Update Name";
-            this.uaUpdateName.Name = "uaUpdateName";
-            this.uaUpdateName.ReadOnly = true;
-            this.uaUpdateName.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.uaUpdateName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.uaUpdateName.Width = 79;
-            // 
             // tabHome
             // 
             this.tabHome.Controls.Add(this.lblWSUSStatus);
@@ -864,6 +864,40 @@
             this.tabHome.TabIndex = 10;
             this.tabHome.Text = "Home";
             this.tabHome.UseVisualStyleBackColor = true;
+            // 
+            // lblWSUSStatus
+            // 
+            this.lblWSUSStatus.AutoSize = true;
+            this.lblWSUSStatus.Location = new System.Drawing.Point(189, 99);
+            this.lblWSUSStatus.Name = "lblWSUSStatus";
+            this.lblWSUSStatus.Size = new System.Drawing.Size(0, 13);
+            this.lblWSUSStatus.TabIndex = 4;
+            // 
+            // lblSQLStatus
+            // 
+            this.lblSQLStatus.AutoSize = true;
+            this.lblSQLStatus.Location = new System.Drawing.Point(189, 82);
+            this.lblSQLStatus.Name = "lblSQLStatus";
+            this.lblSQLStatus.Size = new System.Drawing.Size(0, 13);
+            this.lblSQLStatus.TabIndex = 3;
+            // 
+            // lblWSUSConnection
+            // 
+            this.lblWSUSConnection.AutoSize = true;
+            this.lblWSUSConnection.Location = new System.Drawing.Point(24, 99);
+            this.lblWSUSConnection.Name = "lblWSUSConnection";
+            this.lblWSUSConnection.Size = new System.Drawing.Size(134, 13);
+            this.lblWSUSConnection.TabIndex = 2;
+            this.lblWSUSConnection.Text = "WSUS Server Connection:";
+            // 
+            // lblSQLConnection
+            // 
+            this.lblSQLConnection.AutoSize = true;
+            this.lblSQLConnection.Location = new System.Drawing.Point(24, 82);
+            this.lblSQLConnection.Name = "lblSQLConnection";
+            this.lblSQLConnection.Size = new System.Drawing.Size(122, 13);
+            this.lblSQLConnection.TabIndex = 1;
+            this.lblSQLConnection.Text = "SQL Server Connection:";
             // 
             // mnu
             // 
@@ -958,40 +992,6 @@
             this.mnuSUSWatcher.Text = "Duplicate SUS ID Watcher";
             this.mnuSUSWatcher.Click += new System.EventHandler(this.mnuSUSWatcher_Click);
             // 
-            // lblSQLConnection
-            // 
-            this.lblSQLConnection.AutoSize = true;
-            this.lblSQLConnection.Location = new System.Drawing.Point(24, 82);
-            this.lblSQLConnection.Name = "lblSQLConnection";
-            this.lblSQLConnection.Size = new System.Drawing.Size(122, 13);
-            this.lblSQLConnection.TabIndex = 1;
-            this.lblSQLConnection.Text = "SQL Server Connection:";
-            // 
-            // lblWSUSConnection
-            // 
-            this.lblWSUSConnection.AutoSize = true;
-            this.lblWSUSConnection.Location = new System.Drawing.Point(24, 99);
-            this.lblWSUSConnection.Name = "lblWSUSConnection";
-            this.lblWSUSConnection.Size = new System.Drawing.Size(134, 13);
-            this.lblWSUSConnection.TabIndex = 2;
-            this.lblWSUSConnection.Text = "WSUS Server Connection:";
-            // 
-            // lblSQLStatus
-            // 
-            this.lblSQLStatus.AutoSize = true;
-            this.lblSQLStatus.Location = new System.Drawing.Point(189, 82);
-            this.lblSQLStatus.Name = "lblSQLStatus";
-            this.lblSQLStatus.Size = new System.Drawing.Size(0, 13);
-            this.lblSQLStatus.TabIndex = 3;
-            // 
-            // lblWSUSStatus
-            // 
-            this.lblWSUSStatus.AutoSize = true;
-            this.lblWSUSStatus.Location = new System.Drawing.Point(189, 99);
-            this.lblWSUSStatus.Name = "lblWSUSStatus";
-            this.lblWSUSStatus.Size = new System.Drawing.Size(0, 13);
-            this.lblWSUSStatus.TabIndex = 4;
-            // 
             // tabAdminType
             // 
             this.tabAdminType.Controls.Add(this.tabHome);
@@ -1028,9 +1028,9 @@
             this.cmEndpoint.ResumeLayout(false);
             this.tabSuperceded.ResumeLayout(false);
             this.tabSuperceded.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grdSupercededUpdates)).EndInit();
             this.tlsSuperceded.ResumeLayout(false);
             this.tlsSuperceded.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.grdSupercededUpdates)).EndInit();
             this.tabServerRestarts.ResumeLayout(false);
             this.tabWSUSNotCommunicating.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grdWSUSNotCommunicting)).EndInit();
@@ -1040,15 +1040,15 @@
             this.splEndpoint.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splEndpoint)).EndInit();
             this.splEndpoint.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.grdTasks)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.grdEndpoints)).EndInit();
             this.tlsEndpoint.ResumeLayout(false);
             this.tlsEndpoint.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.grdEndpoints)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.grdTasks)).EndInit();
             this.tabUnapproved.ResumeLayout(false);
             this.tabUnapproved.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grdUnapproved)).EndInit();
             this.tlsUnapproved.ResumeLayout(false);
             this.tlsUnapproved.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.grdUnapproved)).EndInit();
             this.tabHome.ResumeLayout(false);
             this.tabHome.PerformLayout();
             this.mnu.ResumeLayout(false);

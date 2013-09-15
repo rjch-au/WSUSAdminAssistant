@@ -73,11 +73,13 @@ namespace WSUSAdminAssistant
 
         private static void SuspendDrawing(Control parent)
         {
+            parent.SuspendLayout();
             SendMessage(parent.Handle, WM_SETREDRAW, false, 0);
         }
 
         private static void ResumeDrawing(Control parent)
         {
+            parent.ResumeLayout();
             SendMessage(parent.Handle, WM_SETREDRAW, true, 0);
         }
 
@@ -314,9 +316,9 @@ namespace WSUSAdminAssistant
 
                         if (grdUnapproved.Columns.Count > uaSortOrder.Index)
                         {
-                            for (int i = uaSortOrder.Index + 1; i < grdUnapproved.Columns.Count; i++)
+                            for (int i = uaSortOrder.Index + 1; i < grdUnapproved.Columns.Count;  )
                                 // Remove the column
-                                grdUnapproved.Columns.RemoveAt(uaSortOrder.Index + 1);
+                                grdUnapproved.Columns.RemoveAt(i);
                         }
 
                         // Add new columns
@@ -346,9 +348,19 @@ namespace WSUSAdminAssistant
                     foreach (DataGridViewRow r in grdUnapproved.Rows)
                         r.Tag = "N";
 
+                    DateTime lastbreath = DateTime.Now;
+
                     // Loop through each unapproved update and update the datagrid accordingly
                     foreach (clsWSUS.UnapprovedUpdate uu in uuc)
                     {
+                        // Have we taken a breath recently to allow other things to happen?
+                        if (DateTime.Now.Subtract(lastbreath).TotalMilliseconds > 100)
+                        {
+                            // Nope - take a breather.
+                            Application.DoEvents();
+                            lastbreath = DateTime.Now;
+                        }
+
                         // Is this update approvable for any PC in any group?
                         if (uu.PCsRequiringUpdate > 0)
                         {
@@ -1370,6 +1382,9 @@ namespace WSUSAdminAssistant
 
         private void grdUnapproved_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
+            // Are we getting some dumb values?  Ignore event if so.
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+
             // Create some variables to make processing a bit easier.
             DataGridViewRow r = grdUnapproved.Rows[e.RowIndex];
             DataGridViewCell c = r.Cells[e.ColumnIndex];
