@@ -1003,13 +1003,28 @@ namespace WSUSAdminAssistant
             // This constructor is private so that we can serialize and and deserialize properly without exposing it for use within code
             private GroupUpdateRule()
             {
-                // This is evil and inefficient, but currently unavoidable /*** must fix later! ***/
-                wsus = new clsConfig().wsus;
+                // Since no wsus object has been passed, null the wsus object so that GUIDs will be stored and loaded later
+                wsus = null;
             }
 
             public GroupUpdateRule(clsWSUS wsusobject)
             {
                 wsus = wsusobject;
+            }
+
+            public void SetWSUSObject(clsWSUS wsusobject)
+            {
+                // Store the object for further use
+                wsus = wsusobject;
+
+                // Did we store any GUIDs for later update?
+                if (_storedgroupguid != null)
+                    // Re-set variable
+                    computergroupid = _storedgroupguid;
+
+                if (_storedparentguid != null)
+                    // Re-set variable
+                    parentcomputergroupid = _storedparentguid;
             }
 
             public int displayorder;                                        // Display order on Unapproved Updates grid
@@ -1022,6 +1037,8 @@ namespace WSUSAdminAssistant
             [XmlIgnore] public TimeSpan childupdateinterval;                // The interval after which child computer groups may install updates if no computer within this group requires the update
 
             // Extra classes for serialization
+            [XmlIgnore] private string _storedgroupguid = null;
+
             [XmlElement]
             public string computergroupid
             {
@@ -1030,6 +1047,14 @@ namespace WSUSAdminAssistant
 
                 set
                 {
+                    // Do we have a wsus object to work with?
+                    if (wsus == null)
+                    {
+                        // Store guid temporarily so we can load details later
+                        _storedgroupguid = value;
+                        return;
+                    }
+
                     // Are we setting a null group?
                     if (value == "")
                     {
@@ -1060,6 +1085,8 @@ namespace WSUSAdminAssistant
                 set { updateinterval = new TimeSpan(value); }
             }
 
+            [XmlIgnore] private string _storedparentguid = null;
+
             [XmlElement] public string parentcomputergroupid
             {
                 get
@@ -1072,6 +1099,14 @@ namespace WSUSAdminAssistant
 
                 set
                 {
+                    // Do we have a wsus object to work with?
+                    if (wsus == null)
+                    {
+                        // Store guid temporarily so we can load details later
+                        _storedparentguid = value;
+                        return;
+                    }
+
                     // Are we setting a null group?
                     if (value == "")
                     {
@@ -1372,10 +1407,6 @@ namespace WSUSAdminAssistant
                 XmlSerializer xs = new XmlSerializer(typeof(GroupUpdateRuleCollection));
                 xs.Serialize(fs, c);
             }
-
-            // Update stored rule collection and reset the last updated timestamp
-            _groupupdaterules = c;
-            _gurupdated = DateTime.Now;
         }
 
         private GroupUpdateRuleCollection ReadComputerGroupRuleXML(string file)
@@ -1387,9 +1418,11 @@ namespace WSUSAdminAssistant
                 XmlSerializer xs = new XmlSerializer(typeof(GroupUpdateRuleCollection));
                 c = (GroupUpdateRuleCollection)xs.Deserialize(fs);
 
-                // Apply appropriate defaults to any field that had no value in the XML file
+                // Apply appropriate defaults to any field that had no value in the XML file and apply WSUS object so group details can be loaded
                 foreach (GroupUpdateRule ur in c)
                 {
+                    ur.SetWSUSObject(wsus);
+
                     if (ur.sortweight == -1) ur.sortweight = ur.displayorder;
                     if (ur.shortname == null) ur.shortname = ur.computergroup.Name;
                 }
@@ -1405,8 +1438,12 @@ namespace WSUSAdminAssistant
         {
             get
             {
-                // Have the group update rules been reloaded in the last 10 seconds?
-                if (_groupupdaterules != null && DateTime.Now.Subtract(_gurupdated).TotalSeconds < 10)
+
+                // Check modified date of XML file
+                DateTime lastmod = File.GetLastWriteTime(GroupUpdateRulesXMLFile);
+
+                // Have the group update rules been updated since we last loaded it, or has it never been loaded?
+                if (_groupupdaterules != null && _gurupdated == lastmod)
                     // Yes they have - return them.
                     return _groupupdaterules;
 
@@ -1414,7 +1451,7 @@ namespace WSUSAdminAssistant
                 try
                 {
                     _groupupdaterules = ReadComputerGroupRuleXML(GroupUpdateRulesXMLFile);
-                    _gurupdated = DateTime.Now;
+                    _gurupdated = lastmod;
 
                     return _groupupdaterules;
                 }
@@ -1425,7 +1462,14 @@ namespace WSUSAdminAssistant
                 }
             }
 
-            set { WriteComputerGroupUpdateRulesXML(value, GroupUpdateRulesXMLFile); }
+            set
+            {
+                // Write XML file, update saved rules and last modified time
+                WriteComputerGroupUpdateRulesXML(value, GroupUpdateRulesXMLFile);
+
+                _gurupdated = File.GetLastWriteTime(GroupUpdateRulesXMLFile);
+                _groupupdaterules = value;
+            }
         }
     }
 }

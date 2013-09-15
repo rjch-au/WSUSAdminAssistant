@@ -186,7 +186,7 @@ namespace WSUSAdminAssistant
         ");
         #endregion
 
-        private SqlCommand cmdUnapprovedUpdates;
+        private SqlCommand cmdUnapprovedUpdates = new SqlCommand();
         private string strUnapprovedUpdates = @"
             use SUSDB
 
@@ -326,15 +326,21 @@ namespace WSUSAdminAssistant
 
         // Various WSUS variables, some with lazy initialisation
 
-        public IUpdateServer server;
+        public IUpdateServer server = null;
 
         private ComputerTargetGroupCollection _computergroups = null;
+        private DateTime _cgupdated = DateTime.MinValue;
+
         public ComputerTargetGroupCollection ComputerGroups
         {
             get
             {
-                if (_computergroups == null)
+                // If we've never retreived computer groups, or they were updated less than 10 seconds ago, go get 'em
+                if (_computergroups == null || DateTime.Now.Subtract(_cgupdated).TotalSeconds > 10)
+                {
                     _computergroups = server.GetComputerTargetGroups();
+                    _cgupdated = DateTime.Now;
+                }
 
                 return _computergroups;
             }
@@ -458,31 +464,45 @@ namespace WSUSAdminAssistant
 
         public DataTable GetUnapprovedUpdatesNew()
         {
-            // Inject the right parameters into the Unapproved Updates query
-            cmdUnapprovedUpdates.Parameters.Clear();
-            clsConfig.GroupUpdateRuleCollection ur = cfg.GroupUpdateRules;
-            string[] parameters = new string[ur.Count];
-
-            for (int i = 0; i < ur.Count; i++)
+            if (CheckDBConnection())
             {
-                parameters[i] = string.Format("@Age{0}", i);
-                cmdUnapprovedUpdates.Parameters.AddWithValue(parameters[i], ur[i].computergroup.Name);
+                // Inject the right parameters into the Unapproved Updates query
+                clsConfig.GroupUpdateRuleCollection ur = cfg.GroupUpdateRules;
+                string[] parameters = new string[ur.Count];
+                cmdUnapprovedUpdates.Parameters.Clear();
+
+                // Build list of parameters
+                for (int i = 0; i < ur.Count; i++)
+                    parameters[i] = string.Format("@Group{0}", i);
+
+                // Set SQL query
+                cmdUnapprovedUpdates.CommandText = string.Format(strUnapprovedUpdates, string.Join(", ", parameters));
+
+                // Build parameters
+                for (int i = 0; i < ur.Count; i++)
+                {
+                    cmdUnapprovedUpdates.Parameters.Add(parameters[i], SqlDbType.NVarChar);
+                    cmdUnapprovedUpdates.Parameters[parameters[i]].Value = ur[i].computergroup.Name;
+                }
+
+                // Associate with SQL query
+                cmdUnapprovedUpdates.Connection = sql;
+
+                // Run query and return results
+                cmdUnapprovedUpdates.ExecuteNonQuery();
+
+                SqlDataReader r = cmdUnapprovedUpdates.ExecuteReader();
+                DataTable t = new DataTable();
+
+                // Load the data table
+                t.Load(r);
+                r.Close();
+
+                return t;
             }
 
-            cmdUnapprovedUpdates.CommandText = string.Format(strUnapprovedUpdates, "'" + string.Join("', '", parameters) + "'");
-            cmdUnapprovedUpdates.Connection = sql;
-
-            // Run query and return results
-            cmdUnapprovedUpdates.ExecuteNonQuery();
-
-            SqlDataReader r = cmdUnapprovedUpdates.ExecuteReader();
-            DataTable t = new DataTable();
-
-            // Load the data table
-            t.Load(r);
-            r.Close();
-
-            return t;
+            // DB Connection not OK - return a null table
+            return null;
         }
 
         public DataTable GetUnassignedComputers()
@@ -568,7 +588,7 @@ namespace WSUSAdminAssistant
             {
                 get
                 {
-                    if (Approvable.HasValue && DateTime.Now < Approvable)
+                    if (Approvable.HasValue && DateTime.Now > Approvable)
                         // Update can be installed now
                         return true;
                     else
@@ -579,18 +599,11 @@ namespace WSUSAdminAssistant
 
         public class PerGroupCollection : System.Collections.CollectionBase
         {
-            private Dictionary<string, int> _namedict = new Dictionary<string, int>();
-            private Dictionary<Guid, int> _guiddict = new Dictionary<Guid, int>();
-
             public PerGroupCollection(clsConfig.GroupUpdateRuleCollection groups)
             {
                 // Loop through each group and add to the list and the dictionaries.  This is the only way items can be created.
                 foreach (clsConfig.GroupUpdateRule ur in groups)
-                {
-                    int idx = this.List.Add(new PerGroupInformation(ur));
-                    _namedict.Add(ur.computergroup.Name, idx);
-                    _guiddict.Add(ur.computergroup.Id, idx);
-                }
+                    this.List.Add(new PerGroupInformation(ur));
             }
 
             // Locate item by index number
@@ -604,15 +617,69 @@ namespace WSUSAdminAssistant
             // Locate item by group name
             public PerGroupInformation this[string group]
             {
-                get { return (PerGroupInformation)this.List[_namedict[group]]; }
-                set { this.List[_namedict[group]] = value; }
+                get
+                {
+                    // Loop through each item, looking for a group that matches
+                    foreach (PerGroupInformation gi in this.List)
+                        if (gi.Group.Name == group)
+                            // Got one - return it
+                            return gi;
+
+                    // Couldn't find one - return null
+                    return null;
+                }
+
+                set
+                {
+                    // Loop through each item, looking for a group that matches
+                    for (int i = 0; i < this.List.Count; i++)
+                    {
+                        PerGroupInformation gi = (PerGroupInformation)this.List[i];
+
+                        if (gi.Group.Name == group)
+                        {
+                            gi = value;
+                            return;
+                        }
+                    }
+
+                    // Couldn't find a group - throw an exception
+                    throw new ArgumentException("Computer group " + group + " could not be found.");
+                }
             }
 
             // Locate item by GUID
             public PerGroupInformation this[Guid groupid]
             {
-                get { return (PerGroupInformation)this.List[_guiddict[groupid]]; }
-                set { this.List[_guiddict[groupid]] = value; }
+                get
+                {
+                    // Loop through each item, looking for a group that matches
+                    foreach (PerGroupInformation gi in this.List)
+                        if (gi.Group.Id == groupid)
+                            // Got one - return it
+                            return gi;
+
+                    // Couldn't find one - return null
+                    return null;
+                }
+
+                set
+                {
+                    // Loop through each item, looking for a group that matches
+                    for (int i = 0; i < this.List.Count; i++)
+                    {
+                        PerGroupInformation gi = (PerGroupInformation)this.List[i];
+
+                        if (gi.Group.Id == groupid)
+                        {
+                            gi = value;
+                            return;
+                        }
+                    }
+
+                    // Couldn't find a group - throw an exception
+                    throw new ArgumentException("Computer group ID " + groupid + " could not be found.");
+                }
             }
         }
 
@@ -645,6 +712,21 @@ namespace WSUSAdminAssistant
 
             private PerGroupCollection _groups;
             public PerGroupCollection Groups { get { return _groups; } }
+
+            public int PCsRequiringUpdate
+            {
+                get
+                {
+                    // Loop through all groups, and start counting PCs requiring the update where it is approvable now
+                    int PCs = 0;
+
+                    foreach (PerGroupInformation gi in _groups)
+                        if (!gi.Approved.HasValue && gi.UpdateApprovableNow && gi.PCs.HasValue) PCs += gi.PCs.Value;
+
+                    // Return PC count
+                    return PCs;
+                }
+            }
 
             public string SortIndex
             {
@@ -688,12 +770,7 @@ namespace WSUSAdminAssistant
                     {
                         if (!i.PCs.HasValue || i.PCs == 0)
                             // If no PCs require this update (or it hasn't been initialized) it should be sorted lower in the list
-                            if (i.Approved.HasValue)
-                                // Higher if it has been approved
-                                idx += "P";
-                            else
-                                // Lower if it hasn't
-                                idx += "Z";
+                            idx += "Z";
                         else
                             // If PCs require this update, it should be sorted higher in the list
                             idx += "A";
@@ -710,16 +787,18 @@ namespace WSUSAdminAssistant
             private Dictionary<string, int> _dict = new Dictionary<string, int>();
             private clsConfig cfg;
 
-            // Class initialisation.  List of groups must be provided at creation time.
-            public UnapprovedUpdates(clsConfig configobject, clsConfig.GroupUpdateRuleCollection grouprules)
+            // Class initialisation.  List of groups will be saved at creation time.
+            public UnapprovedUpdates(clsConfig configobject)
             {
-                // Store the groups to be managed, sorting them by display order
-                groups = grouprules;
-                groups.SortByDisplayOrder();
-
                 // Store the config object for use
                 cfg = configobject;
+
+                // Store the groups to be managed, sorting them by display order
+                groups = cfg.GroupUpdateRules;
+                groups.SortByDisplayOrder();
             }
+
+            public clsConfig.GroupUpdateRuleCollection Groups { get { return groups; } }
 
             /// <summary>
             /// Get an unapproved update item by index
@@ -731,7 +810,7 @@ namespace WSUSAdminAssistant
             }
 
             /// <summary>
-            /// Get an unapproved update by GUID or update name
+            /// Get an unapproved update by GUID
             /// </summary>
             /// <param name="updatename"></param>
             /// <returns></returns>
@@ -761,12 +840,26 @@ namespace WSUSAdminAssistant
             {
                 int idx = this.List.Add(new UnapprovedUpdate(groups, UpdateID, UpdateName, Description, KBArticle, ArrivalDate));
                 _dict.Add(UpdateID, idx);
-                _dict.Add(UpdateName, idx);
-
+                //_dict.Add(UpdateName, idx);
+                
                 return (UnapprovedUpdate)this.List[idx];
             }
 
+            private BackgroundWorker wrkUpdate = new BackgroundWorker();
+
             public void UpdateUnapprovedUpdates()
+            {
+                // Kick off background worker
+                wrkUpdate.DoWork += wrkUpdate_DoWork;
+                wrkUpdate.RunWorkerAsync();
+                
+                // Wait for completion
+                while (wrkUpdate.IsBusy)
+                    // Whilst background worker is running, let the system keep processing events.
+                    Application.DoEvents();
+            }
+
+            void wrkUpdate_DoWork(object sender, DoWorkEventArgs e)
             {
                 // Get list of unapproved updates
                 DataTable uudt = cfg.wsus.GetUnapprovedUpdatesNew();
@@ -781,23 +874,21 @@ namespace WSUSAdminAssistant
 
                     if (uu == null)
                         // No we don't - add it.
-                        uu = this.Add(r["updateid"].ToString(), r["defaultitle"].ToString(), r["defaultdescription"].ToString(), r["knowledgebasearticle"].ToString(), (DateTime)r["arrivaldate"]);
+                        uu = this.Add(r["updateid"].ToString(), r["defaulttitle"].ToString(), r["defaultdescription"].ToString(), r["knowledgebasearticle"].ToString(), (DateTime)r["arrivaldate"]);
 
                     // Find the group that this row refers to
                     PerGroupInformation gi = uu.Groups[r["pcgroup"].ToString()];
 
                     if (gi != null)
                     {
-                        // Update the group information
-
                         // Update the number of PCs requiring this update (null if none)
-                        if (r["PCs"] == null)
+                        if (r["PCs"] == null || r["PCs"].ToString() == "")
                             gi.PCs = null;
                         else
                             gi.PCs = int.Parse(r["PCs"].ToString());
 
-                        // Update the date this update was approved (null if it hasn't)
-                        if (r["approvaldate"] == null)
+                        // Update the date this update was approved (null or empty if it hasn't)
+                        if (r["approvaldate"] == null || r["approvaldate"].ToString() == "")
                             gi.Approved = null;
                         else
                             gi.Approved = DateTime.Parse(r["approvaldate"].ToString());
@@ -826,7 +917,7 @@ namespace WSUSAdminAssistant
                 // Process child groups
                 foreach (PerGroupInformation gi in update.Groups)
                 {
-                    if (gi.GroupRule.parentcomputergroup.Id == gi.Group.Id)
+                    if (gi.GroupRule.parentcomputergroup != null && gi.GroupRule.parentcomputergroup.Id == group.Group.Id)
                         // Found child - process this group
                         ProcessChildGroup(update, group, gi);
                 }
@@ -836,16 +927,25 @@ namespace WSUSAdminAssistant
             {
                 // Has parent been approved?
                 if (parent.Approved.HasValue)
-                    // Yes.  Update to be approved at parent.Approved + group.updateinterval
+                    // Yes - Update to be approved at parent.Approved + group.updateinterval
                     group.Approvable = parent.Approved.Value.Add(group.GroupRule.updateinterval);
                 else
-                    // No.  Update to be approved at parent.Approvable + group.childupdateinterval
-                    group.Approvable = parent.Approvable.Value.Add(group.GroupRule.childupdateinterval);
-
+                    // No.  Is parent approvable at all?
+                    if (!parent.Approvable.HasValue)
+                        // Parent not approvable, therefore child not approvable
+                        group.Approvable = null;
+                    else
+                        // Yes - do any parent PCs require the update?
+                        if (parent.PCs.HasValue && parent.PCs > 0)
+                            // Yes - this update may not be approved until it is approved for the parent group
+                            group.Approvable = null;
+                        else
+                            // No - update to be approved at parent.Approvable + group.childupdateinterval
+                            group.Approvable = parent.Approvable.Value.Add(group.GroupRule.childupdateinterval);
                 // Recursively process child groups
                 foreach (PerGroupInformation gi in update.Groups)
                 {
-                    if (gi.GroupRule.parentcomputergroup.Id == gi.Group.Id)
+                    if (gi.GroupRule.parentcomputergroup != null && gi.GroupRule.parentcomputergroup.Id == group.Group.Id)
                         // Found child - process this group
                         ProcessChildGroup(update, group, gi);
                 }
