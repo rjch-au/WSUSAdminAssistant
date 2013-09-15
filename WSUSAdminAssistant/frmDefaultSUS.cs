@@ -12,11 +12,13 @@ namespace WSUSAdminAssistant
 {
     public partial class frmDefaultSUS : Form
     {
-        private clsConfig cfg = new clsConfig();
+        private clsConfig cfg;
 
-        public frmDefaultSUS()
+        public frmDefaultSUS(clsConfig cfgobject)
         {
             InitializeComponent();
+
+            cfg = cfgobject;
 
             // Add each default GUID from the existing configuration
             foreach (string s in cfg.DefaultSusIDCollection)

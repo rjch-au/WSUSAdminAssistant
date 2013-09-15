@@ -11,11 +11,13 @@ namespace WSUSAdminAssistant
 {
     public partial class frmPreferences : Form
     {
-        private clsConfig cfg = new clsConfig();
+        private clsConfig cfg;
 
-        public frmPreferences()
+        public frmPreferences(clsConfig cfgobject)
         {
             InitializeComponent();
+
+            cfg = cfgobject;
 
             // Populate form
             txtPSExec.Text = cfg.PSExecPath;

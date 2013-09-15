@@ -15,7 +15,7 @@ namespace WSUSAdminAssistant
     ////////////////////////////////////////////////////////////////////////////////////
     /// Define some easily read task conditions
     //
-    enum TaskStatus
+    public enum TaskStatus
     {
         New,
         Queued,
@@ -30,7 +30,7 @@ namespace WSUSAdminAssistant
     ////////////////////////////////////////////////////////////////////////////////////
     // Class describing a single task
     //
-    class Task : INotifyPropertyChanged
+    public class Task : INotifyPropertyChanged
     {
         public Task()
         {
@@ -125,11 +125,15 @@ namespace WSUSAdminAssistant
     ////////////////////////////////////////////////////////////////////////////////////
     // Class that contains and processes a list of tasks
     //
-    class TaskCollection
+    public class TaskCollection
     {
         // Class initialisation
-        public TaskCollection()
+        private clsConfig cfg;
+
+        public TaskCollection(clsConfig cfgobject)
         {
+            cfg = cfgobject;
+
             // Kick off the background worker
             wrkTaskManager.DoWork += wrkTaskManager_DoWork;
             wrkTaskManager.RunWorkerCompleted += wrkTaskManager_RunWorkerCompleted;
@@ -147,7 +151,6 @@ namespace WSUSAdminAssistant
         // Private class properties and methods
         private BackgroundWorker wrkTaskManager = new BackgroundWorker();
         private int _taskidcounter = 0;
-        private clsConfig cfg = new clsConfig();
 
         // Public properties and methods
         public BindingList<Task> Tasks = new BindingList<Task>();

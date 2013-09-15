@@ -13,24 +13,28 @@ namespace WSUSAdminAssistant
 {
     public partial class frmGroupUpdateRules : Form
     {
-        private clsConfig cfg = new clsConfig();
-        private clsWSUS wsus = new clsWSUS();
+        private clsConfig cfg;
+        private clsWSUS wsus;
 
         private clsConfig.GroupUpdateRuleCollection grouprules;
         private ComputerTargetGroupCollection gc;
         private List<string> groupnames;
 
         private TreeNode root;
-        
-        public frmGroupUpdateRules()
+        private int minheight;
+
+        public frmGroupUpdateRules(clsConfig cfgobject, clsWSUS wsusobject)
         {
             // Let the user know something is happening
             Cursor.Current = Cursors.WaitCursor;
 
             InitializeComponent();
 
+            cfg = cfgobject;
+            wsus = wsusobject;
+
             // Get list of computer groups and sort it.
-            gc = wsus.computergroups;
+            gc = wsus.ComputerGroups;
             groupnames = new List<string>();
 
             foreach (IComputerTargetGroup tg in gc) groupnames.Add(tg.Name);
@@ -53,9 +57,11 @@ namespace WSUSAdminAssistant
             this.Left = 10;
             this.Width = scr.Width - 20;
 
+            // Note the current height of the form - this will be the minimum height of the form
+            minheight = this.Height;
+
             // Finished - reset cursor to normal
             Cursor.Current = Cursors.Arrow;
-
         }
 
         private string TimeSpanReadable(TimeSpan ts)
@@ -138,10 +144,10 @@ namespace WSUSAdminAssistant
 
                     if (gu.parentcomputergroup == null)
                         // Child of root node
-                        nodedesc = gu.computergroup.Name + " (display order " + gu.displayorder.ToString() + "), updates approvable " + TimeSpanReadable(gu.updateinterval) + " after being received by root WSUS server";
+                        nodedesc = gu.computergroup.Name + ": short name \"" + gu.shortname + "\", display order " + gu.displayorder.ToString() + ", sort weight " + gu.sortweight.ToString() + ", updates approvable " + TimeSpanReadable(gu.updateinterval) + " after being received by root WSUS server";
                     else
                         // Child of another group
-                        nodedesc = gu.computergroup.Name + " (display order " + gu.displayorder.ToString() + "), updates approvable " + TimeSpanReadable(gu.updateinterval) +
+                        nodedesc = gu.computergroup.Name + ": short name \"" + gu.shortname + "\", display order " + gu.displayorder.ToString() + ", sort weight " + gu.sortweight.ToString() + ", updates approvable " + TimeSpanReadable(gu.updateinterval) +
                             " after being approved for " + gu.parentcomputergroup.Name + ", or " + TimeSpanReadable(gu.childupdateinterval) + " after updates for " +
                             gu.parentcomputergroup.Name + " were approvable if no computers in this group require the update";
 
@@ -215,6 +221,10 @@ namespace WSUSAdminAssistant
                 // Not a valid group name
                 ok = false;
 
+            if (txtShortName.Text == "")
+                // Short names can't be null
+                ok = false;
+
             if (cboParentGroup.Text != root.Text && !groupnames.Contains(cboParentGroup.Text))
                 // Not a valid parent group
                 ok = false;
@@ -238,6 +248,15 @@ namespace WSUSAdminAssistant
             ValidateInput();
         }
 
+        private void numSortWeight_ValueChanged(object sender, EventArgs e)
+        {
+            ValidateInput();
+        }
+
+        private void txtShortName_TextChanged(object sender, EventArgs e)
+        {
+            ValidateInput();
+        }
         private void cboParentInterval_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Reset maximum value of numeric box dependant on interval type
@@ -367,7 +386,7 @@ namespace WSUSAdminAssistant
         private IComputerTargetGroup FindComputerGroup(string groupname)
         {
             // Loop through all computer groups, looking for a matching group
-            foreach (IComputerTargetGroup tg in wsus.computergroups)
+            foreach (IComputerTargetGroup tg in wsus.ComputerGroups)
             {
                 if (tg.Name == groupname)
                     // Found group - return it
@@ -381,10 +400,13 @@ namespace WSUSAdminAssistant
         private void btnAdd_Click(object sender, EventArgs e)
         {
             // Try to convert to a group update rule object
-            clsConfig.GroupUpdateRule ur = new clsConfig.GroupUpdateRule();
+            clsConfig.GroupUpdateRule ur = new clsConfig.GroupUpdateRule(wsus);
 
             ur.displayorder = (int)numDisplayOrder.Value;
+            ur.sortweight = (int)numSortWeight.Value;
+
             ur.computergroup = FindComputerGroup(cboComputerGroup.Text);
+            ur.shortname = txtShortName.Text;
 
             // Parent group and intervals should be handled differently depending on whether the parent is the root or not
             if (cboParentGroup.Text == root.Text)
@@ -408,8 +430,11 @@ namespace WSUSAdminAssistant
             UpdateGroupUpdateRules();
 
             numDisplayOrder.Value = grouprules.MaxDisplayOrder + 1;
+            numSortWeight.Value = 0;
+
             cboComputerGroup.Enabled = true;
             cboComputerGroup.Text = "";
+            txtShortName.Text = "";
             cboParentGroup.Text = "";
 
             numParentInterval.Value = 1;
@@ -506,8 +531,10 @@ namespace WSUSAdminAssistant
 
             // Copy the information to the form
             numDisplayOrder.Value = ur.displayorder;
+            numSortWeight.Value = (decimal)ur.sortweight;
 
             cboComputerGroup.Text = ur.computergroup.Name;
+            txtShortName.Text = ur.shortname;
 
             // If we're dealing with a null parent, we only need set the parent computer group.  If not, we've got more information to load...
             if (ur.parentcomputergroup == null)
@@ -528,6 +555,9 @@ namespace WSUSAdminAssistant
         private void trvGroupRules_DoubleClick(object sender, EventArgs e)
         {
             btnEdit.PerformClick();
+
+            // Ensure the tree node is open when it's been double clicked
+            trvGroupRules.SelectedNode.Expand();
         }
 
         private void btnRemove_Click(object sender, EventArgs e)
@@ -546,6 +576,12 @@ namespace WSUSAdminAssistant
                 btnAdd.Text = "&Add";
             else
                 btnAdd.Text = "&Update";
+        }
+
+        private void frmGroupUpdateRules_Resize(object sender, EventArgs e)
+        {
+            // Enforce the minimum height of the control
+            if (this.Height < minheight) this.Height = minheight;
         }
     }
 }

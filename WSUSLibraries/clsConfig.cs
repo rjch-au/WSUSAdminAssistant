@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.IO;
@@ -37,7 +39,13 @@ namespace WSUSAdminAssistant
             if (reg == null)
                 // If the registry key doesn't already exist, create it.
                 reg = Registry.CurrentUser.CreateSubKey(regPath);
+
+            wsus = new clsWSUS(this);
         }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // WSUS related classes
+        public clsWSUS wsus;
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Useful private variables
@@ -990,15 +998,47 @@ namespace WSUSAdminAssistant
 
         public class GroupUpdateRule
         {
-            private clsWSUS wsus = new clsWSUS();
+            private clsWSUS wsus;
+
+            // This constructor is private so that we can serialize and and deserialize properly without exposing it for use within code
+            private GroupUpdateRule()
+            {
+                // Since no wsus object has been passed, null the wsus object so that GUIDs will be stored and loaded later
+                wsus = null;
+            }
+
+            public GroupUpdateRule(clsWSUS wsusobject)
+            {
+                wsus = wsusobject;
+            }
+
+            public void SetWSUSObject(clsWSUS wsusobject)
+            {
+                // Store the object for further use
+                wsus = wsusobject;
+
+                // Did we store any GUIDs for later update?
+                if (_storedgroupguid != null)
+                    // Re-set variable
+                    computergroupid = _storedgroupguid;
+
+                if (_storedparentguid != null)
+                    // Re-set variable
+                    parentcomputergroupid = _storedparentguid;
+            }
 
             public int displayorder;                                        // Display order on Unapproved Updates grid
+            [DefaultValueAttribute(-1)] public int sortweight;              // Sort weight
+
             [XmlIgnore] public IComputerTargetGroup computergroup;
+            [DefaultValueAttribute("")] public string shortname;            // The short displayname for the group
             [XmlIgnore] public TimeSpan updateinterval;                     // The interval after the update is approved for the parent group (or after first being downloaded if no parent group) that updates should be approved for this group
             [XmlIgnore] public IComputerTargetGroup parentcomputergroup;    // Parent update group for update approval purposes.  Null if this is a first-release group
             [XmlIgnore] public TimeSpan childupdateinterval;                // The interval after which child computer groups may install updates if no computer within this group requires the update
 
             // Extra classes for serialization
+            [XmlIgnore] private string _storedgroupguid = null;
+
             [XmlElement]
             public string computergroupid
             {
@@ -1007,6 +1047,14 @@ namespace WSUSAdminAssistant
 
                 set
                 {
+                    // Do we have a wsus object to work with?
+                    if (wsus == null)
+                    {
+                        // Store guid temporarily so we can load details later
+                        _storedgroupguid = value;
+                        return;
+                    }
+
                     // Are we setting a null group?
                     if (value == "")
                     {
@@ -1016,7 +1064,7 @@ namespace WSUSAdminAssistant
                     else
                     {
                         // Loop through list of computer groups and find the one we reference
-                        foreach (IComputerTargetGroup g in wsus.computergroups)
+                        foreach (IComputerTargetGroup g in wsus.ComputerGroups)
                             if (g.Id.ToString() == value)
                             {
                                 // Found the right group - return it
@@ -1037,6 +1085,8 @@ namespace WSUSAdminAssistant
                 set { updateinterval = new TimeSpan(value); }
             }
 
+            [XmlIgnore] private string _storedparentguid = null;
+
             [XmlElement] public string parentcomputergroupid
             {
                 get
@@ -1049,6 +1099,14 @@ namespace WSUSAdminAssistant
 
                 set
                 {
+                    // Do we have a wsus object to work with?
+                    if (wsus == null)
+                    {
+                        // Store guid temporarily so we can load details later
+                        _storedparentguid = value;
+                        return;
+                    }
+
                     // Are we setting a null group?
                     if (value == "")
                     {
@@ -1059,7 +1117,7 @@ namespace WSUSAdminAssistant
                     else
                     {
                         // Loop through list of computer groups and find the one we reference
-                        foreach (IComputerTargetGroup g in wsus.computergroups)
+                        foreach (IComputerTargetGroup g in wsus.ComputerGroups)
                             if (g.Id.ToString() == value)
                             {
                                 // Found the right group - set it
@@ -1359,17 +1417,43 @@ namespace WSUSAdminAssistant
                 GroupUpdateRuleCollection c = new GroupUpdateRuleCollection();
                 XmlSerializer xs = new XmlSerializer(typeof(GroupUpdateRuleCollection));
                 c = (GroupUpdateRuleCollection)xs.Deserialize(fs);
+
+                // Apply appropriate defaults to any field that had no value in the XML file and apply WSUS object so group details can be loaded
+                foreach (GroupUpdateRule ur in c)
+                {
+                    ur.SetWSUSObject(wsus);
+
+                    if (ur.sortweight == -1) ur.sortweight = ur.displayorder;
+                    if (ur.shortname == null) ur.shortname = ur.computergroup.Name;
+                }
+
                 return c;
             }
         }
+
+        private GroupUpdateRuleCollection _groupupdaterules = null;
+        private DateTime _gurupdated = DateTime.MinValue;
 
         public GroupUpdateRuleCollection GroupUpdateRules
         {
             get
             {
+
+                // Check modified date of XML file
+                DateTime lastmod = File.GetLastWriteTime(GroupUpdateRulesXMLFile);
+
+                // Have the group update rules been updated since we last loaded it, or has it never been loaded?
+                if (_groupupdaterules != null && _gurupdated == lastmod)
+                    // Yes they have - return them.
+                    return _groupupdaterules;
+
+                // No they haven't - read them.
                 try
                 {
-                    return ReadComputerGroupRuleXML(GroupUpdateRulesXMLFile);
+                    _groupupdaterules = ReadComputerGroupRuleXML(GroupUpdateRulesXMLFile);
+                    _gurupdated = lastmod;
+
+                    return _groupupdaterules;
                 }
                 catch
                 {
@@ -1378,7 +1462,14 @@ namespace WSUSAdminAssistant
                 }
             }
 
-            set { WriteComputerGroupUpdateRulesXML(value, GroupUpdateRulesXMLFile); }
+            set
+            {
+                // Write XML file, update saved rules and last modified time
+                WriteComputerGroupUpdateRulesXML(value, GroupUpdateRulesXMLFile);
+
+                _gurupdated = File.GetLastWriteTime(GroupUpdateRulesXMLFile);
+                _groupupdaterules = value;
+            }
         }
     }
 }
