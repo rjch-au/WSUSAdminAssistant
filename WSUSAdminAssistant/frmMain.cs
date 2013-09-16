@@ -28,8 +28,10 @@ namespace WSUSAdminAssistant
         private DateTime lastupdate = Convert.ToDateTime("1970-01-01 00:00:00");
         private DateTime lastupdaterun = Convert.ToDateTime("1970-01-01 00:00:00");
 
-        // List of group columns added to grdUnapproved
+        // Various lists associated with computer groups in the Unapproved Updates grid
         private List<DataGridViewColumn> GroupColumns = new List<DataGridViewColumn>();
+        private List<ToolStripMenuItem> HideGroupMenuItems = new List<ToolStripMenuItem>();
+        private clsConfig.GroupUpdateRuleCollection ShowGroups = new clsConfig.GroupUpdateRuleCollection();
 
         // Flags to let update procedures know if we've forced an update, or cancelled an operation
         private bool forceUpdate = true;
@@ -48,6 +50,9 @@ namespace WSUSAdminAssistant
 
             // Initialise variables
             wsus = cfg.wsus;
+
+            // Build collection of groups to show
+            RebuildShowGroupsCollection();
         }
 
         private void timUpdateData_Tick(object sender, EventArgs e)
@@ -81,6 +86,9 @@ namespace WSUSAdminAssistant
         {
             parent.ResumeLayout();
             SendMessage(parent.Handle, WM_SETREDRAW, true, 0);
+
+            // Force redraw of control now
+            parent.Refresh();
         }
 
         private void UpdateEndpointFaults()
@@ -276,12 +284,15 @@ namespace WSUSAdminAssistant
                     gbxWorking.Visible = true;
                     this.Refresh();
 
-                    // Note the time of the last update
-                    lastupdate = clu;
+                    // Hide the Hide Groups menu (if it's open)
+                    mnuHideGroups.HideDropDown();
 
                     // Get unapproved updates currently pending
-                    clsWSUS.UnapprovedUpdates uuc = new clsWSUS.UnapprovedUpdates(cfg);
+                    clsWSUS.UnapprovedUpdates uuc = new clsWSUS.UnapprovedUpdates(cfg, ShowGroups);
                     uuc.UpdateUnapprovedUpdates();
+
+                    // Note the time of the last update
+                    lastupdate = clu;
 
                     // Reset forced update flag
                     forceUpdate = false;
@@ -300,11 +311,16 @@ namespace WSUSAdminAssistant
                         // Loop through all groups and ensure that the columns match
                         for (int i = 0; i < uuc.Groups.Count; i++)
                         {
-                            if (uuc.Groups[i].shortname != grdUnapproved.Columns[uaSortOrder.Index + i + 1].HeaderText)
+                            if (!cfg.HideGroups.Contains(uuc.Groups[i].computergroupid))
                             {
-                                // Header does not match
-                                groupschanged = true;
-                                break;
+                                // Only consider the group if it's not hidden
+
+                                if (uuc.Groups[i].shortname != grdUnapproved.Columns[uaSortOrder.Index + i + 1].HeaderText)
+                                {
+                                    // Header does not match
+                                    groupschanged = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -313,6 +329,7 @@ namespace WSUSAdminAssistant
                     {
                         // Remove old columns, but only if they've already been added
                         GroupColumns.Clear();
+                        HideGroupMenuItems.Clear();
 
                         if (grdUnapproved.Columns.Count > uaSortOrder.Index)
                         {
@@ -324,24 +341,48 @@ namespace WSUSAdminAssistant
                         // Add new columns
                         foreach (clsConfig.GroupUpdateRule ur in uuc.Groups)
                         {
-                            // Add column
-                            DataGridViewColumn c = new DataGridViewTextBoxColumn();
-                            c.Name = "uag" + ur.shortname.Replace(' ', '_');
-                            c.HeaderText = ur.shortname;
+                            // Add column if it's not excluded
+                            if (!cfg.HideGroups.Contains(ur.computergroupid))
+                            {
+                                DataGridViewColumn c = new DataGridViewTextBoxColumn();
+                                c.Name = "uag" + ur.shortname.Replace(' ', '_');
+                                c.HeaderText = ur.shortname;
 
-                            // Format the column appropriately
-                            c.Width = 55;
-                            c.Resizable = DataGridViewTriState.False;
-                            c.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                                // Format the column appropriately
+                                c.Width = 55;
+                                c.Resizable = DataGridViewTriState.False;
+                                c.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
-                            // Store the computer group object in the header - handy for when approving or unapproving updates
-                            c.Tag = ur.computergroup;
-                            
-                            GroupColumns.Add(c);
+                                // Store the computer group object in the header - handy for when approving or unapproving updates
+                                c.Tag = ur.computergroup;
+
+                                GroupColumns.Add(c);
+                            }
+                        }
+
+                        foreach (clsConfig.GroupUpdateRule ur in cfg.GroupUpdateRules)
+                        {
+                            // Construct menu items
+                            ToolStripMenuItem m = new ToolStripMenuItem();
+                            m.Text = ur.computergroup.Name;
+                            m.Tag = ur.computergroupid;
+                            m.DisplayStyle = ToolStripItemDisplayStyle.Text;
+
+                            // Item should be ticked (i.e. hidden) if it's in the list of computer groups
+                            m.Checked = cfg.HideGroups.Contains(ur.computergroupid);
+
+                            // Add event handler for when the menu item is clicked
+                            m.Click += mnuHideGroupItem_Click;
+
+                            HideGroupMenuItems.Add(m);
                         }
 
                         // Add columns to grdUnapproved
                         grdUnapproved.Columns.AddRange(GroupColumns.ToArray());
+
+                        // Add menu items
+                        mnuHideGroups.DropDownItems.Clear();
+                        mnuHideGroups.DropDownItems.AddRange(HideGroupMenuItems.ToArray());
                     }
 
                     // Loop through all rows and mark them as not updated
@@ -471,6 +512,43 @@ namespace WSUSAdminAssistant
             }
         }
 
+        void mnuHideGroupItem_Click(object sender, EventArgs e)
+        {
+            // Get the item that was clicked
+            ToolStripMenuItem i = (ToolStripMenuItem)sender;
+
+            // Reverse it's check
+            i.Checked = !i.Checked;
+
+            // Rebuild array of excluded groups
+            List<string> eg = new List<string>();
+
+            foreach (ToolStripMenuItem mi in HideGroupMenuItems)
+                if (mi.Checked)
+                    // If item is checked, it should be included in the list.  Item's tag will contain the GUID of the group
+                    eg.Add(mi.Tag.ToString());
+
+            cfg.HideGroups = eg;
+
+            // Rebuild collection of groups to show
+            RebuildShowGroupsCollection();
+
+            // Trip timer in 1 second, ensure list will update and re-show the Hide Groups menu (makes selecting/deselecting multiple groups easier)
+            timUpdateData.Interval = 1000;
+            forceUpdate = true;
+
+            mnuHideGroups.ShowDropDown();
+        }
+
+        private void RebuildShowGroupsCollection()
+        {
+            ShowGroups.Clear();
+
+            foreach (clsConfig.GroupUpdateRule ur in cfg.GroupUpdateRules)
+                if (!cfg.HideGroups.Contains(ur.computergroupid))
+                    // Group not in hide list - add it
+                    ShowGroups.Add(ur);
+        }
         private DataGridViewRow FindUnapprovedUpdateRow(string updateid)
         {
             // Loop through each row in the datagrid, looking for an appropriate row
