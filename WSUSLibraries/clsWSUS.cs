@@ -610,13 +610,13 @@ namespace WSUSAdminAssistant
             private clsConfig cfg;
 
             // Class initialisation.  List of groups will be saved at creation time.
-            public UnapprovedUpdates(clsConfig configobject)
+            public UnapprovedUpdates(clsConfig configobject, clsConfig.GroupUpdateRuleCollection grouprules)
             {
                 // Store the config object for use
                 cfg = configobject;
 
                 // Store the groups to be managed, sorting them by display order
-                groups = cfg.GroupUpdateRules;
+                groups = grouprules;
                 groups.SortByDisplayOrder();
             }
 
