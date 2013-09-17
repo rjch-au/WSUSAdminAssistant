@@ -609,14 +609,14 @@ namespace WSUSAdminAssistant
             private Dictionary<string, int> _dict = new Dictionary<string, int>();
             private clsConfig cfg;
 
-            // Class initialisation.  List of groups will be saved at creation time.
-            public UnapprovedUpdates(clsConfig configobject)
+            // Class initialisation.  List of groups is also to be passed
+            public UnapprovedUpdates(clsConfig configobject, clsConfig.GroupUpdateRuleCollection showgroups)
             {
                 // Store the config object for use
                 cfg = configobject;
 
                 // Store the groups to be managed, sorting them by display order
-                groups = cfg.GroupUpdateRules;
+                groups = showgroups;
                 groups.SortByDisplayOrder();
             }
 

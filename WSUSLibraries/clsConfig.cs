@@ -437,6 +437,30 @@ namespace WSUSAdminAssistant
             set { reg.SetValue("RunWithLocalCreds", Convert.ToInt32(value), RegistryValueKind.DWord); }
         }
 
+        private DateTime _hidegroupslastread = DateTime.MinValue;
+        private List<string> _hidegroups = null;
+
+        public List<string> HideGroups
+        {
+            get
+            {
+                // If object is not null and has been read in the last 10 seconds, return the stored list
+                if (_hidegroups != null && DateTime.Now.Subtract(_hidegroupslastread).TotalSeconds < 10)
+                    return _hidegroups;
+
+                object o = reg.GetValue("HideGroups");
+
+                if (o == null)
+                    _hidegroups = new List<string>();
+                else
+                    _hidegroups = new List<string>((string[])o);
+
+                return _hidegroups;
+            }
+
+            set { reg.SetValue("HideGroups", value.ToArray(), RegistryValueKind.MultiString); }
+        }
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Default SUD ID methods
         public string[] DefaultSusIDCollection
