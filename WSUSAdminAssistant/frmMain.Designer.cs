@@ -121,6 +121,7 @@
             this.mnuUtilities = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuSUSWatcher = new System.Windows.Forms.ToolStripMenuItem();
             this.tabAdminType = new System.Windows.Forms.TabControl();
+            this.mnuHideGroups = new System.Windows.Forms.ToolStripDropDownButton();
             this.gbxWorking.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picReloading)).BeginInit();
             this.cmEndpoint.SuspendLayout();
@@ -807,7 +808,8 @@
             this.btnUAApprove,
             this.btnUADecline,
             this.btnUACancel,
-            this.lblUpdatesToApprove});
+            this.lblUpdatesToApprove,
+            this.mnuHideGroups});
             this.tlsUnapproved.Location = new System.Drawing.Point(3, 3);
             this.tlsUnapproved.Name = "tlsUnapproved";
             this.tlsUnapproved.Size = new System.Drawing.Size(1032, 25);
@@ -1009,6 +1011,15 @@
             this.tabAdminType.TabIndex = 0;
             this.tabAdminType.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabAdminType_Selecting);
             // 
+            // mnuHideGroups
+            // 
+            this.mnuHideGroups.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.mnuHideGroups.Image = ((System.Drawing.Image)(resources.GetObject("mnuHideGroups.Image")));
+            this.mnuHideGroups.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.mnuHideGroups.Name = "mnuHideGroups";
+            this.mnuHideGroups.Size = new System.Drawing.Size(86, 22);
+            this.mnuHideGroups.Text = "&Hide Groups";
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1151,6 +1162,7 @@
         private System.Windows.Forms.ToolStripMenuItem mnuUtilities;
         private System.Windows.Forms.ToolStripMenuItem mnuSUSWatcher;
         private System.Windows.Forms.TabControl tabAdminType;
+        private System.Windows.Forms.ToolStripDropDownButton mnuHideGroups;
     }
 }
 
