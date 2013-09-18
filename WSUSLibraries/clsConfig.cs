@@ -437,28 +437,39 @@ namespace WSUSAdminAssistant
             set { reg.SetValue("RunWithLocalCreds", Convert.ToInt32(value), RegistryValueKind.DWord); }
         }
 
-        private DateTime _hidegroupslastread = DateTime.MinValue;
         private List<string> _hidegroups = null;
+        private DateTime _hgupdated = DateTime.MinValue;
 
         public List<string> HideGroups
         {
             get
             {
-                // If object is not null and has been read in the last 10 seconds, return the stored list
-                if (_hidegroups != null && DateTime.Now.Subtract(_hidegroupslastread).TotalSeconds < 10)
+                // If we've already retrieved a copy of the hidden groups in the last 10 seconds, just return that object
+                if (_hidegroups != null && DateTime.Now.Subtract(_hgupdated).TotalSeconds < 10)
                     return _hidegroups;
 
+                // Retrieve a copy of the hidden groups from the registry
                 object o = reg.GetValue("HideGroups");
 
                 if (o == null)
+                    // Nothing stored in the registry - return an empty collection
                     _hidegroups = new List<string>();
                 else
+                    // Convert returned object to a List<string>
                     _hidegroups = new List<string>((string[])o);
 
+                // Note time and return hidden groups
+                _hgupdated = DateTime.Now;
                 return _hidegroups;
             }
 
-            set { reg.SetValue("HideGroups", value.ToArray(), RegistryValueKind.MultiString); }
+            set
+            {
+                // Set registry and update cached values
+                reg.SetValue("HideGroups", value.ToArray(), RegistryValueKind.MultiString);
+                _hidegroups = value;
+                _hgupdated = DateTime.Now;
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
