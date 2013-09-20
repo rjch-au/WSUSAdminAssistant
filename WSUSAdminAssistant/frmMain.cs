@@ -108,9 +108,7 @@ namespace WSUSAdminAssistant
 
                     // Tag all rows as not having been updated...
                     foreach (DataGridViewRow r in grdEndpoints.Rows)
-                    {
                         r.Cells["epUpdate"].Value = "N";
-                    }
 
                     // Check which update types should be displayed and update those that need it.
                     if (butApproved.Checked) EndpointUpdateApproved();

@@ -474,10 +474,33 @@ namespace WSUSAdminAssistant
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Default SUD ID methods
+        private string[] _susids = null;
+        private DateTime _susupdated = DateTime.MinValue;
+
         public string[] DefaultSusIDCollection
         {
-            get { return ReadSusIdXML(this.SusIdXmlFile); }
-            set { WriteSusIdXML(value, this.SusIdXmlFile); }
+            get
+            {
+                // Check modified date of XML file
+                DateTime lastmod = File.GetLastWriteTime(SusIdXmlFile);
+
+                // Have the group update rules been updated since we last loaded it, or has it never been loaded?
+                if (_susids != null && _susupdated == lastmod)
+                    // Yes they have - return them.
+                    return _susids;
+
+                _susids = ReadSusIdXML(this.SusIdXmlFile);
+                _susupdated = DateTime.Now;
+
+                return _susids;
+            }
+
+            set
+            {
+                WriteSusIdXML(value, this.SusIdXmlFile);
+                _susids = value;
+                _susupdated = DateTime.Now;
+            }
         }
 
         public string SusIdXmlFile
@@ -489,14 +512,12 @@ namespace WSUSAdminAssistant
 
                 if (o == null)
                 {
-                    xmlpath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                    xmlpath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WSUSAdminAssistant\\DefaultSusIds.xml");
                 }
                 else
                 {
                     xmlpath = (string)o;
                 }
-
-                xmlpath = Path.Combine(xmlpath, "WSUSAdminAssistant\\DefaultSusIds.xml");
 
                 // Check if XML file exists
                 if (File.Exists(xmlpath))
@@ -654,11 +675,9 @@ namespace WSUSAdminAssistant
                 string xmlpath;
 
                 if (o == null)
-                    xmlpath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                    xmlpath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WSUSAdminAssistant\\ComputerRegEx.xml");
                 else
                     xmlpath = (string)o;
-
-                xmlpath = Path.Combine(xmlpath, "WSUSAdminAssistant\\ComputerRegEx.xml");
 
                 // Check if XML file exists
                 if (File.Exists(xmlpath))
@@ -712,19 +731,29 @@ namespace WSUSAdminAssistant
             }
         }
 
+        ComputerGroupRegexCollection _regexlist = null;
+        DateTime _upregex = DateTime.MinValue;
+
         public ComputerGroupRegexCollection ComputerRegExList
         {
             get
             {
-                ComputerGroupRegexCollection c;
+                // Check modified date of XML file
+                DateTime lastmod = File.GetLastWriteTime(ComputerRegExXMLFile);
+
+                // Have the group update rules been updated since we last loaded it, or has it never been loaded?
+                if (_regexlist != null && _upregex == lastmod)
+                    // Yes they have - return them.
+                    return _regexlist;
 
                 // Try and read the file
                 try
                 {
-                    c = ReadComputerRegExXML(this.ComputerRegExXMLFile);
+                    _regexlist = ReadComputerRegExXML(this.ComputerRegExXMLFile);
 
                     // If we got here, it read correctly - return the collection
-                    return c;
+                    _upregex = DateTime.Now;
+                    return _regexlist;
                 }
                 catch
                 {
@@ -733,7 +762,12 @@ namespace WSUSAdminAssistant
                 }
             }
 
-            set { WriteComputerRegExXML(value, this.ComputerRegExXMLFile); }
+            set
+            {
+                WriteComputerRegExXML(value, this.ComputerRegExXMLFile);
+                _regexlist = value;
+                _upregex = DateTime.Now;
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -946,11 +980,9 @@ namespace WSUSAdminAssistant
                 string xmlpath;
 
                 if (o == null)
-                    xmlpath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                    xmlpath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WSUSAdminAssistant\\CredentialXmlFile.xml");
                 else
                     xmlpath = (string)o;
-
-                xmlpath = Path.Combine(xmlpath, "WSUSAdminAssistant\\CredentialXmlFile.xml");
 
                 // Check if XML file exists
                 if (File.Exists(xmlpath))
@@ -1004,19 +1036,29 @@ namespace WSUSAdminAssistant
             }
         }
 
+        private CredentialCollection _credentials = null;
+        private DateTime _crupdated = DateTime.MinValue;
+
         public CredentialCollection CredentialList
         {
             get
             {
-                CredentialCollection c;
+                // Check modified date of XML file
+                DateTime lastmod = File.GetLastWriteTime(CredentialXmlFile);
+
+                // Have the group update rules been updated since we last loaded it, or has it never been loaded?
+                if (_credentials != null && _crupdated == lastmod)
+                    // Yes they have - return them.
+                    return _credentials;
 
                 // Try and read the file
                 try
                 {
-                    c = ReadCredentialXML(this.CredentialXmlFile);
+                    _credentials = ReadCredentialXML(this.CredentialXmlFile);
+                    _crupdated = DateTime.Now;
 
                     // If we got here, it read correctly - return the collection
-                    return c;
+                    return _credentials;
                 }
                 catch
                 {
@@ -1025,7 +1067,12 @@ namespace WSUSAdminAssistant
                 }
             }
 
-            set { WriteCredentialXML(value, this.CredentialXmlFile); }
+            set
+            {
+                WriteCredentialXML(value, this.CredentialXmlFile);
+                _credentials = value;
+                _crupdated = DateTime.Now;
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1398,11 +1445,9 @@ namespace WSUSAdminAssistant
                 string xmlpath;
 
                 if (o == null)
-                    xmlpath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                    xmlpath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WSUSAdminAssistant\\GroupUpdateRules.xml");
                 else
                     xmlpath = (string)o;
-
-                xmlpath = Path.Combine(xmlpath, "WSUSAdminAssistant\\GroupUpdateRules.xml");
 
                 // Check if XML file exists
                 if (File.Exists(xmlpath))
