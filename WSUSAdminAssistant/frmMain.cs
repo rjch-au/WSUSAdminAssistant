@@ -108,7 +108,7 @@ namespace WSUSAdminAssistant
 
                     // Tag all rows as not having been updated...
                     foreach (DataGridViewRow r in grdEndpoints.Rows)
-                        r.Cells["epUpdate"].Value = "N";
+                        r.Cells[epUpdate.Index].Value = "N";
 
                     // Check which update types should be displayed and update those that need it.
                     if (butApproved.Checked) EndpointUpdateApproved();
@@ -128,7 +128,7 @@ namespace WSUSAdminAssistant
 
                         foreach (DataGridViewRow r in grdEndpoints.Rows)
                         {
-                            if (r.Cells["epUpdate"].Value.ToString() == "N")
+                            if (r.Cells[epUpdate.Index].Value.ToString() == "N")
                             {
                                 grdEndpoints.Rows.Remove(r);
                                 removed = true;
@@ -139,7 +139,7 @@ namespace WSUSAdminAssistant
             }
 
             // Sort the datagrid
-            grdEndpoints.Sort(grdEndpoints.Columns["epIP"], ListSortDirection.Ascending);
+            grdEndpoints.Sort(grdEndpoints.Columns[epIP.Index], ListSortDirection.Ascending);
 
             // Alternate the row's background colour to make viewing easier - only inverting when a new PC is found
             string prevrow = "zzzzz";
@@ -147,10 +147,10 @@ namespace WSUSAdminAssistant
 
             foreach (DataGridViewRow r in grdEndpoints.Rows)
             {
-                if (r.Cells["epIP"].Value.ToString() != prevrow)
+                if (r.Cells[epIP.Index].Value.ToString() != prevrow)
                 {
                     reverse = !reverse;
-                    prevrow = r.Cells["epIP"].Value.ToString();
+                    prevrow = r.Cells[epIP.Index].Value.ToString();
                 }
 
                 if (reverse)
@@ -181,7 +181,7 @@ namespace WSUSAdminAssistant
                     foreach (DataGridViewRow r in grdEndpoints.Rows)
                     {
                         // Has this machine ever been pinged?
-                        if (r.Cells["epPingUpdated"].Value == null || r.Cells["epPingUpdated"].Value.ToString() == "")
+                        if (r.Cells[epPingUpdated.Index].Value == null || r.Cells[epPingUpdated.Index].Value.ToString() == "")
                         {
                             // Nope, let's do this one...
                             rn = r.Index;
@@ -189,10 +189,10 @@ namespace WSUSAdminAssistant
                         }
 
                         // Yes.  Has it been pinged more than 30 seconds ago and longer ago than the last one found?
-                        if (long.Parse(r.Cells["epPingUpdated"].Value.ToString()) < lp && (DateTime.Now.Ticks - long.Parse(r.Cells["epPingUpdated"].Value.ToString())) > (30 * TimeSpan.TicksPerSecond))
+                        if (long.Parse(r.Cells[epPingUpdated.Index].Value.ToString()) < lp && (DateTime.Now.Ticks - long.Parse(r.Cells[epPingUpdated.Index].Value.ToString())) > (30 * TimeSpan.TicksPerSecond))
                         {
                             // Yep, make a note of it and keep going...
-                            lp = long.Parse(r.Cells["epPingUpdated"].Value.ToString());
+                            lp = long.Parse(r.Cells[epPingUpdated.Index].Value.ToString());
                             rn = r.Index;
                         }
                     }
@@ -221,7 +221,7 @@ namespace WSUSAdminAssistant
                 PingReply pr;
                 string pingstatus;
 
-                pr = p.Send(r.Cells["epIP"].Value.ToString(), 1000);
+                pr = p.Send(r.Cells[epIP.Index].Value.ToString(), 1000);
 
                 if (pr.Status == IPStatus.Success)
                 {
@@ -235,10 +235,10 @@ namespace WSUSAdminAssistant
                 // Update all grid rows with this IP address
                 foreach (DataGridViewRow gr in grdEndpoints.Rows)
                 {
-                    if (gr.Cells["epIP"].Value.ToString() == r.Cells["epIP"].Value.ToString())
+                    if (gr.Cells[epIP.Index].Value.ToString() == r.Cells[epIP.Index].Value.ToString())
                     {
-                        gr.Cells["epPing"].Value = pingstatus;
-                        gr.Cells["epPingUpdated"].Value = DateTime.Now.Ticks;
+                        gr.Cells[epPing.Index].Value = pingstatus;
+                        gr.Cells[epPingUpdated.Index].Value = DateTime.Now.Ticks;
                     }
                 }
             }
@@ -249,7 +249,7 @@ namespace WSUSAdminAssistant
             }
 
             // Note time was last updated
-            r.Cells["epPingUpdated"].Value = DateTime.Now.Ticks;
+            r.Cells[epPingUpdated.Index].Value = DateTime.Now.Ticks;
         }
 
         private bool CheckDBConnection()
@@ -576,7 +576,7 @@ namespace WSUSAdminAssistant
 
                     foreach (DataGridViewRow dgr in grdEndpoints.Rows)
                     {
-                        if (dgr.Cells["epName"].Value.ToString() == dr["name"].ToString() && dgr.Cells["epFault"].Value.ToString() == "Not Assigned to a Group")
+                        if (dgr.Cells[epName.Index].Value.ToString() == dr["name"].ToString() && dgr.Cells[epFault.Index].Value.ToString() == "Not Assigned to a Group")
                         {
                             rn = dgr.Index;
                             break;
@@ -588,11 +588,11 @@ namespace WSUSAdminAssistant
 
                     DataGridViewRow r = grdEndpoints.Rows[rn];
 
-                    r.Cells["epName"].Value = dr["name"].ToString();
-                    r.Cells["epIP"].Value = dr["ipaddress"].ToString();
-                    r.Cells["epFault"].Value = "Not Assigned to a Group";
+                    r.Cells[epName.Index].Value = dr["name"].ToString();
+                    r.Cells[epIP.Index].Value = dr["ipaddress"].ToString();
+                    r.Cells[epFault.Index].Value = "Not Assigned to a Group";
 
-                    r.Cells["epUpdate"].Value = "Y";
+                    r.Cells[epUpdate.Index].Value = "Y";
                 }
             }
         }
@@ -614,7 +614,7 @@ namespace WSUSAdminAssistant
 
                 foreach (DataGridViewRow fr in grdEndpoints.Rows)
                 {
-                    if (fr.Cells["epName"].Value.ToString() == c.FullDomainName && fr.Cells["epFault"].Value.ToString() == "Not Communicating")
+                    if (fr.Cells[epName.Index].Value.ToString() == c.FullDomainName && fr.Cells[epFault.Index].Value.ToString() == "Not Communicating")
                     {
                         rn = fr.Index;
                         break;
@@ -626,13 +626,13 @@ namespace WSUSAdminAssistant
 
                 DataGridViewRow r = grdEndpoints.Rows[rn];
 
-                r.Cells["epName"].Value = c.FullDomainName;
-                r.Cells["epIP"].Value = c.IPAddress.ToString();
-                r.Cells["epLastServerContact"].Value = c.LastSyncTime.ToString("dd-MMM-yyyy h:mm");
-                r.Cells["epLastStatus"].Value = c.LastSyncResult;
-                r.Cells["epFault"].Value = "Not Communicating";
+                r.Cells[epName.Index].Value = c.FullDomainName;
+                r.Cells[epIP.Index].Value = c.IPAddress.ToString();
+                r.Cells[epLastContact.Index].Value = c.LastSyncTime.ToString("dd-MMM-yyyy h:mm");
+                r.Cells[epLastStatus.Index].Value = c.LastSyncResult;
+                r.Cells[epFault.Index].Value = "Not Communicating";
 
-                r.Cells["epUpdate"].Value = "Y";
+                r.Cells[epUpdate.Index].Value = "Y";
             }
         }
 
@@ -655,9 +655,9 @@ namespace WSUSAdminAssistant
                     int rn = grdWSUSNotCommunicting.Rows.Add();
                     DataGridViewRow r = grdWSUSNotCommunicting.Rows[rn];
 
-                    r.Cells["wnuServerName"].Value = s.FullDomainName;
-                    r.Cells["wnuLastSync"].Value = s.LastSyncTime.ToString("dd-MMM-yyyy h:mmtt");
-                    r.Cells["wnuLastRollup"].Value = s.LastRollupTime.ToString("dd-MMM-yyyy h:mmtt");
+                    r.Cells[wnuServerName.Index].Value = s.FullDomainName;
+                    r.Cells[wnuLastSync.Index].Value = s.LastSyncTime.ToString("dd-MMM-yyyy h:mmtt");
+                    r.Cells[wnuLastRollup.Index].Value = s.LastRollupTime.ToString("dd-MMM-yyyy h:mmtt");
                 }
             }
 
@@ -692,7 +692,7 @@ namespace WSUSAdminAssistant
 
                     foreach (DataGridViewRow dgr in grdEndpoints.Rows)
                     {
-                        if (dgr.Cells["epName"].Value.ToString() == c.FullDomainName.ToString() && dgr.Cells["epFault"].Value.ToString() == "Default SUS ID")
+                        if (dgr.Cells[epName.Index].Value.ToString() == c.FullDomainName.ToString() && dgr.Cells[epFault.Index].Value.ToString() == "Default SUS ID")
                         {
                             rn = dgr.Index;
                             break;
@@ -706,14 +706,14 @@ namespace WSUSAdminAssistant
                     DataGridViewRow r = grdEndpoints.Rows[rn];
 
                     // Fill in data grid
-                    r.Cells["epName"].Value = c.FullDomainName.ToString();
-                    r.Cells["epIP"].Value = c.IPAddress.ToString();
-                    r.Cells["epLastServerContact"].Value = c.LastReportedStatusTime.ToString("dd-MMM-yyyy h:mm");
-                    r.Cells["epLastStatus"].Value = c.LastSyncResult.ToString();
-                    r.Cells["epFault"].Value = "Default SUS ID";
+                    r.Cells[epName.Index].Value = c.FullDomainName.ToString();
+                    r.Cells[epIP.Index].Value = c.IPAddress.ToString();
+                    r.Cells[epLastContact.Index].Value = c.LastReportedStatusTime.ToString("dd-MMM-yyyy h:mm");
+                    r.Cells[epLastStatus.Index].Value = c.LastSyncResult.ToString();
+                    r.Cells[epFault.Index].Value = "Default SUS ID";
 
                     // Tag the row as updated
-                    r.Cells["epUpdate"].Value = "Y";
+                    r.Cells[epUpdate.Index].Value = "Y";
                 }
                 catch (WsusObjectNotFoundException)
                 {
@@ -756,7 +756,7 @@ namespace WSUSAdminAssistant
 
                             foreach (DataGridViewRow dgr in grdEndpoints.Rows)
                             {
-                                if (dgr.Cells["epName"].Value.ToString() == d["name"].ToString() && dgr.Cells["epFault"].Value.ToString() == "Incorrect Computer Group")
+                                if (dgr.Cells[epName.Index].Value.ToString() == d["name"].ToString() && dgr.Cells[epFault.Index].Value.ToString() == "Incorrect Computer Group")
                                 {
                                     rn = dgr.Index;
                                     break;
@@ -768,14 +768,14 @@ namespace WSUSAdminAssistant
 
                             DataGridViewRow r = grdEndpoints.Rows[rn];
 
-                            r.Cells["epName"].Value = d["name"].ToString();
-                            r.Cells["epIP"].Value = d["ipaddress"].ToString();
-                            r.Cells["epComputerGroup"].Value = rx.ComputerGroup;
-                            r.Cells["epComputerGroup"].ToolTipText = "Is currently in " + d["groupname"].ToString();
-                            r.Cells["epFault"].Value = "Incorrect Computer Group";
+                            r.Cells[epName.Index].Value = d["name"].ToString();
+                            r.Cells[epIP.Index].Value = d["ipaddress"].ToString();
+                            r.Cells[epComputerGroup.Index].Value = rx.ComputerGroup;
+                            r.Cells[epComputerGroup.Index].ToolTipText = "Is currently in " + d["groupname"].ToString();
+                            r.Cells[epFault.Index].Value = "Incorrect Computer Group";
 
                             // Tag the row as updated
-                            r.Cells["epUpdate"].Value = "Y";
+                            r.Cells[epUpdate.Index].Value = "Y";
                         }
                     }
                 }
@@ -798,7 +798,7 @@ namespace WSUSAdminAssistant
 
                     foreach (DataGridViewRow dgr in grdEndpoints.Rows)
                     {
-                        if (dgr.Cells["epName"].Value.ToString() == d["fulldomainname"].ToString() && dgr.Cells["epFault"].Value.ToString() == "Uninstalled Approved Updates")
+                        if (dgr.Cells[epName.Index].Value.ToString() == d["fulldomainname"].ToString() && dgr.Cells[epFault.Index].Value.ToString() == "Uninstalled Approved Updates")
                         {
                             rn = dgr.Index;
                             break;
@@ -811,14 +811,14 @@ namespace WSUSAdminAssistant
                     DataGridViewRow r = grdEndpoints.Rows[rn];
 
                     // Fill in data grid
-                    r.Cells["epName"].Value = d["fulldomainname"].ToString();
-                    r.Cells["epIP"].Value = d["ipaddress"].ToString();
-                    r.Cells["epApprovedUpdates"].Value = int.Parse(d["approvedupdates"].ToString());
-                    r.Cells["epLastServerContact"].Value = DateTime.Parse(d["lastsynctime"].ToString()).ToString("dd-MMM-yyyy h:mm");
-                    r.Cells["epFault"].Value = "Uninstalled Approved Updates";
+                    r.Cells[epName.Index].Value = d["fulldomainname"].ToString();
+                    r.Cells[epIP.Index].Value = d["ipaddress"].ToString();
+                    r.Cells[epApprovedUpdates.Index].Value = int.Parse(d["approvedupdates"].ToString());
+                    r.Cells[epLastContact.Index].Value = DateTime.Parse(d["lastsynctime"].ToString()).ToString("dd-MMM-yyyy h:mm");
+                    r.Cells[epFault.Index].Value = "Uninstalled Approved Updates";
 
                     // Tag the row as updated
-                    r.Cells["epUpdate"].Value = "Y";
+                    r.Cells[epUpdate.Index].Value = "Y";
                 }
             }
         }
@@ -839,7 +839,7 @@ namespace WSUSAdminAssistant
 
                     foreach (DataGridViewRow dgr in grdEndpoints.Rows)
                     {
-                        if (dgr.Cells["epName"].Value.ToString() == d["fulldomainname"].ToString() && dgr.Cells["epFault"].Value.ToString() == "Updates With Errors")
+                        if (dgr.Cells[epName.Index].Value.ToString() == d["fulldomainname"].ToString() && dgr.Cells[epFault.Index].Value.ToString() == "Updates With Errors")
                         {
                             rn = dgr.Index;
                             break;
@@ -852,14 +852,14 @@ namespace WSUSAdminAssistant
                     DataGridViewRow r = grdEndpoints.Rows[rn];
 
                     // Fill in data grid
-                    r.Cells["epName"].Value = d["fulldomainname"].ToString();
-                    r.Cells["epIP"].Value = d["ipaddress"].ToString();
-                    r.Cells["epUpdateErrors"].Value = int.Parse(d["updateerrors"].ToString());
-                    r.Cells["epLastServerContact"].Value = DateTime.Parse(d["lastsynctime"].ToString()).ToString("dd-MMM-yyyy h:mm");
-                    r.Cells["epFault"].Value = "Updates With Errors";
+                    r.Cells[epName.Index].Value = d["fulldomainname"].ToString();
+                    r.Cells[epIP.Index].Value = d["ipaddress"].ToString();
+                    r.Cells[epUpdateErrors.Index].Value = int.Parse(d["updateerrors"].ToString());
+                    r.Cells[epLastContact.Index].Value = DateTime.Parse(d["lastsynctime"].ToString()).ToString("dd-MMM-yyyy h:mm");
+                    r.Cells[epFault.Index].Value = "Updates With Errors";
 
                     // Tag the row as updated
-                    r.Cells["epUpdate"].Value = "Y";
+                    r.Cells[epUpdate.Index].Value = "Y";
                 }
             }
         }
@@ -880,10 +880,10 @@ namespace WSUSAdminAssistant
             {
                 DataGridViewRow r = grdSupercededUpdates.Rows[grdSupercededUpdates.Rows.Add()];
 
-                r.Cells["suUpdateName"].Value = d["defaulttitle"].ToString();
-                r.Cells["suUpdateID"].Value = d["updateid"].ToString();
+                r.Cells[suUpdateName.Index].Value = d["defaulttitle"].ToString();
+                r.Cells[suUpdateID.Index].Value = d["updateid"].ToString();
 
-                DataGridViewCheckBoxCell c = (DataGridViewCheckBoxCell)r.Cells["suSelect"];
+                DataGridViewCheckBoxCell c = (DataGridViewCheckBoxCell)r.Cells[suSelect.Index];
                 c.Value = false;
             }
 
@@ -1094,7 +1094,7 @@ namespace WSUSAdminAssistant
             // Check all items
             foreach (DataGridViewRow r in grdSupercededUpdates.Rows)
             {
-                DataGridViewCheckBoxCell c = (DataGridViewCheckBoxCell)r.Cells["suSelect"];
+                DataGridViewCheckBoxCell c = (DataGridViewCheckBoxCell)r.Cells[suSelect.Index];
                 c.Value = true;
             }
         }
@@ -1104,7 +1104,7 @@ namespace WSUSAdminAssistant
             // Uncheck all items
             foreach (DataGridViewRow r in grdSupercededUpdates.Rows)
             {
-                DataGridViewCheckBoxCell c = (DataGridViewCheckBoxCell)r.Cells["suSelect"];
+                DataGridViewCheckBoxCell c = (DataGridViewCheckBoxCell)r.Cells[suSelect.Index];
                 c.Value = false;
             }
         }
@@ -1117,7 +1117,7 @@ namespace WSUSAdminAssistant
                 DataGridViewRow r = grdSupercededUpdates.Rows[i];
 
                 // Is update checked?
-                if ((bool)r.Cells["suSelect"].Value == false)
+                if ((bool)r.Cells[suSelect.Index].Value == false)
                 {
                     // No, skip to the next update
                     i++;
@@ -1126,7 +1126,7 @@ namespace WSUSAdminAssistant
                 {
                     // Yes - decline update
                     UpdateRevisionId ur = new UpdateRevisionId();
-                    ur.UpdateId = new Guid(r.Cells["suUpdateID"].Value.ToString());
+                    ur.UpdateId = new Guid(r.Cells[suUpdateID.Index].Value.ToString());
                     IUpdate u = wsus.server.GetUpdate(ur);
 
                     u.Decline();
@@ -1247,12 +1247,12 @@ namespace WSUSAdminAssistant
             bool p1;
             bool p2;
 
-            if (r1.Cells["epPing"].Value == null || r1.Cells["epPing"].Value.ToString() == "" || r1.Cells["epPing"].Value.ToString() == "No Response")
+            if (r1.Cells[epPing.Index].Value == null || r1.Cells[epPing.Index].Value.ToString() == "" || r1.Cells[epPing.Index].Value.ToString() == "No Response")
                 p1 = false;
             else
                 p1 = true;
 
-            if (r2.Cells["epPing"].Value == null || r2.Cells["epPing"].Value.ToString() == "" || r2.Cells["epPing"].Value.ToString() == "No Response")
+            if (r2.Cells[epPing.Index].Value == null || r2.Cells[epPing.Index].Value.ToString() == "" || r2.Cells[epPing.Index].Value.ToString() == "No Response")
                 p2 = false;
             else
                 p2 = true;
@@ -1261,14 +1261,14 @@ namespace WSUSAdminAssistant
             if (p1 == p2)
             {
                 // If the two IPs are the same, sort by fault
-                if (r1.Cells["epIP"].Value.ToString() == r2.Cells["epIP"].Value.ToString())
+                if (r1.Cells[epIP.Index].Value.ToString() == r2.Cells[epIP.Index].Value.ToString())
                 {
-                    e.SortResult = System.String.Compare(r1.Cells["epFault"].Value.ToString(), r2.Cells["epFault"].Value.ToString());
+                    e.SortResult = System.String.Compare(r1.Cells[epFault.Index].Value.ToString(), r2.Cells[epFault.Index].Value.ToString());
                     e.Handled = true;
                 }
                 else
                 {
-                    e.SortResult = System.String.Compare(r1.Cells["epIP"].Value.ToString(), r2.Cells["epIP"].Value.ToString());
+                    e.SortResult = System.String.Compare(r1.Cells[epIP.Index].Value.ToString(), r2.Cells[epIP.Index].Value.ToString());
                     e.Handled = true;
                 }
             }
@@ -1344,7 +1344,7 @@ namespace WSUSAdminAssistant
             {
                 // Yes - save cell context, select cell and show pop-up menu
                 epcmRow = grdEndpoints.Rows[e.RowIndex];
-                epcmIPAddress = IPAddress.Parse(epcmRow.Cells["epIP"].Value.ToString());
+                epcmIPAddress = IPAddress.Parse(epcmRow.Cells[epIP.Index].Value.ToString());
                 epcmFullName = epcmRow.Cells[epName.Index].Value.ToString();
                 grdEndpoints.CurrentCell = grdEndpoints.Rows[e.RowIndex].Cells[e.ColumnIndex];
 
