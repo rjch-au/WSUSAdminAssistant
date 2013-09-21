@@ -996,10 +996,13 @@ namespace WSUSAdminAssistant
             tskID.DataPropertyName = "TaskID";
             tskStatus.DataPropertyName = "CurrentStatus";
             tskIP.DataPropertyName = "IPAddress";
-            tskCommand.DataPropertyName = "Command";
-            tskOutput.DataPropertyName = "Output";
             
+            tskCommand.DataPropertyName = "Command";
+            tskCommand.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
+            tskOutput.DataPropertyName = "Output";
             tskOutput.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
             grdEndpoints.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
             // Return cursor to normal
@@ -1385,29 +1388,29 @@ namespace WSUSAdminAssistant
             try
             {
                 // Stop the Windows Update service
-                Task stop = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "net stop wuauserv");
-                stop.TimeoutInterval = new TimeSpan(0, 1, 0);
-                stop.Status = TaskStatus.Queued;
+                Task resetsusid = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "net stop wuauserv");
+                
+                // Delete the three registry keys
+                resetsusid.AddCommand("REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v AccountDomainSid /f");
+                resetsusid.AddCommand("REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v PingID /f");
+                resetsusid.AddCommand("REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v SusClientId /f");
 
-                // Delete the three registry keys only if the service successfully stops
-                Task reg = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v AccountDomainSid /f");
-                reg.DependsOnTask = stop;
+                // Restart Windows Update service then wait for 5 seconds
+                resetsusid.AddCommand("net start wuauserv");
+                resetsusid.AddCommand("ping 127.0.0.1 -n 5 >nul");
 
-                reg = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v PingID /f");
-                reg.DependsOnTask = stop;
+                // Reset WSUS authorisation token and detect updates
+                resetsusid.AddCommand("wuauclt /resetauthorization");
+                resetsusid.AddCommand("ping 127.0.0.1 -n 2 >nul");
+                resetsusid.AddCommand("wuauclt /detectnow");
 
-                reg = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "REG DELETE \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\" /v SusClientId /f");
-                reg.DependsOnTask = stop;
+                // After 15 seconds, force client to report it's status to it's WSUS server
+                resetsusid.AddCommand("ping 127.0.0.1 -n 15 >nul");
+                resetsusid.AddCommand("wuauclt /reportnow");
 
-                Task start = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "net start wuauserv");
-                start.TimeoutInterval = new TimeSpan(0, 1, 0);
-                start.Status = TaskStatus.Queued;
-
-                Task wu = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /resetauthorization");
-                wu.DependsOnTask = start;
-
-                wu = tasks.AddTask(epcmIPAddress, epcmFullName, epcmCreds, "wuauclt /detectnow");
-                wu.DependsOnTask = start;
+                // Task should time out after 2 minutes
+                resetsusid.TimeoutInterval = new TimeSpan(0, 2, 0);
+                resetsusid.Status = TaskStatus.Queued;
             }
             catch (ConfigurationException ex)
             {

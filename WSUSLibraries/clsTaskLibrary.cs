@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -43,7 +44,7 @@ namespace WSUSAdminAssistant
 
         private int _TaskID;
         private TaskStatus _Status;
-        private string _Command;
+        private List<string> _Commands = new List<string>();
         private string _Output;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -101,10 +102,18 @@ namespace WSUSAdminAssistant
         public string IPAddress { get { return IP.ToString(); } }
 
         public clsConfig.SecurityCredential Credentials;
-        public string Command
+
+        public string Command { get { return string.Join(Environment.NewLine, _Commands.ToArray()); } }
+
+        public List<string> Commands
         {
-            get { return _Command; }
-            set { _Command = value; OnPropertyChanged("Command"); }
+            get { return _Commands; }
+        }
+
+        public void AddCommand(string command)
+        {
+            _Commands.Add(command);
+            OnPropertyChanged("Command");
         }
 
         public string Output
@@ -179,7 +188,7 @@ namespace WSUSAdminAssistant
             t.IP = ip;
             t.Credentials = credentials;
             t.Computer = computername;
-            t.Command = command;
+            t.AddCommand(command);
 
             // Add the task to the list and return it
             this.Tasks.Add(t);
@@ -267,8 +276,25 @@ namespace WSUSAdminAssistant
                             param += " -p " + t.Credentials.password + " ";
                         }
 
-                        // Add command to execute
-                        param += t.Command;
+                        string batchfile = null;
+
+                        // How many commands do we have to run?
+                        if (t.Commands.Count == 1)
+                            // Only one command.  This can be run directly by PSExec
+                            param += t.Commands[0];
+                        else
+                        {
+                            // Multiple commands.  Build a batch file
+                            batchfile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".bat");
+
+                            // Turn echo off in the batch file.  Output comes in an illocical order otherwise.
+                            List<string> batch = new List<string>(t.Commands);
+                            batch.Insert(0, "@echo off");
+
+                            // Write batch file and add it to the 
+                            File.WriteAllLines(batchfile, batch);
+                            param += "-c " + batchfile;
+                        }
 
                         // Trigger an event so other code can take action it may want to
                         ct.Send(new SendOrPostCallback((o) => { UpdateStatus(idx, TaskStatus.Running); }), null);
@@ -320,6 +346,20 @@ namespace WSUSAdminAssistant
 
                         } while (DateTime.Now.Subtract(t.TaskStarted) < t.TimeoutInterval && !psexec.HasExited);
 
+                        // If we created a batch file, delete it
+                        if (batchfile != null)
+                        {
+                            try
+                            {
+                                File.Delete(batchfile);
+                            }
+                            catch (Exception ex)
+                            {
+                                // If we can't delete the file, we can't delete the file.  It'll be caught by the next disk cleanup.  We can at least write something to the debug log.
+                                Debug.WriteLine("Unable to remove {0}: {1}", batchfile, ex.ToString());
+                            }
+                        }
+
                         // Did task complete
                         if (psexec.HasExited)
                         {
@@ -332,7 +372,7 @@ namespace WSUSAdminAssistant
                             // No, kill it and cancel all dependent tasks
                             psexec.Kill();
 
-           /****/                 ct.Send(delegate { this.UpdateStatus(idx, TaskStatus.TimedOut); }, null);
+                            ct.Send(delegate { this.UpdateStatus(idx, TaskStatus.TimedOut); }, null);
                             ct.Send(delegate { ProcessDependentTasks(t.TaskID, TaskStatus.TimedOut); }, null);
                         }
 
