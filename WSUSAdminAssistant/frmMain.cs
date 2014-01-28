@@ -1311,6 +1311,12 @@ namespace WSUSAdminAssistant
             f.ShowDialog();
         }
 
+        private void mnuIngoreGroups_Click(object sender, EventArgs e)
+        {
+            Form f = new frmIgnoreComputerGroups(cfg);
+            f.ShowDialog();
+        }
+
         private void mnuDefaultSusIDList_Click(object sender, EventArgs e)
         {
             Form f = new frmDefaultSUS(cfg);

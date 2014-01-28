@@ -82,6 +82,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="frmIgnoreComputerGroups.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmIgnoreComputerGroups.Designer.cs">
+      <DependentUpon>frmIgnoreComputerGroups.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmGroupUpdateRules.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,6 +132,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="frmIgnoreComputerGroups.resx">
+      <DependentUpon>frmIgnoreComputerGroups.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmComputerGroupRules.resx">
       <DependentUpon>frmComputerGroupRules.cs</DependentUpon>
     </EmbeddedResource>
