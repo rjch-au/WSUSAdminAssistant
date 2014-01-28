@@ -632,6 +632,11 @@ namespace WSUSAdminAssistant
                 r.Cells[epLastStatus.Index].Value = c.LastSyncResult;
                 r.Cells[epFault.Index].Value = "Not Communicating";
 
+                if (c.SyncsFromDownstreamServer)
+                    r.Cells[epDownstreamServer.Index].Value = c.GetParentServer().FullDomainName;
+                else
+                    r.Cells[epDownstreamServer.Index].Value = "Local";
+
                 r.Cells[epUpdate.Index].Value = "Y";
             }
         }
@@ -711,6 +716,11 @@ namespace WSUSAdminAssistant
                     r.Cells[epLastContact.Index].Value = c.LastReportedStatusTime.ToString("dd-MMM-yyyy h:mm");
                     r.Cells[epLastStatus.Index].Value = c.LastSyncResult.ToString();
                     r.Cells[epFault.Index].Value = "Default SUS ID";
+
+                    if (c.SyncsFromDownstreamServer)
+                        r.Cells[epDownstreamServer.Index].Value = c.GetParentServer().FullDomainName;
+                    else
+                        r.Cells[epDownstreamServer.Index].Value = "Local";
 
                     // Tag the row as updated
                     r.Cells[epUpdate.Index].Value = "Y";
@@ -944,9 +954,39 @@ namespace WSUSAdminAssistant
             // Let the user know something is happening
             Cursor.Current = Cursors.WaitCursor;
 
+            // Populate stats list
+            lvwStatus.Items.Add(new ListViewItem("SQL Server Connection:"));
+            lvwStatus.Items.Add(new ListViewItem("WSUS Server Connection:"));
+            lvwStatus.Items.Add(new ListViewItem(""));
+            lvwStatus.Items.Add(new ListViewItem("Total updates;"));
+            lvwStatus.Items.Add(new ListViewItem("Total computers:"));
+            lvwStatus.Items.Add(new ListViewItem("Computers requiring updates:"));
+            lvwStatus.Items.Add(new ListViewItem("Computers with update errors:"));
+            lvwStatus.Items.Add(new ListViewItem("Updates to download:"));
+
             // Link status items to WSUS class
-            lblSQLStatus.Text = wsus.dbStatus;
-            lblWSUSStatus.Text = wsus.wsusStatus;
+            lvwStatus.Items[0].SubItems.Add(wsus.dbStatus);
+            lvwStatus.Items[1].SubItems.Add(wsus.wsusStatus);
+
+            // Get some statistics from the WSUS server and populate the status list view
+            UpdateServerStatus ss = wsus.server.GetStatus(UpdateSources.All);
+            lvwStatus.Items[3].SubItems.Add(ss.UpdateCount.ToString());
+            lvwStatus.Items[3].SubItems.Add("(local server only)");
+            lvwStatus.Items[4].SubItems.Add(ss.ComputerTargetCount.ToString());
+            lvwStatus.Items[4].SubItems.Add("(local server only)");
+            lvwStatus.Items[5].SubItems.Add(ss.ComputerTargetsNeedingUpdatesCount.ToString());
+            lvwStatus.Items[5].SubItems.Add("(local server only)");
+            lvwStatus.Items[6].SubItems.Add(ss.ComputerTargetsWithUpdateErrorsCount.ToString());
+            lvwStatus.Items[6].SubItems.Add("(local server only)");
+            lvwStatus.Items[7].SubItems.Add(ss.UpdatesNeedingFilesCount.ToString());
+            lvwStatus.Items[7].SubItems.Add("(local server only)");
+
+            lvwStatus.Columns[0].Width = -1;
+            lvwStatus.Columns[1].Width = -1;
+            lvwStatus.Columns[2].Width = -1;
+
+            timUpdateStats.Enabled = true;
+            timUpdateStats.Interval = 60000;
 
             if (wsus.server != null)
                 ShowTabs(true);
@@ -961,9 +1001,8 @@ namespace WSUSAdminAssistant
             if (cfg.WindowState == FormWindowState.Normal.ToString()) this.WindowState = FormWindowState.Normal;
             if (cfg.WindowState == FormWindowState.Minimized.ToString()) this.WindowState = FormWindowState.Minimized;
 
-
             // Turn on timer if both SQL and WSUS are connected
-            if (lblSQLStatus.Text == "OK" && lblWSUSStatus.Text == "OK")
+            if (lvwStatus.Items[0].SubItems[1].Text == "OK" && lvwStatus.Items[1].SubItems[1].Text == "OK")
             {
                 timUpdateData.Interval = 500;
                 timUpdateData.Enabled = true;
@@ -1668,6 +1707,24 @@ namespace WSUSAdminAssistant
                 if (e.ColumnIndex <= uaSortOrder.Index)
                     c.Selected = false;
             }
+        }
+
+        private void timUpdateStats_Tick(object sender, EventArgs e)
+        {
+            // Get some statistics from the WSUS server and populate the status list view
+            UpdateServerStatus ss = wsus.server.GetStatus();
+
+            lvwStatus.Items[3].SubItems.Add(ss.UpdateCount.ToString());
+            lvwStatus.Items[4].SubItems.Add(ss.ComputerTargetCount.ToString());
+            lvwStatus.Items[5].SubItems.Add(ss.ComputerTargetsNeedingUpdatesCount.ToString());
+            lvwStatus.Items[6].SubItems.Add(ss.ComputerTargetsWithUpdateErrorsCount.ToString());
+            lvwStatus.Items[7].SubItems.Add(ss.UpdatesNeedingFilesCount.ToString());
+
+            // Reset timer for 60 seconds
+            timUpdateStats.Interval = 60000;
+            timUpdateStats.Enabled = true;
+
+            lvwStatus.Columns[1].Width = -1;
         }
     }
 }
