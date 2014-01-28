@@ -67,10 +67,21 @@ namespace WSUSAdminAssistant
         private void btnComputerRegEx_Click(object sender, EventArgs e)
         {
             OpenFileDialog of = new OpenFileDialog();
-            of.InitialDirectory = Path.GetDirectoryName(cfg.ComputerRegExXMLFile);
+
+            try
+            {
+                // Try to set initial directory
+                of.InitialDirectory = Path.GetDirectoryName(cfg.ComputerRegExXMLFile);
+            }
+            catch
+            {
+                // Set the default path if there's a problem
+                of.InitialDirectory = cfg.DefaultConfigDirectory;
+            }
+
+            of.Filter = "XML Files|ComputerRegEx.xml";
             of.CheckFileExists = true;
             of.CheckPathExists = true;
-            of.Filter = string.Format("XML Files|{0}", Path.GetFileName(cfg.ComputerRegExXMLFile));
             of.Title = "Select a location for the Computer Group Rules file";
             of.Multiselect = false;
 
@@ -87,11 +98,22 @@ namespace WSUSAdminAssistant
         private void btnCredentials_Click(object sender, EventArgs e)
         {
             OpenFileDialog of = new OpenFileDialog();
-            of.InitialDirectory = Path.GetDirectoryName(cfg.CredentialXmlFile);
+
+            try
+            {
+                // Try to set initial directory
+                of.InitialDirectory = Path.GetDirectoryName(cfg.CredentialXmlFile);
+            }
+            catch
+            {
+                // Set the default path if there's a problem
+                of.InitialDirectory = cfg.DefaultConfigDirectory;
+            }
+
+            of.Filter = "XML Files|CredentialXmlFile.xml";
             of.CheckFileExists = true;
             of.CheckPathExists = true;
-            of.Filter = string.Format("XML Files|{0}", Path.GetFileName(cfg.CredentialXmlFile));
-            of.Title = "Select a location for the Computer Group Rules file";
+            of.Title = "Select a location for the Computer Credentials file";
             of.Multiselect = false;
 
             DialogResult result = of.ShowDialog();
@@ -107,11 +129,22 @@ namespace WSUSAdminAssistant
         private void btnDefaultSUS_Click(object sender, EventArgs e)
         {
             OpenFileDialog of = new OpenFileDialog();
-            of.InitialDirectory = Path.GetDirectoryName(cfg.SusIdXmlFile);
+
+            try
+            {
+                // Try to set initial directory
+                of.InitialDirectory = Path.GetDirectoryName(cfg.SusIdXmlFile);
+            }
+            catch
+            {
+                // Set the default path if there's a problem
+                of.InitialDirectory = cfg.DefaultConfigDirectory;
+            }
+
+            of.Filter = "XML Files|DefaultSusIds.xml";
             of.CheckFileExists = true;
             of.CheckPathExists = true;
-            of.Filter = string.Format("XML Files|{0}", Path.GetFileName(cfg.SusIdXmlFile));
-            of.Title = "Select a location for the Computer Group Rules file";
+            of.Title = "Select a location for the Default SUS IDs file";
             of.Multiselect = false;
 
             DialogResult result = of.ShowDialog();
@@ -127,10 +160,21 @@ namespace WSUSAdminAssistant
         private void btnGroupUpdate_Click(object sender, EventArgs e)
         {
             OpenFileDialog of = new OpenFileDialog();
-            of.InitialDirectory = Path.GetDirectoryName(cfg.GroupUpdateRulesXMLFile);
+
+            try
+            {
+                // Try to set initial directory
+                of.InitialDirectory = Path.GetDirectoryName(cfg.GroupUpdateRulesXMLFile);
+            }
+            catch
+            {
+                // Set the default path if there's a problem
+                of.InitialDirectory = cfg.DefaultConfigDirectory;
+            }
+
+            of.Filter = "XML Files|GroupUpdateRules.xml";
             of.CheckFileExists = true;
             of.CheckPathExists = true;
-            of.Filter = string.Format("XML Files|{0}", Path.GetFileName(cfg.GroupUpdateRulesXMLFile));
             of.Title = "Select a location for the Computer Group Rules file";
             of.Multiselect = false;
 

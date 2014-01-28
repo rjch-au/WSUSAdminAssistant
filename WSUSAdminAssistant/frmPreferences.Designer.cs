@@ -107,6 +107,7 @@
             // 
             this.txtGroupUpdate.Location = new System.Drawing.Point(9, 113);
             this.txtGroupUpdate.Name = "txtGroupUpdate";
+            this.txtGroupUpdate.ReadOnly = true;
             this.txtGroupUpdate.Size = new System.Drawing.Size(418, 20);
             this.txtGroupUpdate.TabIndex = 5;
             // 
@@ -133,6 +134,7 @@
             // 
             this.txtDefaultSUS.Location = new System.Drawing.Point(9, 217);
             this.txtDefaultSUS.Name = "txtDefaultSUS";
+            this.txtDefaultSUS.ReadOnly = true;
             this.txtDefaultSUS.Size = new System.Drawing.Size(418, 20);
             this.txtDefaultSUS.TabIndex = 11;
             // 
@@ -159,6 +161,7 @@
             // 
             this.txtCredentials.Location = new System.Drawing.Point(9, 166);
             this.txtCredentials.Name = "txtCredentials";
+            this.txtCredentials.ReadOnly = true;
             this.txtCredentials.Size = new System.Drawing.Size(418, 20);
             this.txtCredentials.TabIndex = 8;
             // 
@@ -185,6 +188,7 @@
             // 
             this.txtComputerRegEx.Location = new System.Drawing.Point(9, 64);
             this.txtComputerRegEx.Name = "txtComputerRegEx";
+            this.txtComputerRegEx.ReadOnly = true;
             this.txtComputerRegEx.Size = new System.Drawing.Size(418, 20);
             this.txtComputerRegEx.TabIndex = 2;
             // 

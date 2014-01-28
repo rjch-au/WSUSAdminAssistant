@@ -8,6 +8,7 @@ using System.Linq;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -415,6 +416,11 @@ namespace WSUSAdminAssistant
             set { reg.SetValue("PSExecPath", value, RegistryValueKind.String); }
         }
 
+        public string DefaultConfigDirectory
+        {
+            get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WSUSAdminAssistant"); }
+        }
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Miscellaneous preferences
 
@@ -512,7 +518,7 @@ namespace WSUSAdminAssistant
 
                 if (o == null)
                 {
-                    xmlpath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WSUSAdminAssistant\\DefaultSusIds.xml");
+                    xmlpath = Path.Combine(this.DefaultConfigDirectory, "DefaultSusIds.xml");
                 }
                 else
                 {
@@ -577,7 +583,7 @@ namespace WSUSAdminAssistant
         // Computer Group Regex matching methods
         public class ComputerGroupRegEx
         {
-            public int Priority;
+            public int Priority = 0;
             public string ComputerNameRegex;
             public string IPRegex;
             public string ComputerGroup;
@@ -675,7 +681,7 @@ namespace WSUSAdminAssistant
                 string xmlpath;
 
                 if (o == null)
-                    xmlpath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WSUSAdminAssistant\\ComputerRegEx.xml");
+                    xmlpath = Path.Combine(this.DefaultConfigDirectory, "ComputerRegEx.xml");
                 else
                     xmlpath = (string)o;
 
@@ -980,7 +986,7 @@ namespace WSUSAdminAssistant
                 string xmlpath;
 
                 if (o == null)
-                    xmlpath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WSUSAdminAssistant\\CredentialXmlFile.xml");
+                    xmlpath = Path.Combine(this.DefaultConfigDirectory, "CredentialXmlFile.xml");
                 else
                     xmlpath = (string)o;
 
@@ -1074,6 +1080,57 @@ namespace WSUSAdminAssistant
                 _crupdated = DateTime.Now;
             }
         }
+
+
+        //// Function to obtain a login token for remote servers using different credentials
+        //private class LoginToken : IDisposable
+        //{
+        //    [System.Runtime.InteropServices.DllImport("advapi32.dll", SetLastError = true)]
+        //    static extern bool LogonUser(string pszUsername, string pszDomain, string pszPassword, int dwLogonType, int dwLogonProvider, ref IntPtr phToken);
+            
+        //    [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+        //    extern static bool CloseHandle(IntPtr handle);
+
+        //    public IntPtr Token = IntPtr.Zero;
+
+        //    public LoginToken(string username, string password, string domain)
+        //    {
+        //        const int LOGON32_PROVIDER_DEFAULT = 0;
+        //        const int LOGON32_LOGON_INTERACTIVE = 2;
+
+        //        bool loggedOn = LogonUser(username, domain, password, LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT, ref Token);
+
+        //        if (!loggedOn)
+        //        {
+        //            throw new UnauthorizedAccessException("Logon failed");
+        //        }
+
+        //        // Got our token
+        //    }
+
+        //    public void ReleaseLoginToken()
+        //    {
+        //        if (Token != IntPtr.Zero)
+        //            CloseHandle(Token);
+
+        //        Token = IntPtr.Zero;
+        //    }
+
+        //    public void Dispose()
+        //    {
+        //        Dispose(true);
+        //    }
+
+        //    public override void Dispose(bool disposing)
+        //    {
+        //        // Only clean up if we have a valid token and we're supposed to be doing it.
+        //        if (Token != IntPtr.Zero && disposing)
+        //        {
+        //            ReleaseLoginToken();
+        //            GC.SuppressFinalize(this);
+        //        }
+        //    }
+        //}
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // WSUS Computer Group Update Rules
@@ -1445,7 +1502,7 @@ namespace WSUSAdminAssistant
                 string xmlpath;
 
                 if (o == null)
-                    xmlpath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WSUSAdminAssistant\\GroupUpdateRules.xml");
+                    xmlpath = Path.Combine(this.DefaultConfigDirectory, "GroupUpdateRules.xml");
                 else
                     xmlpath = (string)o;
 
@@ -1518,9 +1575,19 @@ namespace WSUSAdminAssistant
         {
             get
             {
+                DateTime lastmod;
 
-                // Check modified date of XML file
-                DateTime lastmod = File.GetLastWriteTime(GroupUpdateRulesXMLFile);
+                // Does XML file exist?
+                if (File.Exists(GroupUpdateRulesXMLFile))
+                {
+                    // Yes, check modified date of XML file
+                    lastmod = File.GetLastWriteTime(GroupUpdateRulesXMLFile);
+                }
+                else
+                {
+                    // No, return bogus date to force reload
+                    lastmod = DateTime.MinValue;
+                }
 
                 // Have the group update rules been updated since we last loaded it, or has it never been loaded?
                 if (_groupupdaterules != null && _gurupdated == lastmod)
