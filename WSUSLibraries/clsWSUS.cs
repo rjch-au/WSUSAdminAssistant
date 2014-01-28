@@ -20,6 +20,7 @@ namespace WSUSAdminAssistant
 
         private SqlConnection sql = new SqlConnection();
 
+        #region SQLCommands
         private SqlCommand cmdUnapprovedUpdates = new SqlCommand();
         private string strUnapprovedUpdates = @"
             use SUSDB
@@ -153,6 +154,8 @@ namespace WSUSAdminAssistant
                 where issuperseded = 1 and isdeclined = 0
                 order by u.defaulttitle
             ");
+
+        #endregion
 
         // String properties to pass status messages back to form
         public string dbStatus { get; set; }

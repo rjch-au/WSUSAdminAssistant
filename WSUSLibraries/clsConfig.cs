@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
-
-using Microsoft.Win32;
 using Microsoft.UpdateServices.Administration;
+using Microsoft.UpdateServices.Administration.Internal;
+using Microsoft.Win32;
 
 namespace WSUSAdminAssistant
 {
@@ -1638,6 +1638,124 @@ namespace WSUSAdminAssistant
                 _gurupdated = File.GetLastWriteTime(GroupUpdateRulesXMLFile);
                 _groupupdaterules = value;
             }
+        }
+
+        #endregion
+
+        #region IgnoreComputerGroups
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Ignore Computer Groups methods
+        private string[] _ignoregroups = null;
+        private DateTime _ignoregroupsupdated = DateTime.MinValue;
+
+        public string[] IgnoreComputerGroupCollection
+        {
+            get
+            {
+                // Check modified date of XML file
+                DateTime lastmod = File.GetLastWriteTime(IgnoreGroupsXMLFile);
+
+                // Have the group update rules been updated since we last loaded it, or has it never been loaded?
+                if (_ignoregroups != null && _ignoregroupsupdated == lastmod)
+                    // Yes they have - return them.
+                    return _ignoregroups;
+
+                _ignoregroups = ReadIgnoreGroupsXML(this.IgnoreGroupsXMLFile);
+                _ignoregroupsupdated = DateTime.Now;
+
+                return _ignoregroups;
+            }
+
+            set
+            {
+                WriteIgnoreGroupsXML(value, this.IgnoreGroupsXMLFile);
+                _ignoregroups = value;
+                _ignoregroupsupdated = DateTime.Now;
+            }
+        }
+
+        public string IgnoreGroupsXMLFile
+        {
+            get
+            {
+                object o = reg.GetValue("IgnoreGroupsXMLFile");
+                string xmlpath;
+
+                if (o == null)
+                {
+                    xmlpath = Path.Combine(this.DefaultConfigDirectory, "IgnoreGroups.xml");
+                }
+                else
+                {
+                    xmlpath = (string)o;
+                }
+
+                // Check if XML file exists
+                if (File.Exists(xmlpath))
+                {
+                    // It exists - return path
+                    return xmlpath;
+                }
+                else
+                {
+                    // It doesn't exist - try to create it
+                    try
+                    {
+                        // Does the directory exist?
+                        if (!Directory.Exists(Path.GetDirectoryName(xmlpath)))
+                            // No it doesn't - try and create it
+                            Directory.CreateDirectory(Path.GetDirectoryName(xmlpath));
+
+                        WriteIgnoreGroupsXML(new string[0], xmlpath);
+
+                        // If we get here, it wrote successfully, so return the file
+                        return xmlpath;
+                    }
+                    catch
+                    {
+                        // Create failed - return no path
+                        return "";
+                    }
+                }
+            }
+
+            set { reg.SetValue("IgnoreGroupsXMLFile", value, RegistryValueKind.String); }
+        }
+
+        private void WriteIgnoreGroupsXML(string[] s, string file)
+        {
+            // Create XML file (overwriting it if it already exists)
+            using (FileStream fs = new FileStream(file, FileMode.Create))
+            {
+                XmlSerializer xs = new XmlSerializer(typeof(string[]));
+                xs.Serialize(fs, s);
+            }
+        }
+
+        private string[] ReadIgnoreGroupsXML(string file)
+        {
+            // Open the XML file and read the config.  Let the exceptions fly for other procedures to handle
+            using (FileStream fs = new FileStream(file, FileMode.Open))
+            {
+                string[] s;
+                XmlSerializer xs = new XmlSerializer(typeof(string[]));
+                s = (string[])xs.Deserialize(fs);
+                return s;
+            }
+        }
+
+        public bool ComputerInIgnoredGroup(IComputerTarget c)
+        {
+            foreach (IComputerTargetGroup g in c.GetComputerTargetGroups())
+            {
+                // Is this group in the list of ignored computer groups?
+                if (IgnoreComputerGroupCollection.Contains(g.Id.ToString()))
+                    // Yes
+                    return true;
+            }
+
+            // Computer is not in any of the ignored computer groups.
+            return false;
         }
 
         #endregion
