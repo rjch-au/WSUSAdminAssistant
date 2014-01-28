@@ -29,7 +29,7 @@ namespace WSUSAdminAssistant
             Summary = problemsummary;
         }
     }
-    
+
     public class clsConfig
     {
         public clsConfig()
@@ -53,6 +53,7 @@ namespace WSUSAdminAssistant
         private string regPath = @"Software\\WSUSAdminAssistant";
         private RegistryKey reg;
 
+        #region WSUSConfig
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // WSUS Configuration methods
         public string WSUSServer
@@ -92,7 +93,10 @@ namespace WSUSAdminAssistant
 
             set { reg.SetValue("WSUSSecureConnection", Convert.ToInt32(value), RegistryValueKind.DWord); }
         }
+        
+        #endregion
 
+        #region DatabaseConfig
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Database Configuration methods
         public string DBServer
@@ -231,7 +235,10 @@ namespace WSUSAdminAssistant
             else
                 return "database=" + this.DBDatabase + "; server=" + this.DBServer + ";" + "User ID=" + this.DBUsername + ";Password=" + this.DBPassword;
         }
+        
+        #endregion
 
+        #region UISettings
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // UI Settings methods
         public System.Drawing.Point WindowLocation
@@ -367,7 +374,10 @@ namespace WSUSAdminAssistant
             cryptoStream.Close();
             return Encoding.UTF8.GetString(plainTextBytes, 0, decryptedByteCount);
         }
-        
+
+        #endregion
+
+        #region HelperMethods
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Helper application methods
 
@@ -478,6 +488,9 @@ namespace WSUSAdminAssistant
             }
         }
 
+        #endregion
+
+        #region DefaultSUSID
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Default SUD ID methods
         private string[] _susids = null;
@@ -579,6 +592,9 @@ namespace WSUSAdminAssistant
             }
         }
 
+        #endregion
+
+        #region ComputerGroupRegex
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Computer Group Regex matching methods
         public class ComputerGroupRegEx
@@ -776,6 +792,9 @@ namespace WSUSAdminAssistant
             }
         }
 
+        #endregion
+
+        #region SecurityCredentials
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Security credential methods and classes
 
@@ -1081,7 +1100,6 @@ namespace WSUSAdminAssistant
             }
         }
 
-
         //// Function to obtain a login token for remote servers using different credentials
         //private class LoginToken : IDisposable
         //{
@@ -1132,6 +1150,9 @@ namespace WSUSAdminAssistant
         //    }
         //}
 
+        #endregion
+
+        #region WSUSComputerGroupRules
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // WSUS Computer Group Update Rules
 
@@ -1618,5 +1639,7 @@ namespace WSUSAdminAssistant
                 _groupupdaterules = value;
             }
         }
+
+        #endregion
     }
 }
