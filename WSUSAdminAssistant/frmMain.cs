@@ -969,16 +969,15 @@ namespace WSUSAdminAssistant
             lvwStatus.Items[1].SubItems.Add(wsus.wsusStatus);
 
             // Get some statistics from the WSUS server and populate the status list view
-            UpdateServerStatus ss = wsus.server.GetStatus(UpdateSources.All);
-            lvwStatus.Items[3].SubItems.Add(ss.UpdateCount.ToString());
+            lvwStatus.Items[3].SubItems.Add("");
             lvwStatus.Items[3].SubItems.Add("(local server only)");
-            lvwStatus.Items[4].SubItems.Add(ss.ComputerTargetCount.ToString());
+            lvwStatus.Items[4].SubItems.Add("");
             lvwStatus.Items[4].SubItems.Add("(local server only)");
-            lvwStatus.Items[5].SubItems.Add(ss.ComputerTargetsNeedingUpdatesCount.ToString());
+            lvwStatus.Items[5].SubItems.Add("");
             lvwStatus.Items[5].SubItems.Add("(local server only)");
-            lvwStatus.Items[6].SubItems.Add(ss.ComputerTargetsWithUpdateErrorsCount.ToString());
+            lvwStatus.Items[6].SubItems.Add("");
             lvwStatus.Items[6].SubItems.Add("(local server only)");
-            lvwStatus.Items[7].SubItems.Add(ss.UpdatesNeedingFilesCount.ToString());
+            lvwStatus.Items[7].SubItems.Add("");
             lvwStatus.Items[7].SubItems.Add("(local server only)");
 
             lvwStatus.Columns[0].Width = -1;
@@ -986,7 +985,7 @@ namespace WSUSAdminAssistant
             lvwStatus.Columns[2].Width = -1;
 
             timUpdateStats.Enabled = true;
-            timUpdateStats.Interval = 60000;
+            timUpdateStats.Interval = 500;
 
             if (wsus.server != null)
                 ShowTabs(true);
@@ -1711,18 +1710,27 @@ namespace WSUSAdminAssistant
 
         private void timUpdateStats_Tick(object sender, EventArgs e)
         {
-            // Get some statistics from the WSUS server and populate the status list view
-            UpdateServerStatus ss = wsus.server.GetStatus();
+            if (lvwStatus.Items[1].SubItems[1].Text == "OK")
+            {
+                // Get some statistics from the WSUS server and populate the status list view
+                UpdateServerStatus ss = wsus.server.GetStatus();
 
-            lvwStatus.Items[3].SubItems.Add(ss.UpdateCount.ToString());
-            lvwStatus.Items[4].SubItems.Add(ss.ComputerTargetCount.ToString());
-            lvwStatus.Items[5].SubItems.Add(ss.ComputerTargetsNeedingUpdatesCount.ToString());
-            lvwStatus.Items[6].SubItems.Add(ss.ComputerTargetsWithUpdateErrorsCount.ToString());
-            lvwStatus.Items[7].SubItems.Add(ss.UpdatesNeedingFilesCount.ToString());
+                lvwStatus.Items[3].SubItems[1].Text = ss.UpdateCount.ToString();
+                lvwStatus.Items[4].SubItems[1].Text = ss.ComputerTargetCount.ToString();
+                lvwStatus.Items[5].SubItems[1].Text = ss.ComputerTargetsNeedingUpdatesCount.ToString();
+                lvwStatus.Items[6].SubItems[1].Text = ss.ComputerTargetsWithUpdateErrorsCount.ToString();
+                lvwStatus.Items[7].SubItems[1].Text = ss.UpdatesNeedingFilesCount.ToString();
 
-            // Reset timer for 60 seconds
-            timUpdateStats.Interval = 60000;
-            timUpdateStats.Enabled = true;
+                // Reset timer for 5 seconds
+                timUpdateStats.Interval = 5000;
+                timUpdateStats.Enabled = true;
+            }
+            else
+            {
+                // Reset timer for 60 seconds
+                timUpdateStats.Interval = 60000;
+                timUpdateStats.Enabled = true;
+            }
 
             lvwStatus.Columns[1].Width = -1;
         }
