@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -19,6 +20,16 @@ namespace WSUSAdminAssistant
         private clsConfig cfg;
 
         private SqlConnection sql = new SqlConnection();
+
+        private void DebugOutput(string output, params object[] args)
+        {
+            Debug.WriteLine(DateTime.Now.ToString("h:mm:ss.ff ") + String.Format(output, args));
+        }
+
+        private void DebugOutput(string output)
+        {
+            Debug.WriteLine(DateTime.Now.ToString("h:mm:ss.ff ") + output);
+        }
 
         #region SQLCommands
         private SqlCommand cmdUnapprovedUpdates = new SqlCommand();
@@ -89,28 +100,30 @@ namespace WSUSAdminAssistant
 
         private SqlCommand cmdApprovedUpdates = new SqlCommand(@"
             use susdb
-            select fulldomainname, ipaddress, count(*) approvedupdates, max(lastsynctime) lastsynctime
+            select fulldomainname, ct.parentserverid, c.ipaddress, count(*) approvedupdates, max(c.lastsynctime) lastsynctime
             from tbupdatestatuspercomputer uc with (nolock)
             join tbcomputertarget c on c.targetid = uc.targetid
             join tbtargetintargetgroup g with (nolock) on g.targetid = c.targetid
             join tbupdate u with (nolock) on u.localupdateid = uc.localupdateid and ishidden = 0
             join PUBLIC_VIEWS.vUpdateApproval ua on ua.updateid = u.updateid and ua.computertargetgroupid = g.targetgroupid
             	and datediff(d, ua.creationdate, getdate()) > 5
+			join PUBLIC_VIEWS.vComputerTarget ct on ct.computertargetid = c.computerid
             where uc.summarizationstate = 2
-            group by fulldomainname, ipaddress
+            group by fulldomainname, ct.parentserverid, c.ipaddress
         ");
 
         private SqlCommand cmdUpdateErrors = new SqlCommand(@"
             use susdb
-            select fulldomainname, ipaddress, count(*) updateerrors, max(lastsynctime) lastsynctime
+            select c.fulldomainname, ct.parentserverid, c.ipaddress, count(*) updateerrors, max(c.lastsynctime) lastsynctime
             from tbupdatestatuspercomputer uc with (nolock)
             join tbcomputertarget c on c.targetid = uc.targetid
             join tbtargetintargetgroup g with (nolock) on g.targetid = c.targetid
             join tbupdate u with (nolock) on u.localupdateid = uc.localupdateid and ishidden = 0
             join PUBLIC_VIEWS.vUpdateApproval ua on ua.updateid = u.updateid and ua.computertargetgroupid = g.targetgroupid
             	and datediff(d, ua.creationdate, getdate()) > 5
+			join PUBLIC_VIEWS.vComputerTarget ct on ct.computertargetid = c.computerid
             where uc.summarizationstate = 5
-            group by fulldomainname, ipaddress
+            group by c.fulldomainname, ct.parentserverid, c.ipaddress
         ");
 
         private SqlCommand cmdLastUpdate = new SqlCommand(@"
@@ -127,7 +140,7 @@ namespace WSUSAdminAssistant
         private SqlCommand cmdUnassignedComputers = new SqlCommand(@"
             use susdb;
 
-            select c.name, c.ipaddress
+            select c.name, c.parentserverid, c.ipaddress
             from public_views.vcomputertarget c
             join public_views.vcomputergroupmembership cg on cg.computertargetid = c.computertargetid
             join public_views.vcomputertargetgroup g on g.computertargetgroupid = cg.computertargetgroupid and g.name = 'Unassigned Computers'
@@ -137,7 +150,7 @@ namespace WSUSAdminAssistant
         private SqlCommand cmdComputerGroups = new SqlCommand(@"
             use susdb
 
-            select c.name, c.ipaddress, cg.name groupname
+            select c.name, c.parentserverid, c.ipaddress, cg.name groupname
             from PUBLIC_VIEWS.vComputerTarget c
             join PUBLIC_VIEWS.vComputerGroupMembership cm on cm.computertargetid = c.computertargetid and cm.isexplicitmember = 1
             join PUBLIC_VIEWS.vComputerTargetGroup cg on cm.computertargetgroupid = cg.computertargetgroupid and cg.name not in ('Unassigned Computers', 'All Computers')
@@ -165,6 +178,7 @@ namespace WSUSAdminAssistant
 
         public IUpdateServer server = null;
 
+        // Computer Groups
         private ComputerTargetGroupCollection _computergroups = null;
         private DateTime _cgupdated = DateTime.MinValue;
 
@@ -172,9 +186,11 @@ namespace WSUSAdminAssistant
         {
             get
             {
-                // If we've never retreived computer groups, or they were updated less than 10 seconds ago, go get 'em
-                if (_computergroups == null || DateTime.Now.Subtract(_cgupdated).TotalSeconds > 10)
+                // If we've never retreived computer groups, or they were updated less than 20 seconds ago, go get 'em
+                if (_computergroups == null || DateTime.Now.Subtract(_cgupdated).TotalSeconds > 20)
                 {
+                    DebugOutput("Updating list of computer groups");
+
                     _computergroups = server.GetComputerTargetGroups();
                     _cgupdated = DateTime.Now;
                 }
@@ -183,6 +199,114 @@ namespace WSUSAdminAssistant
             }
         }
 
+        public IComputerTargetGroup ComputerGroup(Guid id)
+        {
+            // Loop through each Computer Group, looking for a matching ID
+            foreach (IComputerTargetGroup g in ComputerGroups)
+            {
+                if (g.Id == id)
+                    // Found one - return it.
+                    return g;
+            }
+
+            // No matching group found - return null.
+            return null;
+        }
+
+        public IComputerTargetGroup ComputerGroup(string name)
+        {
+            // Loop through each Computer Group, looking for a matching name
+            foreach (IComputerTargetGroup g in ComputerGroups)
+            {
+                if (g.Name == name)
+                    // Found one - return it.
+                    return g;
+            }
+
+            // No matching group found - return null.
+            return null;
+        }
+
+        // Downstream servers
+        private DownstreamServerCollection _downstreamservers = null;
+        private DateTime _dssupdated = DateTime.MinValue;
+
+        public DownstreamServerCollection DownstreamServers
+        {
+            get
+            {
+                // If we've never retreived computer groups, or they were updated less than 1 minute ago, go get 'em
+                if (_downstreamservers == null || DateTime.Now.Subtract(_dssupdated).TotalSeconds > 60)
+                {
+                    DebugOutput("Updating list of downstream servers");
+
+                    _downstreamservers = server.GetDownstreamServers();
+                    _dssupdated = DateTime.Now;
+                }
+
+                return _downstreamservers;
+            }
+        }
+
+        public string DownstreamServerNameByGuid(string id)
+        {
+            // Debug timing
+            DateTime t = DateTime.Now;
+
+            // If we've been passed a null object, we assume we're referring to the local server
+            if (id == null) return "Local";
+
+            // Convert id to Guid object
+            try
+            {
+                Guid gid = new Guid(id);
+
+                // Successful.  See if we can find the appropriate downstream server.
+                IDownstreamServer dss = this.DownstreamServer(gid);
+
+                if (dss == null)
+                    // Nope - return unknown.
+                    return "Unknown";
+                else
+                    // Yep - return server
+                    return dss.FullDomainName;
+            }
+            catch
+            {
+                // Couldn't convert object to a Guid - return unknown.
+                return "Unknown";
+            }
+        }
+
+        public IDownstreamServer DownstreamServer(Guid id)
+        {
+            // Loop through each Computer Group, looking for a matching ID
+            foreach (IDownstreamServer s in DownstreamServers)
+            {
+                if (s.Id == id)
+                    // Found one - return it.
+                    return s;
+            }
+
+            // No matching group found - return null.
+            return null;
+        }
+
+        public IDownstreamServer DownstreamServer(string name)
+        {
+            // Loop through each Computer Group, looking for a matching ID
+            foreach (IDownstreamServer s in DownstreamServers)
+            {
+                if (s.FullDomainName == name)
+                    // Found one - return it.
+                    return s;
+            }
+
+            // No matching group found - return null.
+            return null;
+        }
+
+        // Database connection check
         public bool CheckDBConnection()
         {
             // Check connection state to ensure it's open.

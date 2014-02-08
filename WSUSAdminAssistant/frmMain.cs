@@ -55,6 +55,17 @@ namespace WSUSAdminAssistant
             RebuildShowGroupsCollection();
         }
 
+        // Provide an easy and consistent way of outputting debugging information
+        private void DebugOutput(string output, params object[] args)
+        {
+            Debug.WriteLine(DateTime.Now.ToString("h:mm:ss.ff ") + String.Format(output, args));
+        }
+
+        private void DebugOutput(string output)
+        {
+            Debug.WriteLine(DateTime.Now.ToString("h:mm:ss.ff ") + output);
+        }
+
         private void timUpdateData_Tick(object sender, EventArgs e)
         {
             // Disable timer until it's been processed fully
@@ -436,7 +447,7 @@ namespace WSUSAdminAssistant
                                 if (c == null)
                                 {
                                     // Couldn't find cell - print some debugging information
-                                    Debug.WriteLine("Couldn't find DataGridViewCell for group {0} ({1})", gi.GroupRule.shortname, "uag" + gi.GroupRule.shortname.Replace(' ', '_'));
+                                    DebugOutput("Couldn't find DataGridViewCell for group {0} ({1})", gi.GroupRule.shortname, "uag" + gi.GroupRule.shortname.Replace(' ', '_'));
                                     break;
                                 }
 
@@ -591,6 +602,11 @@ namespace WSUSAdminAssistant
                     r.Cells[epName.Index].Value = dr["name"].ToString();
                     r.Cells[epIP.Index].Value = dr["ipaddress"].ToString();
                     r.Cells[epFault.Index].Value = "Not Assigned to a Group";
+
+                    if (dr["parentserverid"] == null)
+                        r.Cells[epDownstreamServer.Index].Value = "Local";
+                    else
+                        r.Cells[epDownstreamServer.Index].Value = wsus.DownstreamServerNameByGuid(dr["parentserverid"].ToString());
 
                     r.Cells[epUpdate.Index].Value = "Y";
                 }
@@ -753,10 +769,7 @@ namespace WSUSAdminAssistant
                     // Do we have a match?
                     if (rx != null)
                     {
-                        // Yes - retreive the computer's group
-                        Debug.WriteLine(DateTime.Now.ToString("h:mm:ss.ff ") + d["name"].ToString() + ": Retreiving group information");
-
-                        // Does it match the computer group we have?
+                        // Yes - does it match the computer group we have?
                         if (d["groupname"].ToString() != rx.ComputerGroup)
                         {
                             // No - add it.
@@ -783,6 +796,11 @@ namespace WSUSAdminAssistant
                             r.Cells[epComputerGroup.Index].Value = rx.ComputerGroup;
                             r.Cells[epComputerGroup.Index].ToolTipText = "Is currently in " + d["groupname"].ToString();
                             r.Cells[epFault.Index].Value = "Incorrect Computer Group";
+
+                            if (d["parentserverid"] == null)
+                                r.Cells[epDownstreamServer.Index].Value = "Local";
+                            else
+                                r.Cells[epDownstreamServer.Index].Value = wsus.DownstreamServerNameByGuid(d["parentserverid"].ToString());
 
                             // Tag the row as updated
                             r.Cells[epUpdate.Index].Value = "Y";
@@ -827,6 +845,11 @@ namespace WSUSAdminAssistant
                     r.Cells[epLastContact.Index].Value = DateTime.Parse(d["lastsynctime"].ToString()).ToString("dd-MMM-yyyy h:mm");
                     r.Cells[epFault.Index].Value = "Uninstalled Approved Updates";
 
+                    if (d["parentserverid"] == null)
+                        r.Cells[epDownstreamServer.Index].Value = "Local";
+                    else
+                        r.Cells[epDownstreamServer.Index].Value = wsus.DownstreamServerNameByGuid(d["parentserverid"].ToString());
+
                     // Tag the row as updated
                     r.Cells[epUpdate.Index].Value = "Y";
                 }
@@ -867,6 +890,11 @@ namespace WSUSAdminAssistant
                     r.Cells[epUpdateErrors.Index].Value = int.Parse(d["updateerrors"].ToString());
                     r.Cells[epLastContact.Index].Value = DateTime.Parse(d["lastsynctime"].ToString()).ToString("dd-MMM-yyyy h:mm");
                     r.Cells[epFault.Index].Value = "Updates With Errors";
+
+                    if (d["parentserverid"] == null)
+                        r.Cells[epDownstreamServer.Index].Value = "Local";
+                    else
+                        r.Cells[epDownstreamServer.Index].Value = wsus.DownstreamServerNameByGuid(d["parentserverid"].ToString());
 
                     // Tag the row as updated
                     r.Cells[epUpdate.Index].Value = "Y";
@@ -1066,7 +1094,7 @@ namespace WSUSAdminAssistant
 
         void tasks_ListChanged(object sender, ListChangedEventArgs e)
         {
-            Debug.WriteLine("Tasks list changed: Type {0},  Property {1}", e.ListChangedType.ToString(), e.PropertyDescriptor);
+            DebugOutput("Tasks list changed: Type {0},  Property {1}", e.ListChangedType.ToString(), e.PropertyDescriptor);
         }
 
         private void frmMain_Closing(object sender, FormClosingEventArgs e)
