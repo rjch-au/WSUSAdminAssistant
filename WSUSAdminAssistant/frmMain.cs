@@ -891,7 +891,7 @@ namespace WSUSAdminAssistant
                     r.Cells[epLastContact.Index].Value = DateTime.Parse(d["lastsynctime"].ToString()).ToString("dd-MMM-yyyy h:mm");
                     r.Cells[epFault.Index].Value = "Updates With Errors";
 
-                    if (d["parentserverid"] == null)
+                    if (d["parentserverid"] == null || d["parentserverid"].ToString() == "")
                         r.Cells[epDownstreamServer.Index].Value = "Local";
                     else
                         r.Cells[epDownstreamServer.Index].Value = wsus.DownstreamServerNameByGuid(d["parentserverid"].ToString());
