@@ -796,6 +796,11 @@ namespace WSUSAdminAssistant
 
             private BackgroundWorker wrkUpdate = new BackgroundWorker();
 
+            public bool IsUpdating()
+            {
+                return wrkUpdate.IsBusy;
+            }
+
             public void UpdateUnapprovedUpdates()
             {
                 // Kick off background worker
