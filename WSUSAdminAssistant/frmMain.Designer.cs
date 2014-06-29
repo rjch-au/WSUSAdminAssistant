@@ -105,6 +105,12 @@
             this.btnUACancel = new System.Windows.Forms.ToolStripButton();
             this.lblUpdatesToApprove = new System.Windows.Forms.ToolStripLabel();
             this.mnuHideGroups = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tlsFilterName = new System.Windows.Forms.ToolStripLabel();
+            this.txtFilterName = new System.Windows.Forms.ToolStripTextBox();
+            this.lblFilterDescription = new System.Windows.Forms.ToolStripLabel();
+            this.txtFilterDescription = new System.Windows.Forms.ToolStripTextBox();
+            this.lblFilterArticle = new System.Windows.Forms.ToolStripLabel();
+            this.txtFilterArticle = new System.Windows.Forms.ToolStripTextBox();
             this.tabHome = new System.Windows.Forms.TabPage();
             this.lvwStatus = new System.Windows.Forms.ListView();
             this.ssInfo = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -124,13 +130,8 @@
             this.mnuSUSWatcher = new System.Windows.Forms.ToolStripMenuItem();
             this.tabAdminType = new System.Windows.Forms.TabControl();
             this.timUpdateStats = new System.Windows.Forms.Timer(this.components);
-            this.tlsFilterName = new System.Windows.Forms.ToolStripLabel();
-            this.txtFilterName = new System.Windows.Forms.ToolStripTextBox();
-            this.lblFilterDescription = new System.Windows.Forms.ToolStripLabel();
-            this.txtFilterDescription = new System.Windows.Forms.ToolStripTextBox();
-            this.lblFilterArticle = new System.Windows.Forms.ToolStripLabel();
-            this.txtFilterArticle = new System.Windows.Forms.ToolStripTextBox();
             this.timRefreshGrid = new System.Windows.Forms.Timer(this.components);
+            this.butDuplicatePCs = new System.Windows.Forms.ToolStripButton();
             this.gbxWorking.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picReloading)).BeginInit();
             this.cmEndpoint.SuspendLayout();
@@ -602,7 +603,8 @@
             this.butNotCommunicating,
             this.butUnassigned,
             this.butDefaultSusID,
-            this.butGroupRules});
+            this.butGroupRules,
+            this.butDuplicatePCs});
             this.tlsEndpoint.Location = new System.Drawing.Point(0, 0);
             this.tlsEndpoint.Name = "tlsEndpoint";
             this.tlsEndpoint.Size = new System.Drawing.Size(1038, 25);
@@ -886,6 +888,41 @@
             this.mnuHideGroups.Size = new System.Drawing.Size(86, 22);
             this.mnuHideGroups.Text = "&Hide Groups";
             // 
+            // tlsFilterName
+            // 
+            this.tlsFilterName.Name = "tlsFilterName";
+            this.tlsFilterName.Size = new System.Drawing.Size(87, 22);
+            this.tlsFilterName.Text = "Filter by Name:";
+            // 
+            // txtFilterName
+            // 
+            this.txtFilterName.Name = "txtFilterName";
+            this.txtFilterName.Size = new System.Drawing.Size(100, 25);
+            this.txtFilterName.TextChanged += new System.EventHandler(this.txtFilterName_TextChanged);
+            // 
+            // lblFilterDescription
+            // 
+            this.lblFilterDescription.Name = "lblFilterDescription";
+            this.lblFilterDescription.Size = new System.Drawing.Size(115, 22);
+            this.lblFilterDescription.Text = "Filter by Description:";
+            // 
+            // txtFilterDescription
+            // 
+            this.txtFilterDescription.Name = "txtFilterDescription";
+            this.txtFilterDescription.Size = new System.Drawing.Size(100, 25);
+            this.txtFilterDescription.TextChanged += new System.EventHandler(this.txtFilterDescription_TextChanged);
+            // 
+            // lblFilterArticle
+            // 
+            this.lblFilterArticle.Name = "lblFilterArticle";
+            this.lblFilterArticle.Size = new System.Drawing.Size(106, 22);
+            this.lblFilterArticle.Text = "Filter by KB Article:";
+            // 
+            // txtFilterArticle
+            // 
+            this.txtFilterArticle.Name = "txtFilterArticle";
+            this.txtFilterArticle.Size = new System.Drawing.Size(100, 25);
+            // 
             // tabHome
             // 
             this.tabHome.Controls.Add(this.lvwStatus);
@@ -1044,44 +1081,17 @@
             // 
             this.timUpdateStats.Tick += new System.EventHandler(this.timUpdateStats_Tick);
             // 
-            // tlsFilterName
-            // 
-            this.tlsFilterName.Name = "tlsFilterName";
-            this.tlsFilterName.Size = new System.Drawing.Size(87, 22);
-            this.tlsFilterName.Text = "Filter by Name:";
-            // 
-            // txtFilterName
-            // 
-            this.txtFilterName.Name = "txtFilterName";
-            this.txtFilterName.Size = new System.Drawing.Size(100, 25);
-            this.txtFilterName.TextChanged += new System.EventHandler(this.txtFilterName_TextChanged);
-            // 
-            // lblFilterDescription
-            // 
-            this.lblFilterDescription.Name = "lblFilterDescription";
-            this.lblFilterDescription.Size = new System.Drawing.Size(115, 22);
-            this.lblFilterDescription.Text = "Filter by Description:";
-            // 
-            // txtFilterDescription
-            // 
-            this.txtFilterDescription.Name = "txtFilterDescription";
-            this.txtFilterDescription.Size = new System.Drawing.Size(100, 25);
-            this.txtFilterDescription.TextChanged += new System.EventHandler(this.txtFilterDescription_TextChanged);
-            // 
-            // lblFilterArticle
-            // 
-            this.lblFilterArticle.Name = "lblFilterArticle";
-            this.lblFilterArticle.Size = new System.Drawing.Size(106, 22);
-            this.lblFilterArticle.Text = "Filter by KB Article:";
-            // 
-            // txtFilterArticle
-            // 
-            this.txtFilterArticle.Name = "txtFilterArticle";
-            this.txtFilterArticle.Size = new System.Drawing.Size(100, 25);
-            // 
             // timRefreshGrid
             // 
             this.timRefreshGrid.Tick += new System.EventHandler(this.timRefreshGrid_Tick);
+            // 
+            // butDuplicatePCs
+            // 
+            this.butDuplicatePCs.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.butDuplicatePCs.Name = "butDuplicatePCs";
+            this.butDuplicatePCs.Size = new System.Drawing.Size(84, 22);
+            this.butDuplicatePCs.Text = "Duplicate PCs";
+            this.butDuplicatePCs.Click += new System.EventHandler(this.butDuplicatePCs_Click);
             // 
             // frmMain
             // 
@@ -1235,6 +1245,7 @@
         private System.Windows.Forms.ToolStripLabel lblFilterArticle;
         private System.Windows.Forms.ToolStripTextBox txtFilterArticle;
         private System.Windows.Forms.Timer timRefreshGrid;
+        private System.Windows.Forms.ToolStripButton butDuplicatePCs;
     }
 }
 

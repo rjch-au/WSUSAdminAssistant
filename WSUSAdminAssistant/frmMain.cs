@@ -128,8 +128,8 @@ namespace WSUSAdminAssistant
                     if (butUnassigned.Checked) EndpointUpdateUngroupedComputers();
                     if (butDefaultSusID.Checked) EndpointUpdateDefaultSusID();
                     if (butGroupRules.Checked) EndpointIncorrectGroupUpdate();
+                    if (butDuplicatePCs.Checked) EndpointUpdateDuplicateIPs();
 
-                    
                     // Remove any row that hasn't been updated
                     bool removed = true;
                     
@@ -593,9 +593,6 @@ namespace WSUSAdminAssistant
 
         private void EndpointUpdateUngroupedComputers()
         {
-            // Declare some variables
-            int rn;
-
             if (CheckDBConnection())
             {
                 // Update the data grid
@@ -603,41 +600,19 @@ namespace WSUSAdminAssistant
 
                 foreach (DataRow dr in d.Rows)
                 {
-                    // Locate an existing matching row
-                    rn = -1;
+                    epRowData r = new epRowData("Not Assigned to a Group");
 
-                    foreach (DataGridViewRow dgr in grdEndpoints.Rows)
-                    {
-                        if (dgr.Cells[epName.Index].Value.ToString() == dr["name"].ToString() && dgr.Cells[epFault.Index].Value.ToString() == "Not Assigned to a Group")
-                        {
-                            rn = dgr.Index;
-                            break;
-                        }
-                    }
+                    r.EndpointName = dr["name"];
+                    r.ipAddress = dr["ipaddress"];
+                    r.SetUpstreamServerByGuid(dr["parentserverid"], cfg.wsus.server);
 
-                    // If no row is located, create a new one and set the last updated time to blank
-                    if (rn == -1) rn = grdEndpoints.Rows.Add();
-
-                    DataGridViewRow r = grdEndpoints.Rows[rn];
-
-                    r.Cells[epName.Index].Value = dr["name"].ToString();
-                    r.Cells[epIP.Index].Value = dr["ipaddress"].ToString();
-                    r.Cells[epFault.Index].Value = "Not Assigned to a Group";
-
-                    if (dr["parentserverid"] == null)
-                        r.Cells[epDownstreamServer.Index].Value = "Local";
-                    else
-                        r.Cells[epDownstreamServer.Index].Value = wsus.DownstreamServerNameByGuid(dr["parentserverid"].ToString());
-
-                    r.Cells[epUpdate.Index].Value = "Y";
+                    AddUpdateEndpointGrid(r);
                 }
             }
         }
 
         private void EndpointUpdateNotCommunicating()
         {
-            int rn;
-
             // Get list of computers that hasn't updated in the last week
             ComputerTargetScope cs = new ComputerTargetScope();
             cs.ToLastSyncTime = DateTime.Now.AddDays(-7);
@@ -646,35 +621,34 @@ namespace WSUSAdminAssistant
             // Update grid
             foreach (IComputerTarget c in wsus.server.GetComputerTargets(cs))
             {
-                // Look for an existing row
-                rn = -1;
+                epRowData r = new epRowData("Not Communicating", c);
 
-                foreach (DataGridViewRow fr in grdEndpoints.Rows)
+                AddUpdateEndpointGrid(r);
+            }
+        }
+
+        private void EndpointUpdateDuplicateIPs()
+        {
+            //  Get a complete list of computers
+            ComputerTargetCollection cc = wsus.server.GetComputerTargets();
+
+            // Loop through all computers
+            foreach (IComputerTarget c in cc)
+            {
+                // See if we can find one with a duplicate IP address
+                foreach (IComputerTarget dc in cc)
                 {
-                    if (fr.Cells[epName.Index].Value.ToString() == c.FullDomainName && fr.Cells[epFault.Index].Value.ToString() == "Not Communicating")
+                    // Do we have a different computer to the current one and does it have a duplicate IP address
+                    if (c.Id != dc.Id && c.IPAddress == dc.IPAddress)
                     {
-                        rn = fr.Index;
+                        // Yep, it's a duplicate.
+                        epRowData r = new epRowData("Duplicate IP address", c);
+
+                        // Add it and break
+                        AddUpdateEndpointGrid(r);
                         break;
                     }
                 }
-
-                // If no existing row found, add a new one
-                if (rn == -1) rn = grdEndpoints.Rows.Add();
-
-                DataGridViewRow r = grdEndpoints.Rows[rn];
-
-                r.Cells[epName.Index].Value = c.FullDomainName;
-                r.Cells[epIP.Index].Value = c.IPAddress.ToString();
-                r.Cells[epLastContact.Index].Value = c.LastSyncTime.ToString("dd-MMM-yyyy h:mm");
-                r.Cells[epLastStatus.Index].Value = c.LastSyncResult;
-                r.Cells[epFault.Index].Value = "Not Communicating";
-
-                if (c.SyncsFromDownstreamServer)
-                    r.Cells[epDownstreamServer.Index].Value = c.GetParentServer().FullDomainName;
-                else
-                    r.Cells[epDownstreamServer.Index].Value = "Local";
-
-                r.Cells[epUpdate.Index].Value = "Y";
             }
         }
 
@@ -719,48 +693,151 @@ namespace WSUSAdminAssistant
             }
         }
 
+        private class epRowData
+        {
+            public epRowData(string fault)
+            {
+                Fault = fault;
+            }
+
+            public epRowData(string fault, IComputerTarget c)
+            {
+                Fault = fault;
+                EndpointName = c.FullDomainName;
+                ipAddress = c.IPAddress;
+                LastContact = c.LastReportedStatusTime;
+                LastStatus = c.LastSyncResult;
+                UpstreamServer = c;
+            }
+
+            private string _ipAddress = "";
+
+            public object ipAddress
+            {
+                get { return _ipAddress; }
+                set { _ipAddress = value.ToString(); }
+            }
+
+            private string _LastStatus;
+
+            public object LastStatus
+            {
+                get { return _LastStatus; }
+                set { _LastStatus = value.ToString(); }
+            }
+
+            public string ComputerGroup = "";
+            public DateTime LastContact;
+            public string ExtraInfo;
+            public string Fault;
+            public int? ApprovedUpdates = null;
+            public int? ErrorUpdates = null;
+
+            private string _EndpointName = "";
+
+            public object EndpointName
+            {
+                get { return _EndpointName; }
+                set { _EndpointName = value.ToString(); }
+            }
+
+            private string _UpstreamServer;
+
+            public object UpstreamServer
+            {
+                get { return _UpstreamServer; }
+                set
+                {
+                    // If we pass a null value, the upstream server is assumed to be the local one.
+                    if (value == null)
+                        _UpstreamServer = "Local";
+
+                    // If we pass a string, we assume that's the upstream server name.
+                    if (value is string)
+                        _UpstreamServer = value.ToString();
+
+                    // If we pass a computer target object, figure out whether it's local or remote and act accordingly
+                    if (value is IComputerTarget)
+                    {
+                        IComputerTarget c = (IComputerTarget)value;
+
+                        if (c.SyncsFromDownstreamServer)
+                            _UpstreamServer = c.GetParentServer().FullDomainName;
+                        else
+                            _UpstreamServer = "Local";
+                    }
+                }
+            }
+
+            public void SetUpstreamServerByGuid(object g, IUpdateServer wsus)
+            {
+                // If the object is a database null, it's the local server
+                if (g is DBNull)
+                    _UpstreamServer = "Local";
+                else
+                {
+                    try
+                    {
+                        _UpstreamServer = wsus.GetDownstreamServer((Guid) g).FullDomainName;
+                    }
+                    catch (Exception e)
+                    {
+                        _UpstreamServer = e.Message + ", GUID: " + g.ToString();
+                    }
+                }
+            }
+        }
+
+        private void AddUpdateEndpointGrid(epRowData row)
+        {
+            // Locate an existing matching row
+            int rn = -1;
+
+            foreach (DataGridViewRow dgr in grdEndpoints.Rows)
+            {
+                if (dgr.Cells[epName.Index].Value.ToString() == row.EndpointName.ToString() && dgr.Cells[epFault.Index].Value.ToString() == row.Fault)
+                {
+                    rn = dgr.Index;
+                    break;
+                }
+
+            }
+
+            // If no row is located, create a new one
+            if (rn == -1) rn = grdEndpoints.Rows.Add();
+
+            DataGridViewRow r = grdEndpoints.Rows[rn];
+
+            // Fill in data grid
+            r.Cells[epName.Index].Value = row.EndpointName;
+            r.Cells[epIP.Index].Value = row.ipAddress;
+            r.Cells[epLastStatus.Index].Value = row.LastStatus;
+            r.Cells[epComputerGroup.Index].Value = row.ComputerGroup;
+            r.Cells[epFault.Index].Value = row.Fault;
+            r.Cells[epDownstreamServer.Index].Value = row.UpstreamServer;
+
+            // Cleanly handle items with potentially no value
+            if (row.LastContact > DateTime.MinValue) r.Cells[epLastContact.Index].Value = row.LastContact;
+            if (row.ApprovedUpdates.HasValue) r.Cells[epApprovedUpdates.Index].Value = row.ApprovedUpdates;
+            if (row.ErrorUpdates.HasValue) r.Cells[epUpdateErrors.Index].Value = row.ErrorUpdates;
+
+            // Extra info is currently added as a tooltip to the Computer Group field
+            r.Cells[epComputerGroup.Index].ToolTipText = row.ExtraInfo;
+
+            // Tag the row as updated
+            r.Cells[epUpdate.Index].Value = "Y";
+        }
+
         private void EndpointUpdateDefaultSusID()
         {
-            int rn;
-
+            // Loop through each default SUS ID and see if we can find a matching computer
             foreach (string susid in cfg.DefaultSusIDCollection)
             {
                 try
                 {
                     IComputerTarget c = wsus.server.GetComputerTarget(susid);
 
-                    // Locate an existing matching row
-                    rn = -1;
-
-                    foreach (DataGridViewRow dgr in grdEndpoints.Rows)
-                    {
-                        if (dgr.Cells[epName.Index].Value.ToString() == c.FullDomainName.ToString() && dgr.Cells[epFault.Index].Value.ToString() == "Default SUS ID")
-                        {
-                            rn = dgr.Index;
-                            break;
-                        }
-
-                    }
-
-                    // If no row is located, create a new one
-                    if (rn == -1) rn = grdEndpoints.Rows.Add();
-
-                    DataGridViewRow r = grdEndpoints.Rows[rn];
-
-                    // Fill in data grid
-                    r.Cells[epName.Index].Value = c.FullDomainName.ToString();
-                    r.Cells[epIP.Index].Value = c.IPAddress.ToString();
-                    r.Cells[epLastContact.Index].Value = c.LastReportedStatusTime.ToString("dd-MMM-yyyy h:mm");
-                    r.Cells[epLastStatus.Index].Value = c.LastSyncResult.ToString();
-                    r.Cells[epFault.Index].Value = "Default SUS ID";
-
-                    if (c.SyncsFromDownstreamServer)
-                        r.Cells[epDownstreamServer.Index].Value = c.GetParentServer().FullDomainName;
-                    else
-                        r.Cells[epDownstreamServer.Index].Value = "Local";
-
-                    // Tag the row as updated
-                    r.Cells[epUpdate.Index].Value = "Y";
+                    AddUpdateEndpointGrid(new epRowData("Default SUS ID", c));
                 }
                 catch (WsusObjectNotFoundException)
                 {
@@ -771,8 +848,6 @@ namespace WSUSAdminAssistant
 
         private void EndpointIncorrectGroupUpdate()
         {
-            int rn;
-            
             // Get the group rules and sort by priority
             clsConfig.ComputerGroupRegexCollection rules = cfg.ComputerRegExList;
             rules.SortByPriority();
@@ -794,37 +869,15 @@ namespace WSUSAdminAssistant
                         if (d["groupname"].ToString() != rx.ComputerGroup)
                         {
                             // No - add it.
+                            epRowData r = new epRowData("Incorrect Computer Group");
 
-                            // Locate an existing matching row
-                            rn = -1;
+                            r.EndpointName = d["name"];
+                            r.ipAddress = d["ipaddress"];
+                            r.ComputerGroup = rx.ComputerGroup;
+                            r.ExtraInfo = "Currently in " + d["groupname"].ToString();
+                            r.SetUpstreamServerByGuid((Guid) d["parentserverid"], cfg.wsus.server);
 
-                            foreach (DataGridViewRow dgr in grdEndpoints.Rows)
-                            {
-                                if (dgr.Cells[epName.Index].Value.ToString() == d["name"].ToString() && dgr.Cells[epFault.Index].Value.ToString() == "Incorrect Computer Group")
-                                {
-                                    rn = dgr.Index;
-                                    break;
-                                }
-                            }
-
-                            // If no row is located, create a new one
-                            if (rn == -1) rn = grdEndpoints.Rows.Add();
-
-                            DataGridViewRow r = grdEndpoints.Rows[rn];
-
-                            r.Cells[epName.Index].Value = d["name"].ToString();
-                            r.Cells[epIP.Index].Value = d["ipaddress"].ToString();
-                            r.Cells[epComputerGroup.Index].Value = rx.ComputerGroup;
-                            r.Cells[epComputerGroup.Index].ToolTipText = "Is currently in " + d["groupname"].ToString();
-                            r.Cells[epFault.Index].Value = "Incorrect Computer Group";
-
-                            if (d["parentserverid"] == null)
-                                r.Cells[epDownstreamServer.Index].Value = "Local";
-                            else
-                                r.Cells[epDownstreamServer.Index].Value = wsus.DownstreamServerNameByGuid(d["parentserverid"].ToString());
-
-                            // Tag the row as updated
-                            r.Cells[epUpdate.Index].Value = "Y";
+                            AddUpdateEndpointGrid(r); 
                         }
                     }
                 }
@@ -833,8 +886,6 @@ namespace WSUSAdminAssistant
 
         private void EndpointUpdateApproved()
         {
-            int rn;
-
             if (CheckDBConnection())
             {
                 // Retreive the list of approved updates that have not yet been applied.
@@ -842,45 +893,22 @@ namespace WSUSAdminAssistant
 
                 foreach (DataRow d in t.Rows)
                 {
-                    // Locate an existing matching row
-                    rn = -1;
-
-                    foreach (DataGridViewRow dgr in grdEndpoints.Rows)
-                    {
-                        if (dgr.Cells[epName.Index].Value.ToString() == d["fulldomainname"].ToString() && dgr.Cells[epFault.Index].Value.ToString() == "Uninstalled Approved Updates")
-                        {
-                            rn = dgr.Index;
-                            break;
-                        }
-                    }
-                    
-                    // If no row is located, create a new one
-                    if (rn == -1) rn = grdEndpoints.Rows.Add();
-
-                    DataGridViewRow r = grdEndpoints.Rows[rn];
+                    epRowData r = new epRowData("Uninstalled Approved Updates");
 
                     // Fill in data grid
-                    r.Cells[epName.Index].Value = d["fulldomainname"].ToString();
-                    r.Cells[epIP.Index].Value = d["ipaddress"].ToString();
-                    r.Cells[epApprovedUpdates.Index].Value = int.Parse(d["approvedupdates"].ToString());
-                    r.Cells[epLastContact.Index].Value = DateTime.Parse(d["lastsynctime"].ToString()).ToString("dd-MMM-yyyy h:mm");
-                    r.Cells[epFault.Index].Value = "Uninstalled Approved Updates";
+                    r.EndpointName = d["fulldomainname"];
+                    r.ipAddress = d["ipaddress"];
+                    r.ApprovedUpdates = int.Parse(d["approvedupdates"].ToString());
+                    r.LastContact = DateTime.Parse(d["lastsynctime"].ToString());
+                    r.SetUpstreamServerByGuid(d["parentserverid"], cfg.wsus.server);
 
-                    if (d["parentserverid"] == null)
-                        r.Cells[epDownstreamServer.Index].Value = "Local";
-                    else
-                        r.Cells[epDownstreamServer.Index].Value = wsus.DownstreamServerNameByGuid(d["parentserverid"].ToString());
-
-                    // Tag the row as updated
-                    r.Cells[epUpdate.Index].Value = "Y";
+                    AddUpdateEndpointGrid(r);
                 }
             }
         }
 
         private void EndpointUpdateErrors()
         {
-            int rn;
-
             if (CheckDBConnection())
             {
                 // Update the data grid;
@@ -888,37 +916,16 @@ namespace WSUSAdminAssistant
 
                 foreach (DataRow d in t.Rows)
                 {
-                    // Locate an existing matching row
-                    rn = -1;
-
-                    foreach (DataGridViewRow dgr in grdEndpoints.Rows)
-                    {
-                        if (dgr.Cells[epName.Index].Value.ToString() == d["fulldomainname"].ToString() && dgr.Cells[epFault.Index].Value.ToString() == "Updates With Errors")
-                        {
-                            rn = dgr.Index;
-                            break;
-                        }
-                    }
-
-                    // If no row is located, create a new one and set the last updated time to blank
-                    if (rn == -1) rn = grdEndpoints.Rows.Add();
-
-                    DataGridViewRow r = grdEndpoints.Rows[rn];
-
                     // Fill in data grid
-                    r.Cells[epName.Index].Value = d["fulldomainname"].ToString();
-                    r.Cells[epIP.Index].Value = d["ipaddress"].ToString();
-                    r.Cells[epUpdateErrors.Index].Value = int.Parse(d["updateerrors"].ToString());
-                    r.Cells[epLastContact.Index].Value = DateTime.Parse(d["lastsynctime"].ToString()).ToString("dd-MMM-yyyy h:mm");
-                    r.Cells[epFault.Index].Value = "Updates With Errors";
+                    epRowData r = new epRowData("Updates With Errors");
 
-                    if (d["parentserverid"] == null || d["parentserverid"].ToString() == "")
-                        r.Cells[epDownstreamServer.Index].Value = "Local";
-                    else
-                        r.Cells[epDownstreamServer.Index].Value = wsus.DownstreamServerNameByGuid(d["parentserverid"].ToString());
+                    r.EndpointName = d["fulldomainname"];
+                    r.ipAddress = d["ipaddress"];
+                    r.ErrorUpdates = int.Parse(d["updateerrors"].ToString());
+                    r.LastContact = DateTime.Parse(d["lastsynctime"].ToString());
+                    r.SetUpstreamServerByGuid(d["parentserverid"], cfg.wsus.server);
 
-                    // Tag the row as updated
-                    r.Cells[epUpdate.Index].Value = "Y";
+                    AddUpdateEndpointGrid(r);
                 }
             }
         }
@@ -1065,6 +1072,7 @@ namespace WSUSAdminAssistant
             butCheckClick(butUpdateErrors, ba[3]);
             butCheckClick(butDefaultSusID, ba[4]);
             butCheckClick(butGroupRules, ba[5]);
+            butCheckClick(butDuplicatePCs, ba[6]);
 
             // Set up and start the background pinger
             wrkPinger.DoWork += new DoWorkEventHandler(PingWorker);
@@ -1151,6 +1159,7 @@ namespace WSUSAdminAssistant
             if (butUpdateErrors.Checked) eps += 8;
             if (butDefaultSusID.Checked) eps += 16;
             if (butGroupRules.Checked) eps += 32;
+            if (butDuplicatePCs.Checked) eps += 64;
 
             cfg.EndpointSelections = eps;
         }
@@ -1384,6 +1393,11 @@ namespace WSUSAdminAssistant
         private void butGroupRules_Click(object sender, EventArgs e)
         {
             butCheckClick(butGroupRules);
+        }
+
+        private void butDuplicatePCs_Click(object sender, EventArgs e)
+        {
+            butCheckClick(butDuplicatePCs);
         }
 
         private void mnuWSUSServer_Click(object sender, EventArgs e)
