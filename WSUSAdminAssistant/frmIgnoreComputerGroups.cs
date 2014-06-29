@@ -43,7 +43,7 @@ namespace WSUSAdminAssistant
                 int i = lstGroupsToIgnore.Items.Add(g.Name);
 
                 // Is this group in the list of groups to exclude?
-                if (cfg.IgnoreComputerGroupCollection.Any(g.Id.ToString().Contains))
+                if (cfg.IgnoreComputerGroupCollection.Keys.ToArray().Contains(g.Id))
                     // Yes - check the item in the listbox
                     lstGroupsToIgnore.SetItemChecked(i, true);
             }
@@ -52,7 +52,7 @@ namespace WSUSAdminAssistant
         private void btnSave_Click(object sender, EventArgs e)
         {
             // Create a list of computer group IDs to ignore
-            List<string> ignore = new List<string>();
+            Dictionary<Guid, string> ignore = new Dictionary<Guid, string>();
 
             // Loop through all selected items and add the corresponding group ID to the list
             foreach (string g in lstGroupsToIgnore.CheckedItems)
@@ -64,14 +64,14 @@ namespace WSUSAdminAssistant
                     if (cg.Name == g)
                     {
                         // Yes, add it to the list and break
-                        ignore.Add(cg.Id.ToString());
+                        ignore.Add(cg.Id, cg.Name);
                         break;
                     }
                 }
             }
 
             // Save the modified list
-            cfg.IgnoreComputerGroupCollection = ignore.ToArray();
+            cfg.IgnoreComputerGroupCollection = ignore;
 
             // Close the form
             this.Close();

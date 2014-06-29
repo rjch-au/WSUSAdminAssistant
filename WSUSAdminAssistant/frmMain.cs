@@ -150,7 +150,7 @@ namespace WSUSAdminAssistant
             }
 
             // Sort the datagrid
-            grdEndpoints.Sort(grdEndpoints.Columns[epIP.Index], ListSortDirection.Ascending);
+            grdEndpoints.Sort(grdEndpoints.Columns[epSortOrder.Index], ListSortDirection.Ascending);
 
             // Alternate the row's background colour to make viewing easier - only inverting when a new PC is found
             string prevrow = "zzzzz";
@@ -829,14 +829,15 @@ namespace WSUSAdminAssistant
             r.Cells[epComputerGroup.Index].Value = row.ComputerGroup;
             r.Cells[epFault.Index].Value = row.Fault;
             r.Cells[epDownstreamServer.Index].Value = row.UpstreamServer;
+            r.Cells[epExtraInfo.Index].Value = row.ExtraInfo;
 
             // Cleanly handle items with potentially no value
             if (row.LastContact > DateTime.MinValue) r.Cells[epLastContact.Index].Value = row.LastContact;
             if (row.ApprovedUpdates.HasValue) r.Cells[epApprovedUpdates.Index].Value = row.ApprovedUpdates;
             if (row.ErrorUpdates.HasValue) r.Cells[epUpdateErrors.Index].Value = row.ErrorUpdates;
 
-            // Extra info is currently added as a tooltip to the Computer Group field
-            r.Cells[epComputerGroup.Index].ToolTipText = row.ExtraInfo;
+            // Create sort index
+            r.Cells[epSortOrder.Index].Value = row.ipAddress.ToString() + row.EndpointName.ToString();
 
             // Tag the row as updated
             r.Cells[epUpdate.Index].Value = "Y";
@@ -882,16 +883,20 @@ namespace WSUSAdminAssistant
                         // Yes - does it match the computer group we have?
                         if (d["groupname"].ToString() != rx.ComputerGroup)
                         {
-                            // No - add it.
-                            epRowData r = new epRowData("Incorrect Computer Group");
+                            // No - is it in a group we're supposed to be ignoring?
+                            if (!cfg.IgnoreComputerGroupCollection.Values.ToArray().Contains(d["groupname"].ToString()))
+                            {
+                                // No - add it.
+                                epRowData r = new epRowData("Incorrect Computer Group");
 
-                            r.EndpointName = d["name"];
-                            r.ipAddress = d["ipaddress"];
-                            r.ComputerGroup = rx.ComputerGroup;
-                            r.ExtraInfo = "Currently in " + d["groupname"].ToString();
-                            r.SetUpstreamServerByGuid((Guid) d["parentserverid"], cfg.wsus.server);
+                                r.EndpointName = d["name"];
+                                r.ipAddress = d["ipaddress"];
+                                r.ComputerGroup = rx.ComputerGroup;
+                                r.ExtraInfo = "Currently in " + d["groupname"].ToString();
+                                r.SetUpstreamServerByGuid((Guid)d["parentserverid"], cfg.wsus.server);
 
-                            AddUpdateEndpointGrid(r); 
+                                AddUpdateEndpointGrid(r);
+                            }
                         }
                     }
                 }
@@ -1324,6 +1329,7 @@ namespace WSUSAdminAssistant
             epUpdateErrors.Visible = butUpdateErrors.Checked;
             epLastStatus.Visible = butNotCommunicating.Checked;
             epComputerGroup.Visible = butGroupRules.Checked;
+            epExtraInfo.Visible = butGroupRules.Checked;
 
             // Trigger an update after a second to allow end-user to change other selections
             forceUpdate = true;

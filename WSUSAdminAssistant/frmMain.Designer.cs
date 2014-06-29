@@ -66,18 +66,6 @@
             this.tabEndpointFaults = new System.Windows.Forms.TabPage();
             this.splEndpoint = new System.Windows.Forms.SplitContainer();
             this.grdEndpoints = new System.Windows.Forms.DataGridView();
-            this.epName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epUpdate = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epDownstreamServer = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epComputerGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epFault = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epApprovedUpdates = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epUpdateErrors = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epLastContact = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epLastStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epPing = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.epPingUpdated = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tlsEndpoint = new System.Windows.Forms.ToolStrip();
             this.butApproved = new System.Windows.Forms.ToolStripButton();
             this.butUpdateErrors = new System.Windows.Forms.ToolStripButton();
@@ -85,6 +73,7 @@
             this.butUnassigned = new System.Windows.Forms.ToolStripButton();
             this.butDefaultSusID = new System.Windows.Forms.ToolStripButton();
             this.butGroupRules = new System.Windows.Forms.ToolStripButton();
+            this.butDuplicatePCs = new System.Windows.Forms.ToolStripButton();
             this.grdTasks = new System.Windows.Forms.DataGridView();
             this.tskID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tskStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -131,7 +120,20 @@
             this.tabAdminType = new System.Windows.Forms.TabControl();
             this.timUpdateStats = new System.Windows.Forms.Timer(this.components);
             this.timRefreshGrid = new System.Windows.Forms.Timer(this.components);
-            this.butDuplicatePCs = new System.Windows.Forms.ToolStripButton();
+            this.epName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epUpdate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epDownstreamServer = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epComputerGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epFault = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epApprovedUpdates = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epUpdateErrors = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epLastContact = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epLastStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epPing = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epExtraInfo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epSortOrder = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.epPingUpdated = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.gbxWorking.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picReloading)).BeginInit();
             this.cmEndpoint.SuspendLayout();
@@ -493,6 +495,8 @@
             this.epLastContact,
             this.epLastStatus,
             this.epPing,
+            this.epExtraInfo,
+            this.epSortOrder,
             this.epPingUpdated});
             this.grdEndpoints.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grdEndpoints.Location = new System.Drawing.Point(0, 25);
@@ -503,96 +507,6 @@
             this.grdEndpoints.TabIndex = 4;
             this.grdEndpoints.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.grdEndpoints_CellMouseClick);
             this.grdEndpoints.SortCompare += new System.Windows.Forms.DataGridViewSortCompareEventHandler(this.grdEndpoints_SortCompare);
-            // 
-            // epName
-            // 
-            this.epName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.epName.HeaderText = "PC Name";
-            this.epName.Name = "epName";
-            this.epName.ReadOnly = true;
-            // 
-            // epUpdate
-            // 
-            this.epUpdate.HeaderText = "Update";
-            this.epUpdate.Name = "epUpdate";
-            this.epUpdate.ReadOnly = true;
-            this.epUpdate.Visible = false;
-            // 
-            // epIP
-            // 
-            this.epIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.epIP.HeaderText = "IP Address";
-            this.epIP.Name = "epIP";
-            this.epIP.ReadOnly = true;
-            this.epIP.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // epDownstreamServer
-            // 
-            this.epDownstreamServer.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.epDownstreamServer.HeaderText = "Downstream WSUS Server";
-            this.epDownstreamServer.Name = "epDownstreamServer";
-            this.epDownstreamServer.ReadOnly = true;
-            this.epDownstreamServer.Width = 119;
-            // 
-            // epComputerGroup
-            // 
-            this.epComputerGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.epComputerGroup.HeaderText = "Computer Group";
-            this.epComputerGroup.Name = "epComputerGroup";
-            this.epComputerGroup.ReadOnly = true;
-            // 
-            // epFault
-            // 
-            this.epFault.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.epFault.HeaderText = "Endpoint Fault";
-            this.epFault.Name = "epFault";
-            this.epFault.ReadOnly = true;
-            this.epFault.Width = 92;
-            // 
-            // epApprovedUpdates
-            // 
-            this.epApprovedUpdates.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.epApprovedUpdates.HeaderText = "Approved Updates";
-            this.epApprovedUpdates.Name = "epApprovedUpdates";
-            this.epApprovedUpdates.ReadOnly = true;
-            this.epApprovedUpdates.Width = 70;
-            // 
-            // epUpdateErrors
-            // 
-            this.epUpdateErrors.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.epUpdateErrors.HeaderText = "Updates With Errors";
-            this.epUpdateErrors.Name = "epUpdateErrors";
-            this.epUpdateErrors.ReadOnly = true;
-            this.epUpdateErrors.Width = 92;
-            // 
-            // epLastContact
-            // 
-            this.epLastContact.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.epLastContact.HeaderText = "Last Contact";
-            this.epLastContact.Name = "epLastContact";
-            this.epLastContact.ReadOnly = true;
-            this.epLastContact.Width = 85;
-            // 
-            // epLastStatus
-            // 
-            this.epLastStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.epLastStatus.HeaderText = "Last Status";
-            this.epLastStatus.Name = "epLastStatus";
-            this.epLastStatus.ReadOnly = true;
-            this.epLastStatus.Width = 78;
-            // 
-            // epPing
-            // 
-            this.epPing.HeaderText = "Ping";
-            this.epPing.Name = "epPing";
-            this.epPing.ReadOnly = true;
-            // 
-            // epPingUpdated
-            // 
-            this.epPingUpdated.HeaderText = "Updated";
-            this.epPingUpdated.Name = "epPingUpdated";
-            this.epPingUpdated.ReadOnly = true;
-            this.epPingUpdated.Visible = false;
             // 
             // tlsEndpoint
             // 
@@ -667,6 +581,14 @@
             this.butGroupRules.Size = new System.Drawing.Size(143, 22);
             this.butGroupRules.Text = "PCs not in Correct Group";
             this.butGroupRules.Click += new System.EventHandler(this.butGroupRules_Click);
+            // 
+            // butDuplicatePCs
+            // 
+            this.butDuplicatePCs.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.butDuplicatePCs.Name = "butDuplicatePCs";
+            this.butDuplicatePCs.Size = new System.Drawing.Size(84, 22);
+            this.butDuplicatePCs.Text = "Duplicate PCs";
+            this.butDuplicatePCs.Click += new System.EventHandler(this.butDuplicatePCs_Click);
             // 
             // grdTasks
             // 
@@ -1085,13 +1007,110 @@
             // 
             this.timRefreshGrid.Tick += new System.EventHandler(this.timRefreshGrid_Tick);
             // 
-            // butDuplicatePCs
+            // epName
             // 
-            this.butDuplicatePCs.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.butDuplicatePCs.Name = "butDuplicatePCs";
-            this.butDuplicatePCs.Size = new System.Drawing.Size(84, 22);
-            this.butDuplicatePCs.Text = "Duplicate PCs";
-            this.butDuplicatePCs.Click += new System.EventHandler(this.butDuplicatePCs_Click);
+            this.epName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.epName.HeaderText = "PC Name";
+            this.epName.Name = "epName";
+            this.epName.ReadOnly = true;
+            // 
+            // epUpdate
+            // 
+            this.epUpdate.HeaderText = "Update";
+            this.epUpdate.Name = "epUpdate";
+            this.epUpdate.ReadOnly = true;
+            this.epUpdate.Visible = false;
+            // 
+            // epIP
+            // 
+            this.epIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.epIP.HeaderText = "IP Address";
+            this.epIP.Name = "epIP";
+            this.epIP.ReadOnly = true;
+            this.epIP.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // epDownstreamServer
+            // 
+            this.epDownstreamServer.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.epDownstreamServer.HeaderText = "Downstream WSUS Server";
+            this.epDownstreamServer.Name = "epDownstreamServer";
+            this.epDownstreamServer.ReadOnly = true;
+            this.epDownstreamServer.Width = 119;
+            // 
+            // epComputerGroup
+            // 
+            this.epComputerGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.epComputerGroup.HeaderText = "Computer Group";
+            this.epComputerGroup.Name = "epComputerGroup";
+            this.epComputerGroup.ReadOnly = true;
+            // 
+            // epFault
+            // 
+            this.epFault.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.epFault.HeaderText = "Endpoint Fault";
+            this.epFault.Name = "epFault";
+            this.epFault.ReadOnly = true;
+            this.epFault.Width = 92;
+            // 
+            // epApprovedUpdates
+            // 
+            this.epApprovedUpdates.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.epApprovedUpdates.HeaderText = "Approved Updates";
+            this.epApprovedUpdates.Name = "epApprovedUpdates";
+            this.epApprovedUpdates.ReadOnly = true;
+            this.epApprovedUpdates.Width = 70;
+            // 
+            // epUpdateErrors
+            // 
+            this.epUpdateErrors.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.epUpdateErrors.HeaderText = "Updates With Errors";
+            this.epUpdateErrors.Name = "epUpdateErrors";
+            this.epUpdateErrors.ReadOnly = true;
+            this.epUpdateErrors.Width = 92;
+            // 
+            // epLastContact
+            // 
+            this.epLastContact.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.epLastContact.HeaderText = "Last Contact";
+            this.epLastContact.Name = "epLastContact";
+            this.epLastContact.ReadOnly = true;
+            this.epLastContact.Width = 85;
+            // 
+            // epLastStatus
+            // 
+            this.epLastStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.epLastStatus.HeaderText = "Last Status";
+            this.epLastStatus.Name = "epLastStatus";
+            this.epLastStatus.ReadOnly = true;
+            this.epLastStatus.Width = 78;
+            // 
+            // epPing
+            // 
+            this.epPing.HeaderText = "Ping";
+            this.epPing.Name = "epPing";
+            this.epPing.ReadOnly = true;
+            // 
+            // epExtraInfo
+            // 
+            this.epExtraInfo.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.epExtraInfo.HeaderText = "Extra Information";
+            this.epExtraInfo.Name = "epExtraInfo";
+            this.epExtraInfo.ReadOnly = true;
+            this.epExtraInfo.Width = 102;
+            // 
+            // epSortOrder
+            // 
+            this.epSortOrder.HeaderText = "Sort Order";
+            this.epSortOrder.Name = "epSortOrder";
+            this.epSortOrder.ReadOnly = true;
+            this.epSortOrder.Visible = false;
+            // 
+            // epPingUpdated
+            // 
+            this.epPingUpdated.HeaderText = "Updated";
+            this.epPingUpdated.Name = "epPingUpdated";
+            this.epPingUpdated.ReadOnly = true;
+            this.epPingUpdated.Visible = false;
             // 
             // frmMain
             // 
@@ -1221,18 +1240,6 @@
         private System.Windows.Forms.TabControl tabAdminType;
         private System.Windows.Forms.ToolStripDropDownButton mnuHideGroups;
         private System.Windows.Forms.ToolStripMenuItem mnuIngoreGroups;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epUpdate;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epIP;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epDownstreamServer;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epComputerGroup;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epFault;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epApprovedUpdates;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epUpdateErrors;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epLastContact;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epLastStatus;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epPing;
-        private System.Windows.Forms.DataGridViewTextBoxColumn epPingUpdated;
         private System.Windows.Forms.ListView lvwStatus;
         private System.Windows.Forms.ColumnHeader ssInfo;
         private System.Windows.Forms.ColumnHeader ssData;
@@ -1246,6 +1253,20 @@
         private System.Windows.Forms.ToolStripTextBox txtFilterArticle;
         private System.Windows.Forms.Timer timRefreshGrid;
         private System.Windows.Forms.ToolStripButton butDuplicatePCs;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epUpdate;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epIP;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epDownstreamServer;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epComputerGroup;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epFault;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epApprovedUpdates;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epUpdateErrors;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epLastContact;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epLastStatus;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epPing;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epExtraInfo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epSortOrder;
+        private System.Windows.Forms.DataGridViewTextBoxColumn epPingUpdated;
     }
 }
 

@@ -1645,10 +1645,10 @@ namespace WSUSAdminAssistant
         #region IgnoreComputerGroups
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Ignore Computer Groups methods
-        private string[] _ignoregroups = null;
+        private Dictionary<Guid, string> _ignoregroups = new Dictionary<Guid, string>();
         private DateTime _ignoregroupsupdated = DateTime.MinValue;
 
-        public string[] IgnoreComputerGroupCollection
+        public Dictionary<Guid, string> IgnoreComputerGroupCollection
         {
             get
             {
@@ -1706,7 +1706,7 @@ namespace WSUSAdminAssistant
                             // No it doesn't - try and create it
                             Directory.CreateDirectory(Path.GetDirectoryName(xmlpath));
 
-                        WriteIgnoreGroupsXML(new string[0], xmlpath);
+                        WriteIgnoreGroupsXML(new Dictionary<Guid, string>(), xmlpath);
 
                         // If we get here, it wrote successfully, so return the file
                         return xmlpath;
@@ -1722,17 +1722,19 @@ namespace WSUSAdminAssistant
             set { reg.SetValue("IgnoreGroupsXMLFile", value, RegistryValueKind.String); }
         }
 
-        private void WriteIgnoreGroupsXML(string[] s, string file)
+        private void WriteIgnoreGroupsXML(Dictionary<Guid, string> s, string file)
         {
             // Create XML file (overwriting it if it already exists)
+            string[] g = Array.ConvertAll(s.Keys.ToArray(), x => x.ToString());
+
             using (FileStream fs = new FileStream(file, FileMode.Create))
             {
                 XmlSerializer xs = new XmlSerializer(typeof(string[]));
-                xs.Serialize(fs, s);
+                xs.Serialize(fs, g);
             }
         }
 
-        private string[] ReadIgnoreGroupsXML(string file)
+        private Dictionary<Guid, string> ReadIgnoreGroupsXML(string file)
         {
             // Open the XML file and read the config.  Let the exceptions fly for other procedures to handle
             using (FileStream fs = new FileStream(file, FileMode.Open))
@@ -1740,7 +1742,31 @@ namespace WSUSAdminAssistant
                 string[] s;
                 XmlSerializer xs = new XmlSerializer(typeof(string[]));
                 s = (string[])xs.Deserialize(fs);
-                return s;
+
+                // Loop through the resulting string array and create the dictionary
+                Dictionary<Guid, string> g = new Dictionary<Guid, string>();
+
+                foreach (string gs in s)
+                {
+                    Guid gn;
+
+                    // Try to convert the string to a Guid
+                    if (Guid.TryParse(gs, out gn))
+                    {
+                        // Got it.  Try and find the appropriate computer group
+                        foreach (IComputerTargetGroup tg in wsus.ComputerGroups)
+                        {
+                            if (tg.Id == gn)
+                            {
+                                // Found it - add it to the dictionary.
+                                g.Add(tg.Id, tg.Name);
+                                break;
+                            }
+                        }
+                    }
+                }
+                        
+                return g;
             }
         }
 
@@ -1749,7 +1775,7 @@ namespace WSUSAdminAssistant
             foreach (IComputerTargetGroup g in c.GetComputerTargetGroups())
             {
                 // Is this group in the list of ignored computer groups?
-                if (IgnoreComputerGroupCollection.Contains(g.Id.ToString()))
+                if (IgnoreComputerGroupCollection.Keys.ToArray().Contains(g.Id))
                     // Yes
                     return true;
             }
