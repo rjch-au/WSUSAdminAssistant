@@ -279,6 +279,8 @@ namespace WSUSAdminAssistant
             }
         }
 
+        private clsWSUS.UnapprovedUpdates CurrentUnapprovedUpdates = null;
+
         private void UpdateUnapproved()
         {
             if (CheckDBConnection())
@@ -297,8 +299,8 @@ namespace WSUSAdminAssistant
                     mnuHideGroups.HideDropDown();
 
                     // Get unapproved updates currently pending
-                    clsWSUS.UnapprovedUpdates uuc = new clsWSUS.UnapprovedUpdates(cfg, ShowGroups);
-                    uuc.UpdateUnapprovedUpdates();
+                    CurrentUnapprovedUpdates = new clsWSUS.UnapprovedUpdates(cfg, ShowGroups);
+                    CurrentUnapprovedUpdates.UpdateUnapprovedUpdates();
 
                     // Note the time of the last update
                     lastupdate = clu;
@@ -306,219 +308,238 @@ namespace WSUSAdminAssistant
                     // Reset forced update flag
                     forceUpdate = false;
 
-                    // Don't redraw the datagrid until we've finished updating it
-                    SuspendDrawing(grdUnapproved);
-
-                    // Have we ever created columns, or have rule collections changed since we last updated?
-                    bool groupschanged = false;
-
-                    if (GroupColumns.Count != uuc.Groups.Count)
-                        // No group columns have been added, or the number of columns added differs to the number of groups
-                        groupschanged = true;
-                    else
-                    {
-                        // Loop through all groups and ensure that the columns match
-                        for (int i = 0; i < uuc.Groups.Count; i++)
-                        {
-                            if (!cfg.HideGroups.Contains(uuc.Groups[i].computergroupid))
-                            {
-                                // Only consider the group if it's not hidden
-
-                                if (uuc.Groups[i].shortname != grdUnapproved.Columns[uaSortOrder.Index + i + 1].HeaderText)
-                                {
-                                    // Header does not match
-                                    groupschanged = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (groupschanged)
-                    {
-                        // Remove old columns, but only if they've already been added
-                        GroupColumns.Clear();
-                        HideGroupMenuItems.Clear();
-
-                        if (grdUnapproved.Columns.Count > uaSortOrder.Index)
-                        {
-                            for (int i = uaSortOrder.Index + 1; i < grdUnapproved.Columns.Count;  )
-                                // Remove the column
-                                grdUnapproved.Columns.RemoveAt(i);
-                        }
-
-                        // Add new columns
-                        foreach (clsConfig.GroupUpdateRule ur in uuc.Groups)
-                        {
-                            // Add column if it's not excluded
-                            if (!cfg.HideGroups.Contains(ur.computergroupid))
-                            {
-                                DataGridViewColumn c = new DataGridViewTextBoxColumn();
-                                c.Name = "uag" + ur.shortname.Replace(' ', '_');
-                                c.HeaderText = ur.shortname;
-
-                                // Format the column appropriately
-                                c.Width = 55;
-                                c.Resizable = DataGridViewTriState.False;
-                                c.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
-                                // Store the computer group object in the header - handy for when approving or unapproving updates
-                                c.Tag = ur.computergroup;
-
-                                GroupColumns.Add(c);
-                            }
-                        }
-
-                        foreach (clsConfig.GroupUpdateRule ur in cfg.GroupUpdateRules)
-                        {
-                            // Construct menu items
-                            ToolStripMenuItem m = new ToolStripMenuItem();
-                            m.Text = ur.computergroup.Name;
-                            m.Tag = ur.computergroupid;
-                            m.DisplayStyle = ToolStripItemDisplayStyle.Text;
-
-                            // Item should be ticked (i.e. hidden) if it's in the list of computer groups
-                            m.Checked = cfg.HideGroups.Contains(ur.computergroupid);
-
-                            // Add event handler for when the menu item is clicked
-                            m.Click += mnuHideGroupItem_Click;
-
-                            HideGroupMenuItems.Add(m);
-                        }
-
-                        // Add columns to grdUnapproved
-                        grdUnapproved.Columns.AddRange(GroupColumns.ToArray());
-
-                        // Add menu items
-                        mnuHideGroups.DropDownItems.Clear();
-                        mnuHideGroups.DropDownItems.AddRange(HideGroupMenuItems.ToArray());
-                    }
-
-                    // Loop through all rows and mark them as not updated
-                    foreach (DataGridViewRow r in grdUnapproved.Rows)
-                        r.Tag = "N";
-
-                    DateTime lastbreath = DateTime.Now;
-
-                    // Loop through each unapproved update and update the datagrid accordingly
-                    foreach (clsWSUS.UnapprovedUpdate uu in uuc)
-                    {
-                        // Have we taken a breath recently to allow other things to happen?
-                        if (DateTime.Now.Subtract(lastbreath).TotalMilliseconds > 100)
-                        {
-                            // Nope - take a breather.
-                            Application.DoEvents();
-                            lastbreath = DateTime.Now;
-                        }
-
-                        // Is this update approvable for any PC in any group?
-                        if (uu.PCsRequiringUpdate > 0)
-                        {
-                            // Try to find an existing row, adding one if it's not found
-                            DataGridViewRow r = FindUnapprovedUpdateRow(uu.UpdateID);
-
-                            // Update the row
-                            r.Cells[uaID.Index].Value = uu.UpdateID;
-                            r.Cells[uaUpdateName.Index].Value = uu.Title;
-                            r.Cells[uaDescription.Index].Value = uu.Description;
-                            r.Cells[uaKB.Index].Value = uu.KBArticle;
-                            r.Cells[uaSortOrder.Index].Value = uu.SortIndex;
-
-                            // Tag the row as updated
-                            r.Tag = "Y";
-
-                            // Loop through each group, adding details
-                            foreach (clsWSUS.PerGroupInformation gi in uu.Groups)
-                            {
-                                // Try to locate a cell
-                                DataGridViewCell c = null;
-
-                                // Loop through each cell, looking for the right column
-                                for (int i = uaSortOrder.Index + 1; i < grdUnapproved.Columns.Count; i++)
-                                {
-                                    if (grdUnapproved.Columns[i].HeaderText == gi.GroupRule.shortname)
-                                    {
-                                        // Got it - note it and break
-                                        c = r.Cells[i];
-                                        break;
-                                    }
-                                }
-
-                                if (c == null)
-                                {
-                                    // Couldn't find cell - print some debugging information
-                                    DebugOutput("Couldn't find DataGridViewCell for group {0} ({1})", gi.GroupRule.shortname, "uag" + gi.GroupRule.shortname.Replace(' ', '_'));
-                                    break;
-                                }
-
-                                // Has the update been approved?
-                                if (gi.Approved.HasValue)
-                                {
-                                    // Yes - cell value should be "Approved".  Tooltip should show when update was approved.
-                                    c.Value = "Approved";
-                                    c.ToolTipText = string.Format("Approved {0}", gi.Approved.Value.ToLocalTime().ToString("ddd dMMMyy h:mm:sstt"));
-                                }
-                                else
-                                {
-                                    // Is the update approvable?
-                                    if (gi.UpdateApprovableNow)
-                                    {
-                                        // Yes, show the number of PCs requiring the update.  No tooltip required.
-                                        c.Value = gi.PCs.ToString();
-                                        c.ToolTipText = "";
-                                    }
-                                    else
-                                    {
-                                        // Will the update be approvable in the future?
-                                        if (gi.Approvable.HasValue)
-                                        {
-                                            // Yes.  Cell can be blank, tooltip should indicate when the update will be installable.
-                                            c.Value = "Waiting";
-                                            c.ToolTipText = string.Format("Update will be approvable on {0}", gi.Approvable.Value.ToLocalTime().ToString("ddd dMMMyy h:mm:sstt"));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Loop through all rows, removing any that hasn't been updated
-                    for (int i = 0; i < grdUnapproved.Rows.Count; )
-                    {
-                        // Has this row been updated?
-                        if (grdUnapproved.Rows[i].Tag.ToString() == "N")
-                            // No - delete it.
-                            grdUnapproved.Rows.RemoveAt(i);
-                        else
-                            // Yes, look at the next row
-                            i++;
-                    }
-
-                    // Sort datagrid
-                    uaSortOrder.SortMode = DataGridViewColumnSortMode.Automatic;
-                    grdUnapproved.Sort(uaSortOrder, ListSortDirection.Ascending);
-
-                    // Ensure UpdateName column isn't too wide (a maximum of a quarter of the window's width)
-                    grdUnapproved.Columns[uaUpdateName.Index].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                    Application.DoEvents();
-
-                    if (grdUnapproved.Columns[uaUpdateName.Index].Width > (this.Width / 4))
-                    {
-                        grdUnapproved.Columns[uaUpdateName.Index].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                        grdUnapproved.Columns[uaUpdateName.Index].Width = this.Width / 4;
-                    }
-
-                    // Show total number of updates
-                    lblUpdatesToApprove.Text = grdUnapproved.Rows.Count.ToString() + " update(s)";
-
-                    // Since this timer is active, ticks should occur every 15 seconds...
-                    timUpdateData.Interval = 15000;
-
-                    // Re-enabling drawing of datagrid and note time of datagrid update
-                    ResumeDrawing(grdUnapproved);
-                    lastupdaterun = DateTime.Now;
+                    // Rederaw datagrid.
+                    FillUpdateDataGrid();
                 }
             }
+        }
+
+        private void FillUpdateDataGrid()
+        {
+            // Return immediately if we don't have a valid list of updates or if it's currently updating
+            if (CurrentUnapprovedUpdates == null || CurrentUnapprovedUpdates.IsUpdating()) return;
+
+            // Don't redraw the datagrid until we've finished updating it
+            SuspendDrawing(grdUnapproved);
+
+            // Have we ever created columns, or have rule collections changed since we last updated?
+            bool groupschanged = false;
+
+            if (GroupColumns.Count != CurrentUnapprovedUpdates.Groups.Count)
+                // No group columns have been added, or the number of columns added differs to the number of groups
+                groupschanged = true;
+            else
+            {
+                // Loop through all groups and ensure that the columns match
+                for (int i = 0; i < CurrentUnapprovedUpdates.Groups.Count; i++)
+                {
+                    if (!cfg.HideGroups.Contains(CurrentUnapprovedUpdates.Groups[i].computergroupid))
+                    {
+                        // Only consider the group if it's not hidden
+
+                        if (CurrentUnapprovedUpdates.Groups[i].shortname != grdUnapproved.Columns[uaSortOrder.Index + i + 1].HeaderText)
+                        {
+                            // Header does not match
+                            groupschanged = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (groupschanged)
+            {
+                // Remove old columns, but only if they've already been added
+                GroupColumns.Clear();
+                HideGroupMenuItems.Clear();
+
+                if (grdUnapproved.Columns.Count > uaSortOrder.Index)
+                {
+                    for (int i = uaSortOrder.Index + 1; i < grdUnapproved.Columns.Count; )
+                        // Remove the column
+                        grdUnapproved.Columns.RemoveAt(i);
+                }
+
+                // Add new columns
+                foreach (clsConfig.GroupUpdateRule ur in CurrentUnapprovedUpdates.Groups)
+                {
+                    // Add column if it's not excluded
+                    if (!cfg.HideGroups.Contains(ur.computergroupid))
+                    {
+                        DataGridViewColumn c = new DataGridViewTextBoxColumn();
+                        c.Name = "uag" + ur.shortname.Replace(' ', '_');
+                        c.HeaderText = ur.shortname;
+
+                        // Format the column appropriately
+                        c.Width = 55;
+                        c.Resizable = DataGridViewTriState.False;
+                        c.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+                        // Store the computer group object in the header - handy for when approving or unapproving updates
+                        c.Tag = ur.computergroup;
+
+                        GroupColumns.Add(c);
+                    }
+                }
+
+                foreach (clsConfig.GroupUpdateRule ur in cfg.GroupUpdateRules)
+                {
+                    // Construct menu items
+                    ToolStripMenuItem m = new ToolStripMenuItem();
+                    m.Text = ur.computergroup.Name;
+                    m.Tag = ur.computergroupid;
+                    m.DisplayStyle = ToolStripItemDisplayStyle.Text;
+
+                    // Item should be ticked (i.e. hidden) if it's in the list of computer groups
+                    m.Checked = cfg.HideGroups.Contains(ur.computergroupid);
+
+                    // Add event handler for when the menu item is clicked
+                    m.Click += mnuHideGroupItem_Click;
+
+                    HideGroupMenuItems.Add(m);
+                }
+
+                // Add columns to grdUnapproved
+                grdUnapproved.Columns.AddRange(GroupColumns.ToArray());
+
+                // Add menu items
+                mnuHideGroups.DropDownItems.Clear();
+                mnuHideGroups.DropDownItems.AddRange(HideGroupMenuItems.ToArray());
+            }
+
+            // Loop through all rows and mark them as not updated
+            foreach (DataGridViewRow r in grdUnapproved.Rows)
+                r.Tag = "N";
+
+            DateTime lastbreath = DateTime.Now;
+
+            // Loop through each unapproved update and update the datagrid accordingly
+            foreach (clsWSUS.UnapprovedUpdate uu in CurrentUnapprovedUpdates)
+            {
+                // Have we taken a breath recently to allow other things to happen?
+                if (DateTime.Now.Subtract(lastbreath).TotalMilliseconds > 100)
+                {
+                    // Nope - take a breather.
+                    Application.DoEvents();
+                    lastbreath = DateTime.Now;
+                }
+
+                // Does this update meet the filter requirements set?
+                bool filtered = true;
+
+                if (txtFilterName.Text != "" && uu.Title.IndexOf(txtFilterName.Text, StringComparison.OrdinalIgnoreCase) > -1) filtered = false;
+                if (txtFilterDescription.Text != "" && uu.Description.IndexOf(txtFilterDescription.Text, StringComparison.OrdinalIgnoreCase) > -1) filtered = false;
+                if (txtFilterArticle.Text != "" && uu.KBArticle.IndexOf(txtFilterArticle.Text, StringComparison.OrdinalIgnoreCase) > -1) filtered = false;
+
+                // If no filters are set, everything should be displayed
+                if (txtFilterName.Text == "" && txtFilterDescription.Text == "" && txtFilterArticle.Text == "") filtered = false;
+
+                // Is this update approvable for any PC in any group?  Does it meet the filter requirements?
+                if (uu.PCsRequiringUpdate > 0 && !filtered)
+                {
+                    // Try to find an existing row, adding one if it's not found
+                    DataGridViewRow r = FindUnapprovedUpdateRow(uu.UpdateID);
+
+                    // Update the row
+                    r.Cells[uaID.Index].Value = uu.UpdateID;
+                    r.Cells[uaUpdateName.Index].Value = uu.Title;
+                    r.Cells[uaDescription.Index].Value = uu.Description;
+                    r.Cells[uaKB.Index].Value = uu.KBArticle;
+                    r.Cells[uaSortOrder.Index].Value = uu.SortIndex;
+
+                    // Tag the row as updated
+                    r.Tag = "Y";
+
+                    // Loop through each group, adding details
+                    foreach (clsWSUS.PerGroupInformation gi in uu.Groups)
+                    {
+                        // Try to locate a cell
+                        DataGridViewCell c = null;
+
+                        // Loop through each cell, looking for the right column
+                        for (int i = uaSortOrder.Index + 1; i < grdUnapproved.Columns.Count; i++)
+                        {
+                            if (grdUnapproved.Columns[i].HeaderText == gi.GroupRule.shortname)
+                            {
+                                // Got it - note it and break
+                                c = r.Cells[i];
+                                break;
+                            }
+                        }
+
+                        if (c == null)
+                        {
+                            // Couldn't find cell - print some debugging information
+                            DebugOutput("Couldn't find DataGridViewCell for group {0} ({1})", gi.GroupRule.shortname, "uag" + gi.GroupRule.shortname.Replace(' ', '_'));
+                            break;
+                        }
+
+                        // Has the update been approved?
+                        if (gi.Approved.HasValue)
+                        {
+                            // Yes - cell value should be "Approved".  Tooltip should show when update was approved.
+                            c.Value = "Approved";
+                            c.ToolTipText = string.Format("Approved {0}", gi.Approved.Value.ToLocalTime().ToString("ddd dMMMyy h:mm:sstt"));
+                        }
+                        else
+                        {
+                            // Is the update approvable?
+                            if (gi.UpdateApprovableNow)
+                            {
+                                // Yes, show the number of PCs requiring the update.  No tooltip required.
+                                c.Value = gi.PCs.ToString();
+                                c.ToolTipText = "";
+                            }
+                            else
+                            {
+                                // Will the update be approvable in the future?
+                                if (gi.Approvable.HasValue)
+                                {
+                                    // Yes.  Cell can be blank, tooltip should indicate when the update will be installable.
+                                    c.Value = "Waiting";
+                                    c.ToolTipText = string.Format("Update will be approvable on {0}", gi.Approvable.Value.ToLocalTime().ToString("ddd dMMMyy h:mm:sstt"));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Loop through all rows, removing any that hasn't been updated
+            for (int i = 0; i < grdUnapproved.Rows.Count; )
+            {
+                // Has this row been updated?
+                if (grdUnapproved.Rows[i].Tag.ToString() == "N")
+                    // No - delete it.
+                    grdUnapproved.Rows.RemoveAt(i);
+                else
+                    // Yes, look at the next row
+                    i++;
+            }
+
+            // Sort datagrid
+            uaSortOrder.SortMode = DataGridViewColumnSortMode.Automatic;
+            grdUnapproved.Sort(uaSortOrder, ListSortDirection.Ascending);
+
+            // Ensure UpdateName column isn't too wide (a maximum of a quarter of the window's width)
+            grdUnapproved.Columns[uaUpdateName.Index].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            Application.DoEvents();
+
+            if (grdUnapproved.Columns[uaUpdateName.Index].Width > (this.Width / 4))
+            {
+                grdUnapproved.Columns[uaUpdateName.Index].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                grdUnapproved.Columns[uaUpdateName.Index].Width = this.Width / 4;
+            }
+
+            // Show total number of updates
+            lblUpdatesToApprove.Text = grdUnapproved.Rows.Count.ToString() + " update(s)";
+
+            // Since this timer is active, ticks should occur every 15 seconds...
+            timUpdateData.Interval = 15000;
+
+            // Re-enabling drawing of datagrid and note time of datagrid update
+            ResumeDrawing(grdUnapproved);
+            lastupdaterun = DateTime.Now;
         }
 
         void mnuHideGroupItem_Click(object sender, EventArgs e)
@@ -1761,6 +1782,33 @@ namespace WSUSAdminAssistant
             }
 
             lvwStatus.Columns[1].Width = -1;
+        }
+
+        private void TriggerRefreshTimer()
+        {
+            // Only enable the timer if we're not reloading the list of updates
+            if (true)
+            {
+                timRefreshGrid.Enabled = true;
+                timRefreshGrid.Interval = 1000;
+            }
+        }
+            
+        private void txtFilterName_TextChanged(object sender, EventArgs e)
+        {
+            TriggerRefreshTimer();
+        }
+
+        private void txtFilterDescription_TextChanged(object sender, EventArgs e)
+        {
+            TriggerRefreshTimer();
+        }
+
+        private void timRefreshGrid_Tick(object sender, EventArgs e)
+        {
+            timRefreshGrid.Enabled = false;
+
+            FillUpdateDataGrid();
         }
     }
 }
