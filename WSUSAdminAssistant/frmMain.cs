@@ -630,16 +630,30 @@ namespace WSUSAdminAssistant
         private void EndpointUpdateDuplicateIPs()
         {
             //  Get a complete list of computers
-            ComputerTargetCollection cc = wsus.server.GetComputerTargets();
+            ComputerTargetScope cs = new ComputerTargetScope();
+            cs.IncludeDownstreamComputerTargets = true;
 
+            ComputerTargetCollection cc = wsus.server.GetComputerTargets(cs);
+
+            // Assemble a dictionary for comparison
+            Dictionary<String, String> ca = new Dictionary<String, String>();
+
+            foreach (IComputerTarget c in cc)
+            {
+                ca.Add(c.Id.ToString(), c.IPAddress.ToString());
+            }
+ 
             // Loop through all computers
             foreach (IComputerTarget c in cc)
             {
+                string cn = c.Id.ToString();
+                string ip = c.IPAddress.ToString();
+
                 // See if we can find one with a duplicate IP address
-                foreach (IComputerTarget dc in cc)
+                foreach (KeyValuePair<string,string> e in ca)
                 {
                     // Do we have a different computer to the current one and does it have a duplicate IP address
-                    if (c.Id != dc.Id && c.IPAddress == dc.IPAddress)
+                    if (cn != e.Key && ip == e.Value)
                     {
                         // Yep, it's a duplicate.
                         epRowData r = new epRowData("Duplicate IP address", c);
