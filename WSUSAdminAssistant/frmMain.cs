@@ -893,7 +893,7 @@ namespace WSUSAdminAssistant
                                 r.ipAddress = d["ipaddress"];
                                 r.ComputerGroup = rx.ComputerGroup;
                                 r.ExtraInfo = "Currently in " + d["groupname"].ToString();
-                                r.SetUpstreamServerByGuid((Guid)d["parentserverid"], cfg.wsus.server);
+                                r.SetUpstreamServerByGuid(d["parentserverid"], cfg.wsus.server);
 
                                 AddUpdateEndpointGrid(r);
                             }

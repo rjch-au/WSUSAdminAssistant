@@ -74,9 +74,11 @@ namespace WSUSAdminAssistant
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            // Remove selected item
-            if (lstGUIDs.SelectedItem != null)
-                lstGUIDs.Items.Remove(lstGUIDs.SelectedItem);
+            // Remove selected items
+            for (int i = lstGUIDs.SelectedIndices.Count - 1; i >= 0; i--)
+            {
+                lstGUIDs.Items.RemoveAt(lstGUIDs.SelectedIndices[i]);
+            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

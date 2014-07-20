@@ -54,8 +54,8 @@
             this.txtSusID.Name = "txtSusID";
             this.txtSusID.Size = new System.Drawing.Size(217, 20);
             this.txtSusID.TabIndex = 1;
-            this.txtSusID.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtSusID_KeyPress);
             this.txtSusID.TextChanged += new System.EventHandler(this.txtSusID_TextChanged);
+            this.txtSusID.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtSusID_KeyPress);
             // 
             // btnAdd
             // 
@@ -74,6 +74,7 @@
             this.lstGUIDs.FormattingEnabled = true;
             this.lstGUIDs.Location = new System.Drawing.Point(15, 58);
             this.lstGUIDs.Name = "lstGUIDs";
+            this.lstGUIDs.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.lstGUIDs.Size = new System.Drawing.Size(360, 95);
             this.lstGUIDs.Sorted = true;
             this.lstGUIDs.TabIndex = 3;
